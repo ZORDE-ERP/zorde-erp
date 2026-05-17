@@ -1,0 +1,16 @@
+{
+    "$schema": "https://spartan.ng/schema.json",
+    "style": "default",
+    "tailwind": {
+        "config": "tailwind.config.ts",
+        "css": "src/styles.css",
+        "baseColor": "slate",
+        "cssVars": true
+    },
+    "aliases": {
+        "components": "./src/app/shared/ui",
+        "ui": "./src/app/shared/ui"
+    },
+    "componentsPath": "./src/app/shared/ui",
+    "importAlias": "src/app/shared/ui"
+}

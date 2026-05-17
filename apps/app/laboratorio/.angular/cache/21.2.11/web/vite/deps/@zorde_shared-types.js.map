@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../packages/shared-types/dist/api.types.js"],
+  "sourcesContent": ["export var TipoServico;\n(function (TipoServico) {\n    TipoServico[\"MontagemSimples\"] = \"MONTAGEM SIMPLES\";\n    TipoServico[\"Parafuso\"] = \"PARAFUSO\";\n    TipoServico[\"Transposicao\"] = \"TRANSPOSICAO\";\n    TipoServico[\"Coloracao\"] = \"COLORACAO\";\n    TipoServico[\"SomenteEncaixar\"] = \"SOMENTE ENCAIXAR\";\n})(TipoServico || (TipoServico = {}));\n"],
+  "mappings": ";;;AAAO,IAAI;AAAA,CACV,SAAUA,cAAa;AACpB,EAAAA,aAAY,iBAAiB,IAAI;AACjC,EAAAA,aAAY,UAAU,IAAI;AAC1B,EAAAA,aAAY,cAAc,IAAI;AAC9B,EAAAA,aAAY,WAAW,IAAI;AAC3B,EAAAA,aAAY,iBAAiB,IAAI;AACrC,GAAG,gBAAgB,cAAc,CAAC,EAAE;",
+  "names": ["TipoServico"]
+}

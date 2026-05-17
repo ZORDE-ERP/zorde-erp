@@ -1,0 +1,140 @@
+<div class="grid grid-cols-12">
+  <div class="col-span-12">
+    <hlm-dialog-header>
+      <h3 hlmDialogTitle>Fornecedor</h3>
+      <p hlmDialogDescription>Preencha os dados do fornecedor abaixo.</p>
+    </hlm-dialog-header>
+  </div>
+</div>
+
+<form
+  [formGroup]="form"
+  class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4"
+  id="supplierForm"
+  (ngSubmit)="onSave()"
+>
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="name">Nome / Razão Social *</label>
+    <input
+      hlmInput
+      id="name"
+      formControlName="name"
+      (focus)="markControlAsInteracted('name')"
+      placeholder="Ex: Indústria Ótica Ltda"
+      class="w-full"
+    />
+    @if (shouldShowError('name')) {
+      <span class="text-xs text-red-500">Nome / Razão Social é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel>Tipo de Fornecedor *</label>
+    <hlm-select formControlName="type" placeholder="Selecione um tipo">
+      <hlm-select-trigger (focus)="markControlAsInteracted('type')">
+        <hlm-select-value />
+      </hlm-select-trigger>
+      <hlm-select-content *hlmSelectPortal>
+        <hlm-select-item value="FISICA">Pessoa Física</hlm-select-item>
+        <hlm-select-item value="JURIDICA">Pessoa Jurídica</hlm-select-item>
+      </hlm-select-content>
+    </hlm-select>
+    @if (shouldShowError('type')) {
+      <span class="text-xs text-red-500">Tipo de fornecedor é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="document">Documento (CPF/CNPJ) *</label>
+    <input
+      hlmInput
+      id="document"
+      formControlName="document"
+      (focus)="markControlAsInteracted('document')"
+      placeholder="Apenas números..."
+      class="w-full"
+    />
+    @if (shouldShowError('document')) {
+      <span class="text-xs text-red-500">Documento é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel>Status *</label>
+    <hlm-select formControlName="status" placeholder="Selecione o status">
+      <hlm-select-trigger (focus)="markControlAsInteracted('status')">
+        {{ statusLabels[form.controls.status.value ?? 'ACTIVE'] }}
+      </hlm-select-trigger>
+      <hlm-select-content *hlmSelectPortal>
+        <hlm-select-item value="ACTIVE">Ativo</hlm-select-item>
+        <hlm-select-item value="INACTIVE">Inativo</hlm-select-item>
+      </hlm-select-content>
+    </hlm-select>
+    @if (shouldShowError('status')) {
+      <span class="text-xs text-red-500">Status é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="email">E-mail *</label>
+    <input
+      hlmInput
+      id="email"
+      formControlName="email"
+      (focus)="markControlAsInteracted('email')"
+      type="email"
+      placeholder="email@fornecedor.com"
+      class="w-full"
+    />
+    @if (shouldShowError('email')) {
+      <span class="text-xs text-red-500">
+        {{ form.controls.email.hasError('required') ? 'E-mail é obrigatório.' : 'E-mail inválido.' }}
+      </span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="contact">Telefone *</label>
+    <input
+      hlmInput
+      id="contact"
+      formControlName="contact"
+      (focus)="markControlAsInteracted('contact')"
+      placeholder="(00) 00000-0000"
+      class="w-full"
+    />
+    @if (shouldShowError('contact')) {
+      <span class="text-xs text-red-500">Telefone é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-4">
+    <label hlmLabel for="street">Endereço Completo</label>
+    <input hlmInput id="street" formControlName="street" placeholder="Rua / Avenida" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-2">
+    <label hlmLabel for="number">Número</label>
+    <input hlmInput id="number" formControlName="number" placeholder="Número" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="neighborhood">Bairro</label>
+    <input hlmInput id="neighborhood" formControlName="neighborhood" placeholder="Bairro" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="city">Cidade</label>
+    <input hlmInput id="city" formControlName="city" placeholder="Cidade" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="state">Estado</label>
+    <input hlmInput id="state" formControlName="state" placeholder="UF" class="w-full" />
+  </div>
+</form>
+
+<hlm-dialog-footer>
+  <button hlmBtn variant="outline" type="button" (click)="onCancel()">Cancelar</button>
+  <button hlmBtn type="submit" form="supplierForm">Salvar</button>
+</hlm-dialog-footer>

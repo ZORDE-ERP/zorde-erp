@@ -1,0 +1,62 @@
+<app-filter-card
+  [isExpanded]="isExpanded()"
+  (filterCleared)="onClear()"
+  (toggleExpanded)="onToggle()">
+
+  <form [formGroup]="form" (ngSubmit)="onSearch()" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Código -->
+    <div class="space-y-2">
+      <label hlmLabel for="code">Código</label>
+      <input hlmInput id="code" formControlName="code" placeholder="Ex: OS-1000" />
+    </div>
+
+    <!-- Cliente -->
+    <div class="space-y-2">
+      <label hlmLabel>Cliente</label>
+      <hlm-select formControlName="clientId" placeholder="Selecione um cliente">
+        <hlm-select-trigger>
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-item value="">Todos</hlm-select-item>
+          @for (client of clients(); track client.id) {
+            <hlm-select-item [value]="client.id">{{ client.name }}</hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <!-- Tipo de Serviço -->
+    <div class="space-y-2">
+      <label hlmLabel>Tipo de Serviço</label>
+      <hlm-select formControlName="serviceType" placeholder="Selecione o serviço">
+        <hlm-select-trigger>
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-item value="">Todos</hlm-select-item>
+          @for (type of serviceTypes; track type) {
+            <hlm-select-item [value]="type">{{ serviceTypeLabels[type] }}</hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <!-- Período Inicial -->
+    <div class="space-y-2">
+      <label hlmLabel for="startDate">Período Inicial</label>
+      <input hlmInput id="startDate" type="date" formControlName="startDate" />
+    </div>
+
+    <!-- Período Final -->
+    <div class="space-y-2">
+      <label hlmLabel for="endDate">Período Final</label>
+      <input hlmInput id="endDate" type="date" formControlName="endDate" />
+    </div>
+
+    <div class="col-span-1 md:col-span-3 flex justify-end">
+      <button hlmBtn type="submit">Buscar Ordens</button>
+    </div>
+  </form>
+
+</app-filter-card>

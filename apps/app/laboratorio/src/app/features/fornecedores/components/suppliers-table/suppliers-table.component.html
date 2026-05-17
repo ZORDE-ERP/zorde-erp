@@ -1,0 +1,102 @@
+<div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+  <table hlmTable class="w-full">
+    <thead>
+      <tr hlmTr>
+        <th hlmTh class="w-1/4">Nome / Razão Social</th>
+        <th hlmTh class="w-1/5">Documento</th>
+        <th hlmTh class="w-1/5">Contato</th>
+        <th hlmTh class="w-1/6">Status</th>
+        <th hlmTh class="w-[80px]">Ações</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (supplier of suppliers(); track supplier.id) {
+        <tr hlmTr>
+          <td hlmTd class="font-medium">
+            <div class="flex flex-col">
+              <span>{{ supplier.name }}</span>
+              <span class="text-xs text-zinc-500">{{ supplier.email }}</span>
+            </div>
+          </td>
+          <td hlmTd>{{ adapter.formatDocument(supplier.document, supplier.type) }}</td>
+          <td hlmTd>{{ adapter.formatContact(supplier.contact) }}</td>
+          <td hlmTd>
+            <span hlmBadge [variant]="supplier.status === 'ACTIVE' ? 'default' : 'secondary'" class="text-xs">
+              {{ adapter.getStatusLabel(supplier.status) }}
+            </span>
+          </td>
+          <td hlmTd>
+            <button
+              hlmBtn
+              size="icon"
+              variant="ghost"
+              [hlmDropdownMenuTrigger]="menu"
+            >
+              <ng-icon name="lucideMoreHorizontal" hlm size="16px" />
+            </button>
+
+            <ng-template #menu>
+              <div hlmDropdownMenu>
+                <button hlmDropdownMenuItem (click)="onEdit(supplier)">
+                  <ng-icon name="lucidePencil" hlm size="16px" class="mr-2" />
+                  <span>Editar</span>
+                </button>
+
+                @if (supplier.status === 'ACTIVE') {
+                  <button hlmDropdownMenuItem (click)="onToggleStatus(supplier.id)">
+                    <ng-icon name="lucidePowerOff" hlm size="16px" class="mr-2" />
+                    <span>Inativar</span>
+                  </button>
+                } @else {
+                  <button hlmDropdownMenuItem (click)="onToggleStatus(supplier.id)">
+                    <ng-icon name="lucidePower" hlm size="16px" class="mr-2" />
+                    <span>Ativar</span>
+                  </button>
+                }
+
+                <div hlmDropdownMenuSeparator></div>
+
+                <button hlmDropdownMenuItem (click)="onDelete(supplier.id)" class="text-red-600 focus:text-red-700">
+                  <ng-icon name="lucideTrash" hlm size="16px" class="mr-2" />
+                  <span>Excluir</span>
+                </button>
+              </div>
+            </ng-template>
+          </td>
+        </tr>
+      } @empty {
+        <tr hlmTr>
+          <td hlmTd colspan="5" class="text-center py-8 text-zinc-500">
+            Nenhum fornecedor encontrado.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Paginação -->
+  <div class="flex items-center justify-between p-4 border-t border-zinc-200 dark:border-zinc-800">
+    <span class="text-sm text-zinc-500">
+      Mostrando página {{ pagination().currentPage }} de {{ totalPages }}
+      ({{ pagination().totalItems }} registros totais)
+    </span>
+
+    <nav hlmPagination>
+      <ul hlmPaginationContent>
+        <li hlmPaginationItem>
+          @if (pagination().currentPage > 1) {
+            <hlm-pagination-previous (click)="onPageChange(pagination().currentPage - 1)" class="cursor-pointer">
+            </hlm-pagination-previous>
+          }
+        </li>
+        <li hlmPaginationItem>
+          @if (pagination().currentPage < totalPages) {
+            <hlm-pagination-next (click)="onPageChange(pagination().currentPage + 1)" class="cursor-pointer">
+            </hlm-pagination-next>
+          }
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

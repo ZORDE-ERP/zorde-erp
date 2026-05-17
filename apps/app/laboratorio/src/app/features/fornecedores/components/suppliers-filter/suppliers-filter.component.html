@@ -1,0 +1,45 @@
+<app-filter-card
+  [isExpanded]="isExpanded()"
+  (filterCleared)="onClear()"
+  (toggleExpanded)="onToggle()">
+
+  <form [formGroup]="form" (ngSubmit)="onSearch()" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <!-- Nome -->
+    <div class="space-y-2">
+      <label hlmLabel for="name">Nome</label>
+      <input hlmInput id="name" formControlName="name" placeholder="Ex: Fornecedor Ltda..." />
+    </div>
+
+    <!-- Documento -->
+    <div class="space-y-2">
+      <label hlmLabel for="document">Documento (CPF/CNPJ)</label>
+      <input hlmInput id="document" formControlName="document" placeholder="Apenas números..." />
+    </div>
+
+    <!-- Estado (UF) -->
+    <div class="space-y-2">
+      <label hlmLabel for="state">UF</label>
+      <input hlmInput id="state" formControlName="state" placeholder="Ex: SP, RJ..." />
+    </div>
+
+    <!-- Status -->
+    <div class="space-y-2">
+      <label hlmLabel>Status</label>
+      <hlm-select formControlName="status" placeholder="Selecione o status">
+        <hlm-select-trigger>
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-item value="">Todos</hlm-select-item>
+          <hlm-select-item value="ACTIVE">Ativo</hlm-select-item>
+          <hlm-select-item value="INACTIVE">Inativo</hlm-select-item>
+        </hlm-select-content>
+      </hlm-select>
+    </div>
+
+    <div class="col-span-1 md:col-span-4 flex justify-end">
+      <button hlmBtn type="submit">Buscar Fornecedores</button>
+    </div>
+  </form>
+
+</app-filter-card>

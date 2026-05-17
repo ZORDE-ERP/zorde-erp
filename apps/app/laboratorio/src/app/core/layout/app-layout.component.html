@@ -1,0 +1,15 @@
+<div hlmSidebarWrapper [sidebarWidth]="'18rem'">
+  <!-- Sidebar lateral -->
+  <app-sidebar />
+
+  <!-- Área principal -->
+  <main hlmSidebarInset class="overflow-hidden">
+    <!-- Navbar superior -->
+    <app-navbar />
+
+    <!-- Conteúdo roteado -->
+    <div class="flex flex-1 flex-col gap-4 p-4 overflow-auto">
+      <router-outlet />
+    </div>
+  </main>
+</div>

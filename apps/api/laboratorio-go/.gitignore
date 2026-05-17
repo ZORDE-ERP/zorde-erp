@@ -1,0 +1,13 @@
+# Variáveis de ambiente — nunca subir para o repositório
+.env
+.env.local
+.env.*.local
+
+# Subdiretórios também
+cmd/server/.env
+cmd/server/.env.local
+
+# Binários gerados
+tmp/
+bin/
+*.exe

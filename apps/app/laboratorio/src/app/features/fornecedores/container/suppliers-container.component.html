@@ -1,0 +1,32 @@
+<div class="flex flex-col space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Fornecedores</h1>
+      <p class="text-zinc-500 dark:text-zinc-400">Gerencie os fornecedores de insumos do laboratório ótico.</p>
+    </div>
+
+    <button hlmBtn (click)="onCreate()">
+      <ng-icon name="lucidePlus" hlm size="16px" class="mr-2" />
+      Adicionar
+    </button>
+  </div>
+
+  <app-summary-cards [items]="(summaryItems$ | async) ?? []"></app-summary-cards>
+
+  <app-suppliers-filter
+    [isExpanded]="(facade.state.filterExpanded$ | async) ?? false"
+    (filterChanged)="onFilterChanged($event)"
+    (filterCleared)="onFilterCleared()"
+    (toggleExpanded)="onToggleFilter()"
+  ></app-suppliers-filter>
+
+  <app-suppliers-table
+    [suppliers]="(facade.state.suppliers$ | async) ?? []"
+    [pagination]="(facade.state.pagination$ | async) ?? {currentPage: 1, pageSize: 10, totalItems: 0}"
+    (edit)="onEdit($event)"
+    (delete)="onDelete($event)"
+    (toggleStatus)="onToggleStatus($event)"
+    (pageChanged)="onPageChange($event)"
+    (pageSizeChanged)="onPageSizeChange($event)"
+  ></app-suppliers-table>
+</div>

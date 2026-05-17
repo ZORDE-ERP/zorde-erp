@@ -1,0 +1,84 @@
+<div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+  <table hlmTable class="w-full">
+    <thead>
+      <tr hlmTr>
+        <th hlmTh class="w-1/4">Nome / Razão Social</th>
+        <th hlmTh class="w-1/5">Documento</th>
+        <th hlmTh class="w-1/5">Contato</th>
+        <th hlmTh class="w-1/6">Status</th>
+        <th hlmTh class="w-[80px]">Ações</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (client of clients(); track client.id) {
+        <tr hlmTr>
+          <td hlmTd class="font-medium">
+            <div class="flex flex-col">
+              <span>{{ client.name }}</span>
+              <span class="text-xs text-zinc-500">{{ client.email }}</span>
+            </div>
+          </td>
+          <td hlmTd>{{ adapter.formatDocument(client.document, client.type) }}</td>
+          <td hlmTd>{{ adapter.formatContact(client.contact) }}</td>
+          <td hlmTd>
+            <span hlmBadge [variant]="client.status === 'ACTIVE' ? 'default' : 'secondary'" class="text-xs">
+              {{ adapter.getStatusLabel(client.status) }}
+            </span>
+          </td>
+          <td hlmTd>
+            <button
+              hlmBtn
+              size="icon"
+              variant="ghost"
+              [hlmDropdownMenuTrigger]="menu"
+            >
+              <ng-icon name="lucideMoreHorizontal" hlm size="16px" />
+            </button>
+
+            <ng-template #menu>
+              <div hlmDropdownMenu>
+                <button hlmDropdownMenuItem (click)="onEdit(client)">
+                  <ng-icon name="lucidePencil" hlm size="16px" class="mr-2" />
+                  <span>Editar</span>
+                </button>
+
+                @if (client.status === 'ACTIVE') {
+                  <button hlmDropdownMenuItem (click)="onToggleStatus(client.id)">
+                    <ng-icon name="lucidePowerOff" hlm size="16px" class="mr-2" />
+                    <span>Inativar</span>
+                  </button>
+                } @else {
+                  <button hlmDropdownMenuItem (click)="onToggleStatus(client.id)">
+                    <ng-icon name="lucidePower" hlm size="16px" class="mr-2" />
+                    <span>Ativar</span>
+                  </button>
+                }
+
+                <div hlmDropdownMenuSeparator></div>
+
+                <button hlmDropdownMenuItem (click)="onDelete(client.id)" class="text-red-600 focus:text-red-700">
+                  <ng-icon name="lucideTrash" hlm size="16px" class="mr-2" />
+                  <span>Excluir</span>
+                </button>
+              </div>
+            </ng-template>
+          </td>
+        </tr>
+      } @empty {
+        <tr hlmTr>
+          <td hlmTd colspan="5" class="text-center py-8 text-zinc-500">
+            Nenhum cliente encontrado.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Paginação -->
+  <hlm-numbered-pagination
+    [(currentPage)]="_currentPage"
+    [(itemsPerPage)]="_pageSize"
+    [totalItems]="pagination().totalItems"
+  />
+</div>

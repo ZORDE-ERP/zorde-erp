@@ -1,0 +1,75 @@
+<div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+  <!-- Card header: title + controls -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div>
+      <h2 class="text-lg font-semibold text-card-foreground">Faturamento por Cliente</h2>
+      <p class="text-sm text-muted-foreground">Visualização {{ billingPeriod() === 'monthly' ? 'mensal' : 'quinzenal' }}</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <!-- Client selector -->
+      <div class="min-w-50">
+        <hlm-select
+          [value]="selectedClientId() ?? ''"
+          (valueChange)="onClientChange($event)"
+          placeholder="Selecionar cliente"
+        >
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content *hlmSelectPortal>
+            <hlm-select-item value="">Todos os clientes</hlm-select-item>
+            @for (client of clients(); track client.id) {
+              <hlm-select-item [value]="client.id">{{ client.name }}</hlm-select-item>
+            }
+          </hlm-select-content>
+        </hlm-select>
+      </div>
+
+      <!-- Period toggle: Mensal / Quinzenal -->
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-muted-foreground">Mensal</span>
+        <hlm-switch
+          [checked]="isBiweekly"
+          (checkedChange)="onPeriodToggle($event)"
+          aria-label="Alternar período quinzenal/mensal"
+        />
+        <span class="text-sm text-muted-foreground">Quinzenal</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart area -->
+  <div class="relative min-h-70">
+    <!-- Loading skeleton -->
+    @if (isLoading()) {
+      <div class="flex flex-col gap-3">
+        <div hlmSkeleton class="h-70 w-full rounded-lg"></div>
+      </div>
+    }
+
+    <!-- No data state -->
+    @if (!isLoading() && (!chartData() || chartData()!.dataPoints.length === 0)) {
+      <div class="flex h-70 items-center justify-center rounded-lg border border-dashed border-border">
+        <p class="text-sm text-muted-foreground">Nenhum dado disponível para o período selecionado</p>
+      </div>
+    }
+
+    <!-- Chart -->
+    @if (!isLoading() && chartData() && chartData()!.dataPoints.length > 0) {
+      <apx-chart
+        [series]="chartSeries()"
+        [chart]="chart"
+        [xaxis]="xaxis()"
+        [yaxis]="yaxis"
+        [stroke]="stroke"
+        [fill]="fill"
+        [dataLabels]="dataLabels"
+        [grid]="grid"
+        [tooltip]="tooltip"
+        [colors]="colors"
+      />
+    }
+  </div>
+</div>

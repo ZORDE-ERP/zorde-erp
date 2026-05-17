@@ -1,0 +1,28 @@
+@switch (currentStep()) {
+  @case ('email') {
+    <zorde-email-step
+      [loading]="loading()"
+      [error]="error()"
+      (submitted)="onEmailSubmitted($event)"
+      (back)="onBack('email')"
+    />
+  }
+  @case ('code') {
+    <zorde-code-step
+      [loading]="loading()"
+      [error]="error()"
+      [email]="cadastroEmail() || ''"
+      (verified)="onCodeVerified($event)"
+      (reenviar)="onReenviarCodigo()"
+      (back)="onBack('code')"
+    />
+  }
+  @case ('data') {
+    <zorde-user-data-step
+      [loading]="loading()"
+      [error]="error()"
+      (submitted)="onUserDataSubmitted($event)"
+      (back)="onBack('data')"
+    />
+  }
+}

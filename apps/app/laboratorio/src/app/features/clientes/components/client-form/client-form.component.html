@@ -1,0 +1,186 @@
+<div class="grid grid-cols-12">
+  <div class="col-span-12">
+    <hlm-dialog-header>
+      <h3 hlmDialogTitle>Cliente</h3>
+      <p hlmDialogDescription>Preencha os dados do cliente abaixo.</p>
+    </hlm-dialog-header>
+  </div>
+</div>
+
+<form
+  [formGroup]="form"
+  class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4"
+  id="clientForm"
+  (ngSubmit)="onSave()"
+>
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="name">Nome Completo *</label>
+    <input
+      hlmInput
+      id="name"
+      formControlName="name"
+      (focus)="markControlAsInteracted('name')"
+      placeholder="Ex: João da Silva"
+      class="w-full"
+    />
+    @if (shouldShowError('name')) {
+      <span class="text-xs text-red-500">Nome completo é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel>Tipo de Cliente *</label>
+    <hlm-select formControlName="type" placeholder="Selecione um tipo">
+      <hlm-select-trigger (focus)="markControlAsInteracted('type')">
+        <hlm-select-value />
+      </hlm-select-trigger>
+      <hlm-select-content *hlmSelectPortal>
+        <hlm-select-item value="FISICA">Pessoa Física</hlm-select-item>
+        <hlm-select-item value="JURIDICA">Pessoa Jurídica</hlm-select-item>
+      </hlm-select-content>
+    </hlm-select>
+    @if (shouldShowError('type')) {
+      <span class="text-xs text-red-500">Tipo de cliente é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="document">Documento (CPF/CNPJ) *</label>
+    <div class="relative">
+      <input
+        hlmInput
+        id="document"
+        formControlName="document"
+        (focus)="markControlAsInteracted('document')"
+        mask="CPF_CNPJ"
+        placeholder="000.000.000-00 ou 00.000.000/0000-00"
+        class="w-full pr-8"
+      />
+      @if (loadingDocument()) {
+        <svg class="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.384 3 6.857l3-2.647z"></path>
+        </svg>
+      }
+    </div>
+    @if (shouldShowError('document')) {
+      <span class="text-xs text-red-500">Documento é obrigatório.</span>
+    } @else if (documentStatus() === 'valid-cpf') {
+      <span class="text-xs text-green-600">CPF válido.</span>
+    } @else if (documentStatus() === 'invalid-cpf') {
+      <span class="text-xs text-red-500">CPF inválido.</span>
+    } @else if (documentStatus() === 'invalid-cnpj') {
+      <span class="text-xs text-red-500">CNPJ inválido.</span>
+    } @else if (documentStatus() === 'cnpj-found') {
+      <span class="text-xs text-green-600">CNPJ encontrado — dados preenchidos automaticamente.</span>
+    } @else if (documentStatus() === 'valid-cnpj-not-found') {
+      <span class="text-xs text-amber-500">CNPJ válido, mas não encontrado na busca automática.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel>Status *</label>
+    <hlm-select formControlName="status" placeholder="Selecione o status">
+      <hlm-select-trigger (focus)="markControlAsInteracted('status')">
+        {{ statusLabels[form.controls.status.value ?? 'ACTIVE'] }}
+      </hlm-select-trigger>
+      <hlm-select-content *hlmSelectPortal>
+        <hlm-select-item value="ACTIVE">Ativo</hlm-select-item>
+        <hlm-select-item value="INACTIVE">Inativo</hlm-select-item>
+      </hlm-select-content>
+    </hlm-select>
+    @if (shouldShowError('status')) {
+      <span class="text-xs text-red-500">Status é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="email">E-mail *</label>
+    <input
+      hlmInput
+      id="email"
+      formControlName="email"
+      (focus)="markControlAsInteracted('email')"
+      type="email"
+      placeholder="email@exemplo.com"
+      class="w-full"
+    />
+    @if (shouldShowError('email')) {
+      <span class="text-xs text-red-500">
+        {{ form.controls.email.hasError('required') ? 'E-mail é obrigatório.' : 'E-mail inválido.' }}
+      </span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="contact">Telefone *</label>
+    <input
+      hlmInput
+      id="contact"
+      formControlName="contact"
+      (focus)="markControlAsInteracted('contact')"
+      mask="(00) 00000-0000||(00) 0000-0000"
+      placeholder="(00) 00000-0000"
+      class="w-full"
+    />
+    @if (shouldShowError('contact')) {
+      <span class="text-xs text-red-500">Telefone é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-4">
+    <label hlmLabel for="zipCode">CEP</label>
+    <div class="relative">
+      <input
+        hlmInput
+        id="zipCode"
+        formControlName="zipCode"
+        mask="00000-000"
+        placeholder="00000-000"
+        class="w-full pr-8"
+      />
+      @if (loadingCep()) {
+        <svg class="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.384 3 6.857l3-2.647z"></path>
+        </svg>
+      }
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="street">Logradouro</label>
+    <input hlmInput id="street" formControlName="street" placeholder="Rua" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-2">
+    <label hlmLabel for="number">Número</label>
+    <input hlmInput id="number" formControlName="number" placeholder="Número" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="neighborhood">Bairro</label>
+    <input
+      hlmInput
+      id="neighborhood"
+      formControlName="neighborhood"
+      placeholder="Bairro"
+      class="w-full"
+    />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="city">Cidade</label>
+    <input hlmInput id="city" formControlName="city" placeholder="Cidade" class="w-full" />
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="state">Estado</label>
+    <input hlmInput id="state" formControlName="state" placeholder="UF" class="w-full" />
+  </div>
+</form>
+
+<hlm-dialog-footer>
+  <button hlmBtn variant="outline" type="button" (click)="onCancel()">Cancelar</button>
+  <button hlmBtn type="submit" form="clientForm">Salvar</button>
+</hlm-dialog-footer>

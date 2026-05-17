@@ -1,0 +1,154 @@
+<hlm-sidebar collapsible="icon">
+  <!-- Header da Sidebar -->
+  <hlm-sidebar-header>
+    <div
+      class="flex items-center gap-3 px-2 py-3 border-b border-sidebar-border group-data-[collapsible=icon]:justify-center"
+    >
+      <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary">
+        <ng-icon hlm name="lucideStethoscope" class="text-white" size="sm" />
+      </div>
+      <div class="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
+        <span class="text-sm font-semibold text-sidebar-foreground">Zorde Gestão</span>
+        <span class="text-xs text-sidebar-accent-foreground">Laboratório Ótico</span>
+      </div>
+    </div>
+  </hlm-sidebar-header>
+
+  <!-- Conteúdo -->
+  <hlm-sidebar-content class="overflow-y-auto overflow-x-hidden">
+    <!-- Grupo: Menu Principal -->
+    <div hlmSidebarGroup>
+      <div
+        hlmSidebarGroupLabel
+        class="text-sidebar-accent-foreground/70 text-xs uppercase tracking-wider"
+      >
+        Menu Principal
+      </div>
+      <div hlmSidebarGroupContent>
+        <ul hlmSidebarMenu>
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="/dashboard"
+              routerLinkActive
+              #rla="routerLinkActive"
+              [isActive]="rla.isActive"
+              tooltip="Dashboard"
+            >
+              <ng-icon hlm name="lucideChartBar" />
+              <span>Dashboard</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hlm-sidebar-separator />
+
+    <!-- Grupo: Cadastros -->
+    <div hlmSidebarGroup>
+      <div
+        hlmSidebarGroupLabel
+        class="text-sidebar-accent-foreground/70 text-xs uppercase tracking-wider"
+      >
+        Cadastros
+      </div>
+      <div hlmSidebarGroupContent>
+        <ul hlmSidebarMenu>
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="/clientes"
+              routerLinkActive
+              #rlaClientes="routerLinkActive"
+              [isActive]="rlaClientes.isActive"
+              tooltip="Clientes"
+            >
+              <ng-icon hlm name="lucideUsers" />
+              <span>Clientes</span>
+            </a>
+          </li>
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="/fornecedores"
+              routerLinkActive
+              #rlaFornecedores="routerLinkActive"
+              [isActive]="rlaFornecedores.isActive"
+              tooltip="Fornecedores"
+            >
+              <ng-icon hlm name="lucideTruck" />
+              <span>Fornecedores</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hlm-sidebar-separator />
+
+    <!-- Grupo: Financeiro -->
+    <div hlmSidebarGroup>
+      <div
+        hlmSidebarGroupLabel
+        class="text-sidebar-accent-foreground/70 text-xs uppercase tracking-wider"
+      >
+        Financeiro
+      </div>
+      <div hlmSidebarGroupContent>
+        <ul hlmSidebarMenu>
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="/ordens-de-servico"
+              routerLinkActive
+              #rlaOS="routerLinkActive"
+              [isActive]="rlaOS.isActive"
+              tooltip="Ordem de Serviço"
+            >
+              <ng-icon hlm name="lucideFileText" />
+              <span>Ordem de Serviço</span>
+            </a>
+          </li>
+          <li hlmSidebarMenuItem>
+            <a
+              hlmSidebarMenuButton
+              routerLink="/tabela-montagem"
+              routerLinkActive
+              #rlaTabelaMontagem="routerLinkActive"
+              [isActive]="rlaTabelaMontagem.isActive"
+              tooltip="Tabela Montagem"
+            >
+              <ng-icon hlm name="lucideTable" />
+              <span>Tabela Montagem</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <hlm-sidebar-separator />
+  </hlm-sidebar-content>
+
+  <hlm-sidebar-separator />
+
+  <hlm-sidebar-footer>
+    <ul hlmSidebarMenu>
+      <li hlmSidebarMenuItem>
+        <a
+          hlmSidebarMenuButton
+          routerLinkActive
+          #rlaSair="routerLinkActive"
+          [isActive]="rlaSair.isActive"
+          tooltip="Sair"
+          (click)="confirmLogout(() => true)"
+        >
+          <ng-icon hlm name="lucideLogOut" />
+          <span>Sair</span>
+        </a>
+      </li>
+    </ul>
+  </hlm-sidebar-footer>
+
+  <!-- Rail (colapso via hover) -->
+  <button hlmSidebarRail></button>
+</hlm-sidebar>

@@ -1,0 +1,206 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import '@angular/cdk/overlay-prebuilt.css';
+@import '@spartan-ng/brain/hlm-tailwind-preset.css';
+
+/* ───────────────────────────────────────────────────────
+   Optic Lab Manager — Design System Tokens
+   Source: Stitch MCP – "Gestão+Fácil Core"
+   ─────────────────────────────────────────────────────── */
+
+@theme {
+  /* ── Typography ── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+  /* ── Semantic Colors (Spartan / shadcn token bridge) ── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* ── Sidebar ── */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── Radius ── */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* ──────────────────── Light Mode (default) ──────────────────── */
+:root {
+  color-scheme: light;
+
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  --radius: 0.5rem;
+  /* 8px — Optic Lab standard radius */
+
+  /* ── Surface & Background ── */
+  --background: #f8f9fa;
+  --foreground: #191c1d;
+
+  /* ── Card ── */
+  --card: #ffffff;
+  --card-foreground: #191c1d;
+
+  /* ── Popover ── */
+  --popover: #ffffff;
+  --popover-foreground: #191c1d;
+
+  /* ── Primary (Deep Navy — #1a1a2e) ── */
+  --primary: #1a1a2e;
+  --primary-foreground: #ffffff;
+
+  /* ── Secondary (Blue — #3b82f6) ── */
+  --secondary: #3b82f6;
+  --secondary-foreground: #ffffff;
+
+  /* ── Muted ── */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* ── Accent ── */
+  --accent: #e2e0fc;
+  --accent-foreground: #1a1a2e;
+
+  /* ── Destructive ── */
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+
+  /* ── Borders & Rings ── */
+  --border: #e5e7eb;
+  --input: #d1d5db;
+  --ring: #3b82f6;
+
+  /* ── Sidebar (Deep Navy) ── */
+  --sidebar: #1a1a2e;
+  --sidebar-foreground: #e2e0fc;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
+  --sidebar-accent-foreground: #c6c4df;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #3b82f6;
+}
+
+/* ──────────────────── Dark Mode ──────────────────── */
+.dark {
+  color-scheme: dark;
+
+  --background: #0d0d1a;
+  --foreground: #e2e0fc;
+
+  --card: #1a1a2e;
+  --card-foreground: #e2e0fc;
+
+  --popover: #1a1a2e;
+  --popover-foreground: #e2e0fc;
+
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+
+  --secondary: #45455b;
+  --secondary-foreground: #e2e0fc;
+
+  --muted: #272740;
+  --muted-foreground: #83829b;
+
+  --accent: #45455b;
+  --accent-foreground: #e2e0fc;
+
+  --destructive: #ffdad6;
+  --destructive-foreground: #93000a;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #3b82f6;
+
+  --sidebar: #0d0d1a;
+  --sidebar-foreground: #e2e0fc;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #c6c4df;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: #3b82f6;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+/* ───────────────────────────────────────────────────────
+   Spartan UI & Tailwind v4 Compatibility Fixes
+   ─────────────────────────────────────────────────────── */
+
+/* Ensure popover/select content is hidden when closed */
+[data-state='closed'] {
+  display: none !important;
+}
+
+[data-state='open'] {
+  display: block !important;
+}
+
+/* Fix for animation variants in Tailwind v4 */
+@variant data-open (&[data-state='open']);
+@variant data-closed (&[data-state='closed']);
+@variant data-placeholder (&[data-placeholder]);
+@variant data-side-bottom (&[data-side='bottom']);
+@variant data-side-top (&[data-side='top']);
+@variant data-side-left (&[data-side='left']);
+@variant data-side-right (&[data-side='right']);

@@ -1,0 +1,10 @@
+{
+  "name": "@zorde/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "air",
+    "build": "go build -o bin/api cmd/server/main.go",
+    "test": "go test ./..."
+  }
+}

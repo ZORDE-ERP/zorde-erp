@@ -1,0 +1,282 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     Optic Lab Manager — Login Screen
+     Design Source: Stitch "Gestão+Fácil Core" design system
+     ═══════════════════════════════════════════════════════════════ -->
+
+<div class="flex min-h-screen lg:min-h-[100dvh]">
+  <!-- ── Left Panel (Brand) ── -->
+  <div
+    class="hidden lg:flex relative flex-1 bg-[linear-gradient(145deg,#1a1a2e_0%,#0d0d1a_100%)] text-[#e2e0fc] overflow-hidden flex-col justify-center p-12"
+  >
+    <div class="relative z-10 max-w-[520px]">
+      <!-- Logo & Company -->
+      <div class="flex items-center gap-3 mb-10">
+        <div
+          class="flex items-center justify-center w-12 h-12 rounded-xl bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white shadow-[0_4px_16px_rgba(59,130,246,0.35)]"
+        >
+          <ng-icon name="lucideLock" hlm size="32px" />
+        </div>
+        <span
+          class="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-2xl tracking-tight text-white"
+          >Zorde Laboratório</span
+        >
+      </div>
+
+      <!-- Tagline -->
+      <h1
+        class="font-['Plus_Jakarta_Sans',sans-serif] text-4xl font-bold leading-[1.2] tracking-tight text-white mb-4"
+      >
+        Gestão completa para seu<br />
+        <span
+          class="bg-[linear-gradient(135deg,#3b82f6_0%,#818cf8_100%)] bg-clip-text text-transparent"
+          >laboratório óptico</span
+        >
+      </h1>
+
+      <p class="font-['Inter',sans-serif] text-base leading-relaxed text-[#83829b] max-w-[380px]">
+        Ordens de serviço, faturamento e controle de produção em uma única plataforma inteligente.
+      </p>
+
+      <!-- Decorative Floating Elements -->
+      <div class="flex gap-4 mt-12">
+        <div
+          class="p-4 px-5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/5 animate-bounce"
+        >
+          <div class="font-['Plus_Jakarta_Sans',sans-serif] font-bold text-xl text-[#3b82f6] mb-1">
+            +12%
+          </div>
+          <div
+            class="font-['Inter',sans-serif] text-[0.75rem] font-medium text-[#83829b] tracking-wide"
+          >
+            Produtividade
+          </div>
+        </div>
+        <div
+          class="p-4 px-5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/5 animate-bounce [animation-delay:-2s]"
+        >
+          <div class="font-['Plus_Jakarta_Sans',sans-serif] font-bold text-xl text-[#3b82f6] mb-1">
+            98.5%
+          </div>
+          <div
+            class="font-['Inter',sans-serif] text-[0.75rem] font-medium text-[#83829b] tracking-wide"
+          >
+            Precisão
+          </div>
+        </div>
+        <div
+          class="p-4 px-5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/5 animate-bounce [animation-delay:-4s]"
+        >
+          <div class="font-['Plus_Jakarta_Sans',sans-serif] font-bold text-xl text-[#3b82f6] mb-1">
+            2.4s
+          </div>
+          <div
+            class="font-['Inter',sans-serif] text-[0.75rem] font-medium text-[#83829b] tracking-wide"
+          >
+            Tempo de resposta
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Badge -->
+    <div class="absolute bottom-8 left-12 z-10">
+      <span
+        class="font-['Inter',sans-serif] text-[0.75rem] font-semibold text-[#83829b] tracking-widest uppercase"
+        >Zorde Sistemas</span
+      >
+    </div>
+
+    <!-- Background Glow (CSS pseudo-elements equivalents) -->
+    <div
+      class="absolute top-[20%] -right-[15%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.12)_0%,transparent_70%)] pointer-events-none"
+    ></div>
+    <div
+      class="absolute -bottom-[10%] -left-[10%] w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.08)_0%,transparent_70%)] pointer-events-none"
+    ></div>
+  </div>
+
+  <!-- ── Right Panel (Form) ── -->
+  <div
+    class="flex-1 flex items-center justify-center p-8 lg:p-6 bg-background lg:w-[520px] lg:flex-none"
+  >
+    <div class="w-full max-w-[420px]">
+      <!-- Mobile-only Logo -->
+      <div class="flex lg:hidden items-center gap-[0.625rem] mb-8">
+        <div
+          class="flex items-center justify-center w-9 h-9 rounded-[10px] bg-[linear-gradient(135deg,#3b82f6_0%,#6366f1_100%)] text-white shadow-[0_4px_16px_rgba(59,130,246,0.35)]"
+        >
+          <ng-icon name="lucideLock" hlm size="24px" />
+        </div>
+        <span
+          class="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl tracking-tight text-white"
+          >Optic Lab</span
+        >
+      </div>
+
+      <!-- Form Header -->
+      <div class="p-0 pb-6">
+        <h2
+          class="font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-bold tracking-tight text-foreground"
+        >
+          Acessar sua conta
+        </h2>
+        <p class="font-['Inter',sans-serif] text-sm text-muted-foreground mt-1.5">
+          Entre com suas credenciais para continuar
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form (submit)="onSubmit(); $event.preventDefault()" class="flex flex-col gap-5">
+        <!-- Email Field -->
+        <div class="flex flex-col gap-2">
+          <label
+            hlmLabel
+            for="login-email"
+            class="font-['Inter',sans-serif] text-sm font-medium text-foreground"
+            >E-mail</label
+          >
+          <div class="relative flex items-center">
+            <ng-icon
+              name="lucideMail"
+              hlm
+              size="16px"
+              class="absolute left-3 text-muted-foreground pointer-events-none z-10"
+            />
+            <input
+              hlmInput
+              id="login-email"
+              type="email"
+              placeholder="seuemail@empresa.com"
+              autocomplete="email"
+              class="pl-10"
+              [formField]="loginForm.email"
+              [error]="submitted() && loginForm.email().errors().length > 0"
+            />
+          </div>
+          @if (submitted() && loginForm.email().errors().length) {
+            <p class="font-['Inter',sans-serif] text-[0.8125rem] text-destructive m-0">
+              {{ loginForm.email().errors()[0].message }}
+            </p>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label
+              hlmLabel
+              for="login-password"
+              class="font-['Inter',sans-serif] text-sm font-medium text-foreground"
+              >Senha</label
+            >
+          </div>
+          <div class="relative flex items-center">
+            <ng-icon
+              name="lucideLock"
+              hlm
+              size="16px"
+              class="absolute left-3 text-muted-foreground pointer-events-none z-10"
+            />
+            <input
+              hlmInput
+              id="login-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              class="pl-10 pr-11"
+              [formField]="loginForm.password"
+              [error]="submitted() && loginForm.password().errors().length > 0"
+            />
+            <button
+              type="button"
+              class="absolute right-2 flex items-center justify-center w-8 h-8 rounded-md border-none bg-transparent text-muted-foreground cursor-pointer transition-all hover:text-foreground hover:bg-muted z-10"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" hlm size="16px" />
+            </button>
+          </div>
+          @if (submitted() && loginForm.password().errors().length) {
+            <p class="font-['Inter',sans-serif] text-[0.8125rem] text-destructive m-0">
+              {{ loginForm.password().errors()[0].message }}
+            </p>
+          }
+        </div>
+
+        <!-- Remember Me -->
+        <div class="grid grid-cols-12 gap-4">
+          <div class="flex col-span-6 items-center gap-2">
+            <hlm-checkbox
+              id="login-remember"
+              [checked]="loginForm.rememberMe().value()"
+              (checkedChange)="loginModel.update((m) => ({ ...m, rememberMe: $event }))"
+            />
+            <label
+              hlmLabel
+              for="login-remember"
+              class="text-sm text-muted-foreground cursor-pointer"
+            >
+              Lembrar de mim
+            </label>
+          </div>
+          <div class="flex col-span-6 justify-end">
+            <a
+              routerLink="/esqueci-senha"
+              class="text-sm text-[#3b82f6] no-underline transition-colors hover:text-[#2563eb] hover:underline"
+              >Esqueci minha senha</a
+            >
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          hlmBtn
+          type="submit"
+          class="w-full h-11 font-['Inter',sans-serif] text-sm font-semibold gap-2 mt-2 bg-[#3b82f6] text-white border-transparent transition-all hover:bg-[#2563eb] hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)] active:translate-y-[1px] disabled:opacity-70"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <hlm-spinner />
+            <span>Entrando...</span>
+          } @else {
+            <span>Entrar</span>
+          }
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="flex flex-col gap-4 mt-6">
+        <div class="flex items-center gap-4">
+          <div class="flex-1 h-px bg-border"></div>
+          <span
+            class="font-['Inter',sans-serif] text-[0.75rem] font-medium text-muted-foreground uppercase tracking-widest"
+            >ou</span
+          >
+          <div class="flex-1 h-px bg-border"></div>
+        </div>
+        <p class="text-center font-['Inter',sans-serif] text-sm text-muted-foreground m-0">
+          Não tem uma conta?
+          <a
+            routerLink="/cadastro"
+            class="font-semibold text-[#3b82f6] no-underline transition-colors hover:text-[#2563eb] hover:underline"
+            >Solicitar acesso</a
+          >
+        </p>
+      </div>
+
+      <!-- Terms Text -->
+      <p
+        class="text-center font-['Inter',sans-serif] text-[0.75rem] text-muted-foreground mt-6 leading-normal"
+      >
+        Ao acessar, você concorda com os
+        <a href="#" class="text-[#3b82f6] no-underline font-medium hover:underline"
+          >Termos de Uso</a
+        >
+        e a
+        <a href="#" class="text-[#3b82f6] no-underline font-medium hover:underline"
+          >Política de Privacidade</a
+        >.
+      </p>
+    </div>
+  </div>
+</div>

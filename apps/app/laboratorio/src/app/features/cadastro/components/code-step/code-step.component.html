@@ -1,0 +1,66 @@
+<div class="flex min-h-screen items-center justify-center bg-background p-8">
+  <div class="w-full max-w-[420px]">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#38bdf8,#818cf8)]">
+        <span class="text-2xl font-extrabold text-white">Z</span>
+      </div>
+      <h1 class="font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-bold text-foreground">Verificar e-mail</h1>
+      <p class="mt-1.5 font-['Inter',sans-serif] text-sm text-muted-foreground">
+        Insira o código de 6 dígitos enviado para<br />
+        <span class="font-semibold text-foreground">{{ email() }}</span>
+      </p>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- OTP Input -->
+    <div class="flex flex-col items-center gap-6">
+      <div class="flex gap-3">
+        @for (i of slots; track i) {
+          <input
+            type="text"
+            maxlength="1"
+            inputmode="numeric"
+            pattern="[0-9]"
+            [value]="otpDigits()[i]"
+            (input)="onDigitInput($event, i)"
+            (keydown)="onKeydown($event, i)"
+            [id]="'otp-' + i"
+            class="h-14 w-12 rounded-lg border border-border bg-background text-center text-xl font-bold text-foreground shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+          />
+        }
+      </div>
+
+      <button hlmBtn class="w-full" [disabled]="loading() || !isComplete()" (click)="onSubmit()">
+        @if (loading()) {
+          <hlm-spinner size="sm" class="mr-2" />
+        }
+        Verificar
+      </button>
+
+      <button
+        hlmBtn
+        variant="ghost"
+        class="w-full text-sm"
+        [disabled]="countdown() > 0 || loading()"
+        (click)="onReenviar()"
+      >
+        @if (countdown() > 0) {
+          Reenviar em {{ countdown() }}s
+        } @else {
+          Reenviar código
+        }
+      </button>
+      
+      <button hlmBtn variant="ghost" type="button" class="w-full" (click)="onBack()">
+        Voltar
+      </button>
+    </div>
+  </div>
+</div>

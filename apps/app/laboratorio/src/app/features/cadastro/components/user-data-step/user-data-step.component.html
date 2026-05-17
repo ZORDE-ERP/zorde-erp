@@ -1,0 +1,109 @@
+<div class="flex min-h-screen items-center justify-center bg-background p-8">
+  <div class="w-full max-w-[480px]">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#38bdf8,#818cf8)]">
+        <span class="text-2xl font-extrabold text-white">Z</span>
+      </div>
+      <h1 class="font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-bold text-foreground">Seus dados</h1>
+      <p class="mt-1.5 font-['Inter',sans-serif] text-sm text-muted-foreground">
+        Preencha seus dados para finalizar o cadastro
+      </p>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        {{ error() }}
+      </div>
+    }
+
+    <form (submit)="onSubmit(); $event.preventDefault()" class="flex flex-col gap-4">
+      <!-- Nome -->
+      <div class="flex flex-col gap-2">
+        <label hlmLabel for="ud-nome">Nome completo</label>
+        <input hlmInput id="ud-nome" type="text" placeholder="João Silva" [formField]="userForm.nome" [error]="formSubmitted() && userForm.nome().errors().length > 0" />
+        @if (formSubmitted() && userForm.nome().errors().length) {
+          <p class="text-[0.8125rem] text-destructive">{{ userForm.nome().errors()[0].message }}</p>
+        }
+      </div>
+
+      <!-- Documento -->
+      <div class="flex flex-col gap-2">
+        <label hlmLabel for="ud-doc">CPF / CNPJ</label>
+        <input hlmInput id="ud-doc" type="text" placeholder="000.000.000-00" [formField]="userForm.documento" [error]="formSubmitted() && userForm.documento().errors().length > 0" />
+        @if (formSubmitted() && userForm.documento().errors().length) {
+          <p class="text-[0.8125rem] text-destructive">{{ userForm.documento().errors()[0].message }}</p>
+        }
+      </div>
+
+      <!-- Contato -->
+      <div class="flex flex-col gap-2">
+        <label hlmLabel for="ud-contato">Telefone / WhatsApp</label>
+        <input hlmInput id="ud-contato" type="tel" placeholder="(11) 99999-9999" [formField]="userForm.contato" [error]="formSubmitted() && userForm.contato().errors().length > 0" />
+        @if (formSubmitted() && userForm.contato().errors().length) {
+          <p class="text-[0.8125rem] text-destructive">{{ userForm.contato().errors()[0].message }}</p>
+        }
+      </div>
+
+      <!-- Senha -->
+      <div class="flex flex-col gap-2">
+        <label hlmLabel for="ud-senha">Senha</label>
+        <div class="relative flex items-center">
+          <input
+            hlmInput
+            id="ud-senha"
+            [type]="showPassword() ? 'text' : 'password'"
+            placeholder="Mínimo 6 caracteres"
+            class="pr-10"
+            [formField]="userForm.senha"
+            [error]="formSubmitted() && userForm.senha().errors().length > 0"
+          />
+          <button
+            type="button"
+            class="absolute right-3 text-muted-foreground"
+            (click)="showPassword.update(v => !v)"
+          >
+            <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" hlm size="16px" />
+          </button>
+        </div>
+        @if (formSubmitted() && userForm.senha().errors().length) {
+          <p class="text-[0.8125rem] text-destructive">{{ userForm.senha().errors()[0].message }}</p>
+        }
+      </div>
+
+      <!-- Confirmação de senha -->
+      <div class="flex flex-col gap-2">
+        <label hlmLabel for="ud-confirma">Confirmar senha</label>
+        <input
+          hlmInput
+          id="ud-confirma"
+          [type]="showPassword() ? 'text' : 'password'"
+          placeholder="Repita a senha"
+          [value]="senhaConfirmacao()"
+          (input)="onSenhaConfirmacaoInput($event)"
+          [error]="formSubmitted() && senhaConfirmacao() !== userModel().senha"
+        />
+        @if (formSubmitted() && senhaConfirmacao() && senhaConfirmacao() !== userModel().senha) {
+          <p class="text-[0.8125rem] text-destructive">As senhas não coincidem</p>
+        }
+      </div>
+
+      <button
+        hlmBtn
+        type="submit"
+        class="mt-2 w-full"
+        [disabled]="loading() || (!!senhaConfirmacao() && senhaConfirmacao() !== userModel().senha)"
+      >
+        @if (loading()) {
+          <hlm-spinner size="sm" class="mr-2" />
+        }
+        Criar conta
+      </button>
+      
+      <button hlmBtn variant="ghost" type="button" class="w-full" (click)="onBack()">
+        Voltar
+      </button>
+    </form>
+  </div>
+</div>

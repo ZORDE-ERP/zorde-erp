@@ -1,0 +1,65 @@
+<div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+  <table hlmTable class="w-full">
+    <thead>
+      <tr hlmTr>
+        <th hlmTh class="w-1/6">Código</th>
+        <th hlmTh class="w-1/4">Cliente</th>
+        <th hlmTh class="w-1/4">Serviço</th>
+        <th hlmTh class="w-1/6">Valor Montagem</th>
+        <th hlmTh class="w-1/6">Data</th>
+        <th hlmTh class="w-20">Ações</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (order of orders(); track order.id) {
+        <tr hlmTr>
+          <td hlmTd class="font-medium font-mono">{{ order.code }}</td>
+          <td hlmTd>{{ order.clientName }}</td>
+          <td hlmTd>{{ adapter.getServiceTypeLabel(order.serviceType) }}</td>
+          <td hlmTd>{{ adapter.formatCurrency(order.assemblyValue) }}</td>
+          <td hlmTd class="text-zinc-500">{{ order.createdAt }}</td>
+          <td hlmTd>
+            <button
+              hlmBtn
+              size="icon"
+              variant="ghost"
+              [hlmDropdownMenuTrigger]="menu"
+            >
+              <ng-icon name="lucideMoreHorizontal" hlm size="16px" />
+            </button>
+
+            <ng-template #menu>
+              <div hlmDropdownMenu>
+                <button hlmDropdownMenuItem (click)="onEdit(order)">
+                  <ng-icon name="lucidePencil" hlm size="16px" class="mr-2" />
+                  <span>Editar</span>
+                </button>
+
+                <div hlmDropdownMenuSeparator></div>
+
+                <button hlmDropdownMenuItem (click)="onDelete(order.id)" class="text-red-600 focus:text-red-700">
+                  <ng-icon name="lucideTrash" hlm size="16px" class="mr-2" />
+                  <span>Excluir</span>
+                </button>
+              </div>
+            </ng-template>
+          </td>
+        </tr>
+      } @empty {
+        <tr hlmTr>
+          <td hlmTd colspan="6" class="text-center py-8 text-zinc-500">
+            Nenhuma ordem de serviço encontrada.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Paginação -->
+  <hlm-numbered-pagination
+    [(currentPage)]="_currentPage"
+    [(itemsPerPage)]="_pageSize"
+    [totalItems]="pagination().totalItems"
+  />
+</div>

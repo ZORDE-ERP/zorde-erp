@@ -1,0 +1,60 @@
+<div class="flex min-h-screen items-center justify-center bg-background p-8">
+  <div class="w-full max-w-[420px]">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#38bdf8,#818cf8)]">
+        <span class="text-2xl font-extrabold text-white">Z</span>
+      </div>
+      <h1 class="font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-bold text-foreground">Criar conta</h1>
+      <p class="mt-1.5 font-['Inter',sans-serif] text-sm text-muted-foreground">
+        Informe seu e-mail para receber o código de verificação
+      </p>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Form -->
+    <form (submit)="onSubmit(); $event.preventDefault()" class="flex flex-col gap-5">
+      <div class="flex flex-col gap-2">
+        <label hlmLabel for="cadastro-email" class="font-['Inter',sans-serif] text-sm font-medium">E-mail</label>
+        <div class="relative flex items-center">
+          <ng-icon name="lucideMail" hlm size="16px" class="absolute left-3 text-muted-foreground pointer-events-none z-10" />
+          <input
+            hlmInput
+            id="cadastro-email"
+            type="email"
+            placeholder="seuemail@empresa.com"
+            autocomplete="email"
+            class="pl-10"
+            [formField]="emailForm.email"
+            [error]="formSubmitted() && emailForm.email().errors().length > 0"
+          />
+        </div>
+        @if (formSubmitted() && emailForm.email().errors().length) {
+          <p class="text-[0.8125rem] text-destructive">{{ emailForm.email().errors()[0].message }}</p>
+        }
+      </div>
+
+      <button hlmBtn type="submit" class="w-full" [disabled]="loading()">
+        @if (loading()) {
+          <hlm-spinner size="sm" class="mr-2" />
+        }
+        Continuar
+      </button>
+      
+      <button hlmBtn variant="ghost" type="button" class="w-full" (click)="onBack()">
+        Voltar
+      </button>
+    </form>
+
+    <p class="mt-6 text-center font-['Inter',sans-serif] text-sm text-muted-foreground">
+      Já tem conta?
+      <a href="/login" class="font-medium text-primary hover:underline">Entrar</a>
+    </p>
+  </div>
+</div>

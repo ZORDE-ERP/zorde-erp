@@ -1,0 +1,116 @@
+<div class="grid grid-cols-12">
+  <div class="col-span-12">
+    <hlm-dialog-header>
+      <h3 hlmDialogTitle>Ordem de Serviço</h3>
+      <p hlmDialogDescription>Preencha os dados da ordem de serviço abaixo.</p>
+    </hlm-dialog-header>
+  </div>
+</div>
+
+<form
+  [formGroup]="form"
+  class="grid grid-cols-1 md:grid-cols-12 gap-4 py-4"
+  id="serviceOrderForm"
+  (ngSubmit)="onSave()"
+>
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel>Cliente *</label>
+    <app-client-select
+      formControlName="clientId"
+      (clientChanged)="onClientChanged($event)"
+    />
+    @if (shouldShowError('clientId')) {
+      <span class="text-xs text-red-500">Cliente é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel>Serviço *</label>
+
+    @if (hasTabela()) {
+      <!-- Cliente tem tabela de montagem: lista as entradas reais com auto-preenchimento de valor -->
+      <hlm-select
+        formControlName="tabelaMontagemId"
+        placeholder="Selecione o serviço"
+        [itemToString]="tabelaToString"
+      >
+        <hlm-select-trigger (focus)="markControlAsInteracted('tabelaMontagemId')">
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (option of clientTabelaOptions(); track option.id) {
+            <hlm-select-item [value]="option.id">
+              {{ serviceTypeLabels[option.serviceType] ?? option.label }}
+            </hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    } @else {
+      <!-- Cliente sem tabela: exibe tipos estáticos; valor preenchido manualmente -->
+      <hlm-select
+        [value]="selectedStaticService()"
+        placeholder="Selecione o serviço"
+        [itemToString]="staticToString"
+        (valueChange)="onStaticServiceChange($event)"
+        [disabled]="!form.controls.clientId.value"
+      >
+        <hlm-select-trigger>
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (type of staticServiceTypes; track type) {
+            <hlm-select-item [value]="type">
+              {{ serviceTypeLabels[type] }}
+            </hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="code">Código *</label>
+    <input
+      hlmInput
+      id="code"
+      formControlName="code"
+      (focus)="markControlAsInteracted('code')"
+      placeholder="Ex: OS-1000"
+      class="w-full"
+    />
+    @if (shouldShowError('code')) {
+      <span class="text-xs text-red-500">Código é obrigatório.</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2 col-span-1 md:col-span-6">
+    <label hlmLabel for="assemblyValue">
+      Valor Montagem (R$) *
+      @if (!hasTabela() && form.controls.clientId.value) {
+        <span class="text-xs font-normal text-muted-foreground">(informe manualmente)</span>
+      }
+    </label>
+    <input
+      hlmInput
+      id="assemblyValue"
+      type="text"
+      formControlName="assemblyValue"
+      (focus)="markControlAsInteracted('assemblyValue')"
+      mask="separator.2"
+      thousandSeparator="."
+      decimalMarker=","
+      prefix="R$ "
+      placeholder="R$ 0,00"
+      class="w-full"
+    />
+    @if (shouldShowError('assemblyValue')) {
+      <span class="text-xs text-red-500">Valor de montagem é obrigatório.</span>
+    }
+  </div>
+</form>
+
+<hlm-dialog-footer>
+  <button hlmBtn variant="outline" type="button" (click)="onCancel()">Cancelar</button>
+  <button hlmBtn type="submit" form="serviceOrderForm">Salvar</button>
+</hlm-dialog-footer>
+

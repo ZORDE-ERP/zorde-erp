@@ -1,0 +1,68 @@
+<hlm-dialog-header>
+  <h3 hlmDialogTitle>{{ isEdit ? 'Editar Registro' : 'Novo Registro' }}</h3>
+  <p hlmDialogDescription>Preencha os campos abaixo para {{ isEdit ? 'atualizar' : 'cadastrar' }} um registro na tabela de montagem.</p>
+</hlm-dialog-header>
+
+<form [formGroup]="form" (ngSubmit)="onSave()" class="flex flex-col gap-4 py-4">
+
+  <!-- Cliente -->
+  <div class="space-y-2">
+    <label hlmLabel>Cliente</label>
+    <hlm-select formControlName="clienteId" placeholder="Selecione um cliente">
+      <hlm-select-trigger class="w-full">
+        <hlm-select-value />
+      </hlm-select-trigger>
+      <hlm-select-content *hlmSelectPortal>
+        @for (cliente of getClientes(); track cliente.id) {
+          <hlm-select-item [value]="cliente.id">{{ cliente.nome }}</hlm-select-item>
+        }
+      </hlm-select-content>
+    </hlm-select>
+    @if (form.get('clienteId')?.invalid && form.get('clienteId')?.touched) {
+      <span class="text-xs text-red-500">Cliente é obrigatório.</span>
+    }
+  </div>
+
+  <!-- Tipo de Serviço -->
+  <div class="space-y-2">
+    <label hlmLabel>Tipo de Serviço</label>
+    <hlm-select formControlName="servico" placeholder="Selecione o tipo">
+      <hlm-select-trigger class="w-full">
+        <hlm-select-value />
+      </hlm-select-trigger>
+      <hlm-select-content *hlmSelectPortal>
+        @for (tipo of tiposServico; track tipo) {
+          <hlm-select-item [value]="tipo">{{ tipo }}</hlm-select-item>
+        }
+      </hlm-select-content>
+    </hlm-select>
+    @if (form.get('servico')?.invalid && form.get('servico')?.touched) {
+      <span class="text-xs text-red-500">Tipo de serviço é obrigatório.</span>
+    }
+  </div>
+
+  <!-- Valor -->
+  <div class="space-y-2">
+    <label hlmLabel for="valor">Valor (R$)</label>
+    <input
+      hlmInput
+      id="valor"
+      type="text"
+      formControlName="valor"
+      mask="separator.2"
+      thousandSeparator="."
+      decimalMarker=","
+      prefix="R$ "
+      placeholder="R$ 0,00"
+      class="w-full"
+    />
+    @if (form.get('valor')?.invalid && form.get('valor')?.touched) {
+      <span class="text-xs text-red-500">Informe um valor maior que zero.</span>
+    }
+  </div>
+
+  <hlm-dialog-footer class="flex gap-2 justify-end">
+    <button hlmBtn type="button" variant="outline" (click)="onCancel()">Cancelar</button>
+    <button hlmBtn type="submit">Salvar</button>
+  </hlm-dialog-footer>
+</form>
