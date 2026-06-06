@@ -12,7 +12,7 @@ import { I_CLIENTE_REPOSITORY } from './domain/repositories/i-cliente.repository
 import { PrismaClienteRepository } from './infrastructure/repositories/prisma-cliente.repository';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule],
   controllers: [ClienteController],
   providers: [
     CriarClienteUseCase,

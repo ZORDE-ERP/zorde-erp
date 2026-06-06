@@ -12,7 +12,7 @@ import { I_FORNECEDOR_REPOSITORY } from './domain/repositories/i-fornecedor.repo
 import { PrismaFornecedorRepository } from './infrastructure/repositories/prisma-fornecedor.repository';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule],
   controllers: [FornecedorController],
   providers: [
     CriarFornecedorUseCase,

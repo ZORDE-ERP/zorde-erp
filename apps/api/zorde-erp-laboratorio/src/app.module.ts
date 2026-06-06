@@ -7,11 +7,11 @@ import databaseConfig from './config/database.config';
 import { DatabaseModule } from './infra/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
-import { SolicitacaoCadastroModule } from './modules/solicitacaoCadastro/solicitacao-cadastro.module';
 import { ClienteModule } from './modules/cliente/cliente.module';
 import { FornecedorModule } from './modules/fornecedor/fornecedor.module';
-import { TabelaMontagemModule } from './modules/tabelaMontagem/tabela-montagem.module';
-import { OrdemDeServicoModule } from './modules/ordemDeServico/ordem-de-servico.module';
+import { OrdemDeServicoModule } from './modules/ordemDeServico/ordemDeServico.module';
+import { SolicitacaoCadastroModule } from './modules/solicitacaoCadastro/solicitacaoCadastro.module';
+import { TabelaMontagemModule } from './modules/tabelaMontagem/tabelaMontagem.module';
 
 @Module({
   imports: [

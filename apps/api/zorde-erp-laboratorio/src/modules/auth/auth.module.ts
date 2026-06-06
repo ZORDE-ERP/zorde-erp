@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { AuthService } from './application/services/auth.service';
@@ -11,6 +11,7 @@ import { PasswordHashingService } from './infra/services/password-hashing.servic
 import { AuthController } from './presentation/controllers/auth.controller';
 import { UsuarioModule } from '../usuario/usuario.module';
 
+@Global()
 @Module({
   imports: [
     DatabaseModule,

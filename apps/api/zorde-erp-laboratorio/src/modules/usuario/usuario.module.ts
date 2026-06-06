@@ -13,7 +13,6 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     DatabaseModule,
-    forwardRef(() => AuthModule),
   ],
   controllers: [UsuarioController],
   providers: [
