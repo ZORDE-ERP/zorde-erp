@@ -31,14 +31,16 @@ export class CriarUsuarioUseCase {
     // Gerar hash de senha
     const hashedPassword = await this.passwordHashingService.hash(dto.senha);
 
-    const usuario = UsuarioEntity.create({
+    const usuario = new UsuarioEntity({
+
       email: dto.email,
       senha: hashedPassword,
       nome: dto.nome,
       documento: dto.documento,
       contato: dto.contato,
       ultimoAcesso: null,
-      updatedAt: null,
+      
+      
     });
 
     const created = await this.usuarioRepository.criar(usuario);
