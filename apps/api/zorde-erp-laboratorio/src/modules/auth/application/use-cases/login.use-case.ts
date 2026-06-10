@@ -25,11 +25,11 @@ export class LoginUseCase {
 
   async execute(dto: LoginDto, clientIp: string, clientUserAgent: string): Promise<AuthResponseDto> {
     const usuario = await this.usuarioRepository.buscarPorEmail(dto.email);
-    if (!usuario || !usuario.senha) {
+    if (!usuario || !usuario.getSenha()) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const isSenhaValida = await this.passwordHashingService.comparar(dto.senha, usuario.senha);
+    const isSenhaValida = await this.passwordHashingService.comparar(dto.senha, usuario.getSenha()!);
     if (!isSenhaValida) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
@@ -43,14 +43,15 @@ export class LoginUseCase {
 
     // Gerar payloads e assinar os tokens JWT
     const payload = {
-      sub: usuario.id,
-      email: usuario.email,
+      sub: usuario.getId()!,
+      email: usuario.getEmail(),
+
       fingerprint: fingerprintHash,
     };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '12h',
+      expiresIn: '15m',
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
@@ -63,7 +64,7 @@ export class LoginUseCase {
 
     // Criar e salvar sessão de autenticação ativa
     const autenticacao = AutenticacaoEntity.create({
-      idUsuario: usuario.id,
+      idUsuario: usuario.getId()!,
       refreshToken,
       status: StatusSessao.LOGADO,
       ip: cleanIp,
@@ -74,7 +75,7 @@ export class LoginUseCase {
     await this.autenticacaoRepository.criar(autenticacao);
 
     // Atualizar último acesso do usuário
-    await this.usuarioRepository.atualizar(usuario.id, {
+    await this.usuarioRepository.atualizar(usuario.getId()!, {
       ultimoAcesso: new Date(),
     });
 
@@ -82,9 +83,9 @@ export class LoginUseCase {
       accessToken,
       refreshToken,
       usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
+        id: usuario.getId()!,
+        nome: usuario.getNome(),
+        email: usuario.getEmail(),
       },
     };
   }
