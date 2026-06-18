@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CriarUsuarioUseCase } from '../use-cases/criar-usuario.use-case';
-import { ListarUsuariosUseCase } from '../use-cases/listar-usuarios.use-case';
+import { FindByEmailUserUseCase } from '../use-cases/findByEmailUser';
 import { AtualizarUsuarioUseCase } from '../use-cases/atualizar-usuario.use-case';
 import { DeletarUsuarioUseCase } from '../use-cases/deletar-usuario.use-case';
 import { CriarUsuarioDto } from '../dtos/criar-usuario.dto';
@@ -11,7 +11,7 @@ import { UsuarioResponseDto } from '../dtos/usuario-response.dto';
 export class UsuarioService {
   constructor(
     private readonly criarUsuarioUseCase: CriarUsuarioUseCase,
-    private readonly listarUsuariosUseCase: ListarUsuariosUseCase,
+    private readonly findByEmailUserUseCase: FindByEmailUserUseCase,
     private readonly atualizarUsuarioUseCase: AtualizarUsuarioUseCase,
     private readonly deletarUsuarioUseCase: DeletarUsuarioUseCase,
   ) {}
@@ -20,8 +20,8 @@ export class UsuarioService {
     return this.criarUsuarioUseCase.execute(dto);
   }
 
-  async listar(): Promise<UsuarioResponseDto[]> {
-    return this.listarUsuariosUseCase.execute();
+  async findByEmail(email: string): Promise<UsuarioResponseDto | null> {
+    return this.findByEmailUserUseCase.execute(email);
   }
 
   async atualizar(id: number, dto: AtualizarUsuarioDto): Promise<UsuarioResponseDto> {
