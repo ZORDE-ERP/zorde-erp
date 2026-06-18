@@ -2,29 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import { ITabelaMontagemRepository } from '../../domain/repositories/i-tabela-montagem.repository';
 import { TabelaMontagemEntity } from '../../domain/entities/tabela-montagem.entity';
-import { TabelaMontagem } from '@prisma/client';
 import { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
 
 class TabelaMontagemMapper {
   static toDomain(raw: any): TabelaMontagemEntity {
     return new TabelaMontagemEntity({
       id: raw.id,
-      clienteId: raw.cliente_id,
+      clienteId: raw.clienteId,
       servico: raw.servico as TipoServico,
       valor: raw.valor,
-      createdAt: raw.created_at,
-      updatedAt: raw.updated_at || undefined,
-      deletedAt: raw.deleted_at || undefined,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt || undefined,
+      deletedAt: raw.deletedAt || undefined,
       nomeCliente: raw.cliente?.nome || undefined,
     });
   }
 
   static toPersistence(entity: TabelaMontagemEntity) {
     return {
-      cliente_id: entity.clienteId,
+      clienteId: entity.clienteId,
       servico: entity.servico,
       valor: entity.valor,
-      created_at: entity.createdAt,
+      createdAt: entity.createdAt,
     };
   }
 }
@@ -44,7 +43,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 
   async buscarPorId(id: number): Promise<TabelaMontagemEntity | null> {
     const raw = await this.prisma.tabelaMontagem.findFirst({
-      where: { id, deleted_at: null },
+      where: { id, deletedAt: null },
       include: { cliente: true },
     });
     if (!raw) return null;
@@ -62,10 +61,10 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
     const take = limit;
 
     const where: any = {
-      deleted_at: null,
+      deletedAt: null,
       cliente: {
-        usuario_id: usuarioId,
-        deleted_at: null,
+        usuarioId,
+        deletedAt: null,
       },
     };
 
@@ -107,10 +106,10 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 
   async atualizar(id: number, tabela: Partial<TabelaMontagemEntity>): Promise<TabelaMontagemEntity> {
     const updateData: any = {};
-    if (tabela.clienteId !== undefined) updateData.cliente_id = tabela.clienteId;
+    if (tabela.clienteId !== undefined) updateData.clienteId = tabela.clienteId;
     if (tabela.servico !== undefined) updateData.servico = tabela.servico;
     if (tabela.valor !== undefined) updateData.valor = tabela.valor;
-    if (tabela.updatedAt !== undefined) updateData.updated_at = tabela.updatedAt;
+    if (tabela.updatedAt !== undefined) updateData.updatedAt = tabela.updatedAt;
 
     const updated = await this.prisma.tabelaMontagem.update({
       where: { id },
@@ -123,7 +122,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
   async deletarSoft(id: number): Promise<void> {
     await this.prisma.tabelaMontagem.update({
       where: { id },
-      data: { deleted_at: new Date() },
+      data: { deletedAt: new Date() },
     });
   }
 }
