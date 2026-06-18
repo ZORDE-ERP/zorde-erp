@@ -11,7 +11,7 @@ class SolicitacaoCadastroMapper {
       email: raw.email,
       codigo: raw.codigo,
       expiracao: raw.expiracao,
-      criadoEm: raw.criado_em,
+      criadoEm: raw.createdAt,
     });
   }
 
@@ -20,7 +20,7 @@ class SolicitacaoCadastroMapper {
       email: entity.email,
       codigo: entity.codigo,
       expiracao: entity.expiracao,
-      criado_em: entity.criadoEm,
+      createdAt: entity.criadoEm,
     };
   }
 }
