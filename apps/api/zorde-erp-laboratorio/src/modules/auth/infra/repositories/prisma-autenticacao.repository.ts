@@ -9,26 +9,28 @@ class AutenticacaoMapper {
   static toDomain(raw: Autenticacao): AutenticacaoEntity {
     return new AutenticacaoEntity({
       id: raw.id,
-      idUsuario: raw.id_usuario,
-      refreshToken: raw.refresh_token,
-      status: raw.status as StatusSessao,
-      ip: raw.ip,
-      dispositivo: raw.dispositivo,
-      navegador: raw.navegador,
-      createdAt: raw.created_at,
-      updatedAt: raw.updated_at || undefined,
+      idUsuario: raw.idUsuario,
+      refreshToken: raw.refreshToken ?? null,
+      status: StatusSessao.LOGADO,
+      ip: raw.ip || undefined,
+      dispositivo: raw.dispositivo || undefined,
+      navegador: raw.navegador || undefined,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt || undefined,
+      jti: raw.jti || null,
     });
   }
 
   static toPersistence(entity: AutenticacaoEntity) {
     return {
-      id_usuario: entity.idUsuario,
-      refresh_token: entity.refreshToken,
-      status: entity.status,
-      ip: entity.ip,
-      dispositivo: entity.dispositivo,
-      navegador: entity.navegador,
-      created_at: entity.createdAt,
+      idUsuario: entity.getIdUsuario(),
+      refreshToken: entity.getRefreshToken(),
+      ip: entity.getIp(),
+      dispositivo: entity.getDispositivo(),
+      navegador: entity.getNavegador(),
+      createdAt: entity.getCreatedAt(),
+      updatedAt: entity.getUpdatedAt(),
+      jti: entity.getJti(),
     };
   }
 }
@@ -37,32 +39,67 @@ class AutenticacaoMapper {
 export class PrismaAutenticacaoRepository implements IAutenticacaoRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async criar(autenticacao: AutenticacaoEntity): Promise<AutenticacaoEntity> {
+  public async criar(autenticacao: AutenticacaoEntity): Promise<AutenticacaoEntity> {
     const raw = AutenticacaoMapper.toPersistence(autenticacao);
-    const created = await this.prisma.autenticacao.create({
-      data: raw,
+    const autenticationResult = await this.prisma.autenticacao.create({
+      data: {
+        refreshToken: raw.refreshToken,
+        ip: raw.ip,
+        dispositivo: raw.dispositivo,
+        navegador: raw.navegador,
+        createdAt: raw.createdAt ?? new Date(),
+        updatedAt: raw.updatedAt,
+        idUsuario: raw.idUsuario,
+        jti: raw.jti,
+      },
     });
-    return AutenticacaoMapper.toDomain(created);
+
+    return AutenticacaoMapper.toDomain(autenticationResult);
   }
 
-  async buscarPorRefreshToken(refreshToken: string): Promise<AutenticacaoEntity | null> {
-    const raw = await this.prisma.autenticacao.findUnique({
-      where: { refresh_token: refreshToken },
+  public async atualizar(id: number, autenticacao: AutenticacaoEntity): Promise<AutenticacaoEntity> {
+    const raw = AutenticacaoMapper.toPersistence(autenticacao);
+    const autenticationResult = await this.prisma.autenticacao.update({
+      where: { id },
+      data: {
+        refreshToken: raw.refreshToken,
+        ip: raw.ip,
+        dispositivo: raw.dispositivo,
+        navegador: raw.navegador,
+        updatedAt: raw.updatedAt,
+        idUsuario: raw.idUsuario,
+        jti: raw.jti,
+      },
+    });
+    return AutenticacaoMapper.toDomain(autenticationResult);
+  }
+
+  public async buscarPorJti(jti: string): Promise<AutenticacaoEntity | null> {
+    const raw = await this.prisma.autenticacao.findFirst({
+      where: { jti },
     });
     if (!raw) return null;
     return AutenticacaoMapper.toDomain(raw);
   }
 
   async atualizarStatus(id: number, status: StatusSessao): Promise<void> {
-    await this.prisma.autenticacao.update({
-      where: { id },
-      data: { status },
+    if (status === StatusSessao.OFFLINE) {
+      await this.prisma.autenticacao.delete({
+        where: { id },
+      });
+    }
+  }
+
+  public async deletarPorUsuario(idUsuario: number): Promise<void> {
+    await this.prisma.autenticacao.deleteMany({
+      where: { idUsuario },
     });
   }
 
-  async deletarPorUsuario(idUsuario: number): Promise<void> {
-    await this.prisma.autenticacao.deleteMany({
-      where: { id_usuario: idUsuario },
+  public async revogarRefreshToken(idUsuario: number): Promise<void> {
+    await this.prisma.autenticacao.updateMany({
+      where: { idUsuario },
+      data: { refreshToken: null, jti: null },
     });
   }
 }
