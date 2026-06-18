@@ -11,11 +11,11 @@ export class PasswordHashingService {
     hashLength: 32,
   };
 
-  async hash(password: string): Promise<string> {
-    return argon2.hash(password, this.config);
+  public async hash(password: string): Promise<string> {
+    return await argon2.hash(password, this.config);
   }
 
-  async comparar(password: string, hash: string): Promise<boolean> {
+  public async comparar(password: string, hash: string): Promise<boolean> {
     try {
       return await argon2.verify(hash, password);
     } catch {
