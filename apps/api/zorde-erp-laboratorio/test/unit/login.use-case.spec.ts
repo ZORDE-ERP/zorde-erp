@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUseCase } from '../../src/modules/auth/application/use-cases/login.use-case';
-import { I_USUARIO_REPOSITORY } from '../../src/modules/usuario/domain/repositories/i-usuario.repository';
-import { I_AUTENTICACAO_REPOSITORY } from '../../src/modules/auth/domain/repositories/i-autenticacao.repository';
+import { IUSUARIO_REPOSITORY } from '../../src/modules/usuario/domain/repositories/i-usuario.repository';
+import { IAUTENTICACAO_REPOSITORY } from '../../src/modules/auth/domain/repositories/i-autenticacao.repository';
 import { PasswordHashingService } from '../../src/modules/auth/infra/services/password-hashing.service';
 import { UnauthorizedException } from '../../src/shared/errors/app.exception';
 import { StatusSessao } from '../../src/shared/enums/status-sessao.enum';
@@ -36,11 +36,11 @@ describe('LoginUseCase', () => {
       providers: [
         LoginUseCase,
         {
-          provide: I_USUARIO_REPOSITORY,
+          provide: IUSUARIO_REPOSITORY,
           useValue: usuarioRepositoryMock,
         },
         {
-          provide: I_AUTENTICACAO_REPOSITORY,
+          provide: IAUTENTICACAO_REPOSITORY,
           useValue: autenticacaoRepositoryMock,
         },
         {
