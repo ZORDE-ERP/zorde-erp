@@ -13,7 +13,7 @@ class FornecedorMapper {
       nome: raw.nome,
       email: raw.email,
       contato: raw.contato || undefined,
-      tipoPessoa: raw.tipo_pessoa as TipoPessoa,
+      tipoPessoa: raw.tipoPessoa as TipoPessoa,
       documento: raw.documento,
       status: raw.status as StatusPessoa,
       cep: raw.cep || undefined,
@@ -23,10 +23,10 @@ class FornecedorMapper {
       numero: raw.numero || undefined,
       bairro: raw.bairro || undefined,
       observacao: raw.observacao || undefined,
-      usuarioId: raw.usuario_id,
-      createdAt: raw.created_at,
-      updatedAt: raw.updated_at || undefined,
-      deletedAt: raw.deleted_at || undefined,
+      usuarioId: raw.usuarioId,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt || undefined,
+      deletedAt: raw.deletedAt || undefined,
     });
   }
 
@@ -35,7 +35,7 @@ class FornecedorMapper {
       nome: entity.nome,
       email: entity.email,
       contato: entity.contato,
-      tipo_pessoa: entity.tipoPessoa,
+      tipoPessoa: entity.tipoPessoa,
       documento: entity.documento,
       status: entity.status,
       cep: entity.cep,
@@ -45,8 +45,8 @@ class FornecedorMapper {
       numero: entity.numero,
       bairro: entity.bairro,
       observacao: entity.observacao,
-      usuario_id: entity.usuarioId,
-      created_at: entity.createdAt,
+      usuarioId: entity.usuarioId,
+      createdAt: entity.createdAt,
     };
   }
 }
@@ -63,7 +63,7 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
 
   async buscarPorId(id: number): Promise<FornecedorEntity | null> {
     const raw = await this.prisma.fornecedor.findFirst({
-      where: { id, deleted_at: null },
+      where: { id, deletedAt: null },
     });
     if (!raw) return null;
     return FornecedorMapper.toDomain(raw);
@@ -71,7 +71,7 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
 
   async listarPorUsuario(usuarioId: number): Promise<FornecedorEntity[]> {
     const list = await this.prisma.fornecedor.findMany({
-      where: { usuario_id: usuarioId, deleted_at: null },
+      where: { usuarioId, deletedAt: null },
       orderBy: { id: 'asc' },
     });
     return list.map(FornecedorMapper.toDomain);
@@ -82,7 +82,7 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
     if (fornecedor.nome !== undefined) updateData.nome = fornecedor.nome;
     if (fornecedor.email !== undefined) updateData.email = fornecedor.email;
     if (fornecedor.contato !== undefined) updateData.contato = fornecedor.contato;
-    if (fornecedor.tipoPessoa !== undefined) updateData.tipo_pessoa = fornecedor.tipoPessoa;
+    if (fornecedor.tipoPessoa !== undefined) updateData.tipoPessoa = fornecedor.tipoPessoa;
     if (fornecedor.documento !== undefined) updateData.documento = fornecedor.documento;
     if (fornecedor.status !== undefined) updateData.status = fornecedor.status;
     if (fornecedor.cep !== undefined) updateData.cep = fornecedor.cep;
@@ -92,7 +92,7 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
     if (fornecedor.numero !== undefined) updateData.numero = fornecedor.numero;
     if (fornecedor.bairro !== undefined) updateData.bairro = fornecedor.bairro;
     if (fornecedor.observacao !== undefined) updateData.observacao = fornecedor.observacao;
-    if (fornecedor.updatedAt !== undefined) updateData.updated_at = fornecedor.updatedAt;
+    if (fornecedor.updatedAt !== undefined) updateData.updatedAt = fornecedor.updatedAt;
 
     const updated = await this.prisma.fornecedor.update({
       where: { id },
@@ -104,7 +104,7 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
   async deletarSoft(id: number): Promise<void> {
     await this.prisma.fornecedor.update({
       where: { id },
-      data: { deleted_at: new Date() },
+      data: { deletedAt: new Date() },
     });
   }
 }
