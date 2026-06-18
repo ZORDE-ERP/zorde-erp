@@ -5,5 +5,6 @@ export class AuthResponseDto {
     id: number;
     nome: string;
     email: string;
+    role: string;
   };
 }
