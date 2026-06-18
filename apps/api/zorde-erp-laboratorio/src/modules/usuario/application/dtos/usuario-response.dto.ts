@@ -6,20 +6,26 @@ export class UsuarioResponseDto {
   nome: string;
   documento: string;
   contato: string;
+  senha?: string;
+  ativo: boolean;
+  tipoUsuario: 'ADMIN' | 'USUARIO';
   ultimoAcesso: Date | null;
   createdAt: Date;
   updatedAt: Date | null;
 
   static fromEntity(entity: UsuarioEntity): UsuarioResponseDto {
     return {
-      id: entity.id,
-      email: entity.email,
-      nome: entity.nome,
-      documento: entity.documento,
-      contato: entity.contato,
-      ultimoAcesso: entity.ultimoAcesso,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      id: entity.getId()!,
+      email: entity.getEmail(),
+      nome: entity.getNome(),
+      documento: entity.getDocumento(),
+      contato: entity.getContato(),
+      senha: entity.getSenha()!,
+      ativo: entity.getAtivo()!,
+      tipoUsuario: entity.getTipoUsuario(),
+      ultimoAcesso: entity.getUltimoAcesso(),
+      createdAt: entity.getCreatedAt()!,
+      updatedAt: entity.getUpdatedAt(),
     };
   }
 
