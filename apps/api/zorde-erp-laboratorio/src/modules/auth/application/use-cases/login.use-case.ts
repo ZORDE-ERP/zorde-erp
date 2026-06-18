@@ -1,80 +1,80 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
-import { I_USUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
 import type { IUsuarioRepository } from '../../../usuario/domain/repositories/i-usuario.repository';
-import { I_AUTENTICACAO_REPOSITORY } from '../../domain/repositories/i-autenticacao.repository';
+import { IAUTENTICACAO_REPOSITORY } from '../../domain/repositories/i-autenticacao.repository';
 import type { IAutenticacaoRepository } from '../../domain/repositories/i-autenticacao.repository';
 import { PasswordHashingService } from '../../infra/services/password-hashing.service';
-import { LoginDto } from '../dtos/login.dto';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { AutenticacaoEntity } from '../../domain/entities/autenticacao.entity';
 import { UnauthorizedException } from '../../../../shared/errors/app.exception';
 import { StatusSessao } from '../../../../shared/enums/status-sessao.enum';
+import type { LoginDto } from '../../presentation/dto/loginDto';
+import { globalEnvironment } from '../../../../config/env.validation';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class LoginUseCase {
   constructor(
-    @Inject(I_USUARIO_REPOSITORY)
+    @Inject(IUSUARIO_REPOSITORY)
     private readonly usuarioRepository: IUsuarioRepository,
-    @Inject(I_AUTENTICACAO_REPOSITORY)
+    @Inject(IAUTENTICACAO_REPOSITORY)
     private readonly autenticacaoRepository: IAutenticacaoRepository,
     private readonly passwordHashingService: PasswordHashingService,
     private readonly jwtService: JwtService,
   ) {}
 
-  async execute(dto: LoginDto, clientIp: string, clientUserAgent: string): Promise<AuthResponseDto> {
+  async execute(
+    dto: LoginDto,
+    clientIp: string,
+    clientUserAgent: string,
+  ): Promise<AuthResponseDto> {
     const usuario = await this.usuarioRepository.buscarPorEmail(dto.email);
-    if (!usuario || !usuario.getSenha()) {
+
+    if (!usuario) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const isSenhaValida = await this.passwordHashingService.comparar(dto.senha, usuario.getSenha()!);
-    if (!isSenhaValida) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
-
-    // Gerar o fingerprint hash (SHA-256 de IP|UserAgent)
-    const cleanIp = clientIp.split(',')[0].trim();
-    const fingerprintHash = crypto
-      .createHash('sha256')
-      .update(`${cleanIp}|${clientUserAgent}`)
-      .digest('hex');
-
-    // Gerar payloads e assinar os tokens JWT
     const payload = {
       sub: usuario.getId()!,
-      email: usuario.getEmail(),
-
-      fingerprint: fingerprintHash,
+      role: usuario.getTipoUsuario(),
+      nome: usuario.getNome(),
     };
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '15m',
-    });
 
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '24h',
-    });
+    const jti = randomUUID();
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: globalEnvironment.JWT_SECRET,
+        expiresIn: globalEnvironment.JWT_SECRET_EXPIRES_IN,
+        issuer: globalEnvironment.SERVER_URL,
+        notBefore: '0s',
+      }),
 
-    // Parse básico do User Agent para dispositivo/navegador
-    const { dispositivo, navegador } = this.parseUserAgent(clientUserAgent);
+      this.jwtService.signAsync({...payload, jti}, {
+        secret: globalEnvironment.JWT_SECRET,
+        expiresIn: globalEnvironment.REFRESH_TOKEN_EXPIRES_IN,
+        notBefore: '0s',
+      }),
+    ]);
+
+    const refreshTokenHashed = await this.passwordHashingService.hash(refreshToken);
 
     // Criar e salvar sessão de autenticação ativa
-    const autenticacao = AutenticacaoEntity.create({
+    const autenticacao = new AutenticacaoEntity({
       idUsuario: usuario.getId()!,
-      refreshToken,
+      refreshToken: refreshTokenHashed,
       status: StatusSessao.LOGADO,
-      ip: cleanIp,
-      dispositivo,
-      navegador,
+      ip: clientIp,
+      dispositivo: clientUserAgent,
+      navegador: clientUserAgent,
+      createdAt: new Date(),
+      jti,
     });
 
     await this.autenticacaoRepository.criar(autenticacao);
 
-    // Atualizar último acesso do usuário
+    // // Atualizar último acesso do usuário
     await this.usuarioRepository.atualizar(usuario.getId()!, {
       ultimoAcesso: new Date(),
     });
@@ -86,6 +86,7 @@ export class LoginUseCase {
         id: usuario.getId()!,
         nome: usuario.getNome(),
         email: usuario.getEmail(),
+        role: usuario.getTipoUsuario(),
       },
     };
   }
