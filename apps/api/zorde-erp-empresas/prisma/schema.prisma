@@ -11,6 +11,7 @@ model produtos {
   id        Int       @id @default(autoincrement())
   estoques  estoque[] @relation("produto_estoque")
   compras   compras[] @relation("produto_compras")
+  pedidos   pedidos[]
   descricao String    @db.VarChar(255)
   preco     String    @db.VarChar(255)
 
@@ -32,6 +33,7 @@ model clientes {
   email    String @db.VarChar(255)
   telefone String @db.VarChar(255)
   endereco String @db.VarChar(255)
+  pedidos  pedidos[]
 
   @@schema("public")
 }

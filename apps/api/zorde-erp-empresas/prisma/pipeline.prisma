@@ -1,6 +1,7 @@
 model statusPedidos {
   id     Int    @id @default(autoincrement())
   status String @db.VarChar(255)
+  pedidos pedidos[]
 
   @@schema("public")
 }
