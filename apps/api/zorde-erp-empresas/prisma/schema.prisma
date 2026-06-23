@@ -61,3 +61,14 @@ model compras {
   @@schema("public")
 }
 
+model pedidos {
+  id             Int          @id @default(autoincrement())
+  cliente_id     Int
+  cliente        clientes     @relation(fields: [cliente_id], references: [id])
+  produto_id     Int
+  produto        produtos     @relation(fields: [produto_id], references: [id])
+  status_pedido  Int
+  statusPedidos  statusPedidos @relation(fields: [status_pedido], references: [id])
+
+  @@schema("public")
+}

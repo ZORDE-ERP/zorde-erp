@@ -1,0 +1,6 @@
+model statusPedidos {
+  id     Int    @id @default(autoincrement())
+  status String @db.VarChar(255)
+
+  @@schema("public")
+}

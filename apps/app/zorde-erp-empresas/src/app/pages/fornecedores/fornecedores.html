@@ -1,0 +1,154 @@
+<section class="flex h-full w-full flex-col gap-6 overflow-hidden">
+  <div class="flex flex-col gap-3 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-sm font-medium text-slate-500">Cadastros</p>
+      <h1 class="text-3xl font-semibold text-slate-950">Fornecedores</h1>
+    </div>
+
+    <button
+      type="button"
+      (click)="loadFornecedores()"
+      class="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+      [disabled]="loading()"
+    >
+      Atualizar
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ error() }}
+    </div>
+  }
+
+  <form
+    class="grid w-full gap-4 rounded-md border border-slate-200 bg-slate-50 p-4 lg:grid-cols-12"
+    (ngSubmit)="save()"
+  >
+    <label class="space-y-1.5 lg:col-span-3">
+      <span class="text-sm font-medium text-slate-700">Nome</span>
+      <input
+        name="nome"
+        type="text"
+        [(ngModel)]="form.nome"
+        class="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-2 focus:ring-slate-950/10"
+        placeholder="Fornecedor LTDA"
+      />
+    </label>
+
+    <label class="space-y-1.5 lg:col-span-3">
+      <span class="text-sm font-medium text-slate-700">Email</span>
+      <input
+        name="email"
+        type="email"
+        [(ngModel)]="form.email"
+        class="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-2 focus:ring-slate-950/10"
+        placeholder="contato@empresa.com"
+      />
+    </label>
+
+    <label class="space-y-1.5 lg:col-span-2">
+      <span class="text-sm font-medium text-slate-700">Telefone</span>
+      <input
+        name="telefone"
+        type="text"
+        [(ngModel)]="form.telefone"
+        class="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-2 focus:ring-slate-950/10"
+        placeholder="(00) 00000-0000"
+      />
+    </label>
+
+    <label class="space-y-1.5 lg:col-span-3">
+      <span class="text-sm font-medium text-slate-700">Endereco</span>
+      <input
+        name="endereco"
+        type="text"
+        [(ngModel)]="form.endereco"
+        class="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-2 focus:ring-slate-950/10"
+        placeholder="Rua, numero, cidade"
+      />
+    </label>
+
+    <div class="flex items-end gap-2 lg:col-span-1">
+      <button
+        type="submit"
+        class="inline-flex h-10 w-full min-w-24 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        [disabled]="saving()"
+      >
+        {{ editingId() ? 'Salvar' : 'Criar' }}
+      </button>
+
+      @if (editingId()) {
+        <button
+          type="button"
+          (click)="resetForm()"
+          class="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          Cancelar
+        </button>
+      }
+    </div>
+  </form>
+
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-sm text-slate-500">
+      {{ fornecedores().length }} registros
+    </p>
+
+    @if (loading()) {
+      <p class="text-sm text-slate-500">Carregando...</p>
+    }
+  </div>
+
+  @if (!loading() && !fornecedores().length) {
+    <div class="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+      Nenhum fornecedor cadastrado.
+    </div>
+  } @else {
+    <div class="min-h-0 flex-1 overflow-auto rounded-md border border-slate-200">
+      <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+          <tr>
+            <th class="px-5 py-3">ID</th>
+            <th class="px-5 py-3">Nome</th>
+            <th class="px-5 py-3">Email</th>
+            <th class="px-5 py-3">Telefone</th>
+            <th class="px-5 py-3">Endereco</th>
+            <th class="px-5 py-3">Compras</th>
+            <th class="px-5 py-3 text-right">Acoes</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white text-slate-700">
+          @for (fornecedor of fornecedores(); track fornecedor.id) {
+            <tr class="hover:bg-slate-50">
+              <td class="whitespace-nowrap px-5 py-4 font-medium text-slate-950">{{ fornecedor.id }}</td>
+              <td class="whitespace-nowrap px-5 py-4 font-medium text-slate-900">{{ fornecedor.nome }}</td>
+              <td class="whitespace-nowrap px-5 py-4">{{ fornecedor.email }}</td>
+              <td class="whitespace-nowrap px-5 py-4">{{ fornecedor.telefone }}</td>
+              <td class="min-w-80 px-5 py-4">{{ fornecedor.endereco }}</td>
+              <td class="whitespace-nowrap px-5 py-4">{{ fornecedor.compras?.length ?? 0 }}</td>
+              <td class="whitespace-nowrap px-5 py-4 text-right">
+                <div class="inline-flex gap-2">
+                  <button
+                    type="button"
+                    (click)="edit(fornecedor)"
+                    class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    (click)="remove(fornecedor)"
+                    class="rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
