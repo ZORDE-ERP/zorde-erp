@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  schemas  = ["public"]
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model produtos {
+  id        Int       @id @default(autoincrement())
+  estoques  estoque[] @relation("produto_estoque")
+  compras   compras[] @relation("produto_compras")
+  descricao String    @db.VarChar(255)
+  preco     String    @db.VarChar(255)
+
+  @@schema("public")
+}
+
+model estoque {
+  id         Int      @id @default(autoincrement())
+  produto_id Int
+  produto    produtos @relation("produto_estoque", fields: [produto_id], references: [id])
+  quantidade Int      @db.Integer
+
+  @@schema("public")
+}
+
+model clientes {
+  id       Int    @id @default(autoincrement())
+  nome     String @db.VarChar(255)
+  email    String @db.VarChar(255)
+  telefone String @db.VarChar(255)
+  endereco String @db.VarChar(255)
+
+  @@schema("public")
+}
+
+model fornecedores {
+  id       Int       @id @default(autoincrement())
+  nome     String    @db.VarChar(255)
+  email    String    @db.VarChar(255)
+  telefone String    @db.VarChar(255)
+  endereco String    @db.VarChar(255)
+  compras  compras[]
+
+  @@schema("public")
+}
+
+model compras {
+  id             Int          @id @default(autoincrement())
+  fornecedor_id  Int
+  fornecedor     fornecedores @relation(fields: [fornecedor_id], references: [id])
+  produto_id     Int
+  produto        produtos     @relation("produto_compras", fields: [produto_id], references: [id])
+  data           DateTime
+  total          String       @db.VarChar(255)
+  valor_unitario String       @db.VarChar(255)
+  quantidade     Int          @db.Integer
+
+  @@schema("public")
+}
+
