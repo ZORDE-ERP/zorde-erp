@@ -3,15 +3,15 @@ import { Resend } from 'resend';
 
 @Injectable()
 export class ResendEmailService {
-  private readonly resend: Resend;
-  private readonly logger = new Logger(ResendEmailService.name);
+	private readonly resend: Resend;
+	private readonly logger = new Logger(ResendEmailService.name);
 
-  constructor() {
-    this.resend = new Resend(process.env.RESEND_API_KEY);
-  }
+	public constructor() {
+		this.resend = new Resend(process.env.RESEND_API_KEY);
+	}
 
-  async enviarCodigoOtp(email: string, codigo: string): Promise<void> {
-    const html = `
+	public async enviarCodigoOtp(email: string, codigo: string): Promise<void> {
+		const html = `
       <!DOCTYPE html>
       <html lang="pt-BR">
       <head>
@@ -119,17 +119,17 @@ export class ResendEmailService {
       </html>
     `;
 
-    try {
-      await this.resend.emails.send({
-        from: 'Zorde Laboratório <onboarding@resend.dev>',
-        to: email,
-        subject: `${codigo} é o seu código de confirmação`,
-        html,
-      });
-      this.logger.log(`E-mail OTP enviado com sucesso para ${email}`);
-    } catch (error) {
-      this.logger.error(`Erro ao enviar e-mail OTP para ${email}:`, error);
-      throw error;
-    }
-  }
+		try {
+			await this.resend.emails.send({
+				from: 'Zorde Laboratório <onboarding@resend.dev>',
+				to: email,
+				subject: `${codigo} é o seu código de confirmação`,
+				html,
+			});
+			this.logger.log(`E-mail OTP enviado com sucesso para ${email}`);
+		} catch (error) {
+			this.logger.error(`Erro ao enviar e-mail OTP para ${email}:`, error);
+			throw error;
+		}
+	}
 }

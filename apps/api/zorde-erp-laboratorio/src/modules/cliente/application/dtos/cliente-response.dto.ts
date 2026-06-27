@@ -1,49 +1,49 @@
-import { ClienteEntity } from '../../domain/entities/cliente.entity';
-import { TipoPessoa } from '../../../../shared/enums/tipo-pessoa.enum';
-import { StatusPessoa } from '../../../../shared/enums/status-pessoa.enum';
+import type { StatusPessoa } from '../../../../shared/enums/status-pessoa.enum';
+import type { TipoPessoa } from '../../../../shared/enums/tipo-pessoa.enum';
+import type { ClienteEntity } from '../../domain/entities/cliente.entity';
 
 export class ClienteResponseDto {
-  id: number;
-  nome: string;
-  email: string;
-  contato?: string;
-  tipoPessoa: TipoPessoa;
-  documento: string;
-  status: StatusPessoa;
-  cep?: string;
-  uf?: string;
-  cidade?: string;
-  logradouro?: string;
-  numero?: string;
-  bairro?: string;
-  observacao?: string;
-  usuarioId: number;
-  createdAt: Date;
-  updatedAt?: Date;
+	public id: number;
+	public nome: string;
+	public email: string;
+	public contato?: string;
+	public tipoPessoa: TipoPessoa;
+	public documento: string;
+	public status: StatusPessoa;
+	public cep?: string;
+	public uf?: string;
+	public cidade?: string;
+	public logradouro?: string;
+	public numero?: string;
+	public bairro?: string;
+	public observacao?: string;
+	public usuarioId: number;
+	public createdAt: Date;
+	public updatedAt?: Date;
 
-  static fromEntity(entity: ClienteEntity): ClienteResponseDto {
-    return {
-      id: entity.id,
-      nome: entity.nome,
-      email: entity.email,
-      contato: entity.contato,
-      tipoPessoa: entity.tipoPessoa,
-      documento: entity.documento,
-      status: entity.status,
-      cep: entity.cep,
-      uf: entity.uf,
-      cidade: entity.cidade,
-      logradouro: entity.logradouro,
-      numero: entity.numero,
-      bairro: entity.bairro,
-      observacao: entity.observacao,
-      usuarioId: entity.usuarioId,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-    };
-  }
+	public static fromEntity(entity: ClienteEntity): ClienteResponseDto {
+		return {
+			id: entity.id,
+			nome: entity.nome,
+			email: entity.email,
+			contato: entity.contato,
+			tipoPessoa: entity.tipoPessoa,
+			documento: entity.documento,
+			status: entity.status,
+			cep: entity.cep,
+			uf: entity.uf,
+			cidade: entity.cidade,
+			logradouro: entity.logradouro,
+			numero: entity.numero,
+			bairro: entity.bairro,
+			observacao: entity.observacao,
+			usuarioId: entity.usuarioId,
+			createdAt: entity.createdAt,
+			updatedAt: entity.updatedAt,
+		};
+	}
 
-  static fromEntities(entities: ClienteEntity[]): ClienteResponseDto[] {
-    return entities.map((entity) => this.fromEntity(entity));
-  }
+	public static fromEntities(entities: ClienteEntity[]): ClienteResponseDto[] {
+		return entities.map((entity) => ClienteResponseDto.fromEntity(entity));
+	}
 }

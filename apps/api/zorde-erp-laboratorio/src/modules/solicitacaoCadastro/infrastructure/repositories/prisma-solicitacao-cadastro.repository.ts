@@ -1,57 +1,62 @@
 import { Injectable } from '@nestjs/common';
+import type { SolicitacaoCadastro } from '@prisma/client';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
-import { ISolicitacaoCadastroRepository } from '../../domain/repositories/i-solicitacao-cadastro.repository';
 import { SolicitacaoCadastroEntity } from '../../domain/entities/solicitacao-cadastro.entity';
-import { SolicitacaoCadastro } from '@prisma/client';
+import type { ISolicitacaoCadastroRepository } from '../../domain/repositories/i-solicitacao-cadastro.repository';
 
-class SolicitacaoCadastroMapper {
-  static toDomain(raw: SolicitacaoCadastro): SolicitacaoCadastroEntity {
-    return new SolicitacaoCadastroEntity({
-      id: raw.id,
-      email: raw.email,
-      codigo: raw.codigo,
-      expiracao: raw.expiracao,
-      criadoEm: raw.createdAt,
-    });
-  }
+const SolicitacaoCadastroMapper = {
+	toDomain(raw: SolicitacaoCadastro): SolicitacaoCadastroEntity {
+		return new SolicitacaoCadastroEntity({
+			id: raw.id,
+			email: raw.email,
+			codigo: raw.codigo,
+			expiracao: raw.expiracao,
+			criadoEm: raw.createdAt,
+		});
+	},
 
-  static toPersistence(entity: SolicitacaoCadastroEntity) {
-    return {
-      email: entity.email,
-      codigo: entity.codigo,
-      expiracao: entity.expiracao,
-      createdAt: entity.criadoEm,
-    };
-  }
-}
+	toPersistence(entity: SolicitacaoCadastroEntity): {
+		email: string;
+		codigo: string;
+		expiracao: Date;
+		createdAt: Date;
+	} {
+		return {
+			email: entity.email,
+			codigo: entity.codigo,
+			expiracao: entity.expiracao,
+			createdAt: entity.criadoEm,
+		};
+	},
+};
 
 @Injectable()
 export class PrismaSolicitacaoCadastroRepository implements ISolicitacaoCadastroRepository {
-  constructor(private readonly prisma: PrismaService) {}
+	public constructor(private readonly prisma: PrismaService) {}
 
-  async criar(solicitacao: SolicitacaoCadastroEntity): Promise<SolicitacaoCadastroEntity> {
-    const data = SolicitacaoCadastroMapper.toPersistence(solicitacao);
-    const created = await this.prisma.solicitacaoCadastro.create({
-      data,
-    });
-    return SolicitacaoCadastroMapper.toDomain(created);
-  }
+	public async criar(solicitacao: SolicitacaoCadastroEntity): Promise<SolicitacaoCadastroEntity> {
+		const data = SolicitacaoCadastroMapper.toPersistence(solicitacao);
+		const created = await this.prisma.solicitacaoCadastro.create({
+			data,
+		});
+		return SolicitacaoCadastroMapper.toDomain(created);
+	}
 
-  async buscarPorEmail(email: string): Promise<SolicitacaoCadastroEntity | null> {
-    const raw = await this.prisma.solicitacaoCadastro.findUnique({
-      where: { email },
-    });
-    if (!raw) return null;
-    return SolicitacaoCadastroMapper.toDomain(raw);
-  }
+	public async buscarPorEmail(email: string): Promise<SolicitacaoCadastroEntity | null> {
+		const raw = await this.prisma.solicitacaoCadastro.findUnique({
+			where: { email },
+		});
+		if (!raw) return null;
+		return SolicitacaoCadastroMapper.toDomain(raw);
+	}
 
-  async deletarPorEmail(email: string): Promise<void> {
-    try {
-      await this.prisma.solicitacaoCadastro.deleteMany({
-        where: { email },
-      });
-    } catch {
-      // Ignora erro se não existir registro
-    }
-  }
+	public async deletarPorEmail(email: string): Promise<void> {
+		try {
+			await this.prisma.solicitacaoCadastro.deleteMany({
+				where: { email },
+			});
+		} catch {
+			// Ignora erro se não existir registro
+		}
+	}
 }

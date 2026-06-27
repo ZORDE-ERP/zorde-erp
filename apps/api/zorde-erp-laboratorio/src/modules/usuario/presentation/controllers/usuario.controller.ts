@@ -1,56 +1,57 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-  UsePipes,
-  ParseIntPipe,
-  Query,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseIntPipe,
+	Post,
+	Put,
+	Query,
+	UseGuards,
+	UsePipes,
 } from '@nestjs/common';
-import { UsuarioService } from '../../application/services/usuario.service';
-import { AtualizarUsuarioDto, atualizarUsuarioSchema } from '../../application/dtos/atualizar-usuario.dto';
-import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
-import { createUserSchema } from '../dto/userDto';
-import type { CreateUserDto } from '../dto/userDto';
 import { JwtAuthGuardStrategy } from 'src/modules/auth/presentation/guards/jwtAuth.guard';
+import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
+import { type AtualizarUsuarioDto, atualizarUsuarioSchema } from '../../application/dtos/atualizar-usuario.dto';
+import type { UsuarioResponseDto } from '../../application/dtos/usuario-response.dto';
+import { UsuarioService } from '../../application/services/usuario.service';
+import type { CreateUserDto } from '../dto/userDto';
+import { createUserSchema } from '../dto/userDto';
 
 @Controller('api/usuarios')
 export class UsuarioController {
-  constructor(private readonly usuarioService: UsuarioService) {}
+	public constructor(private readonly usuarioService: UsuarioService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(createUserSchema))
-  async criar(@Body() dto: CreateUserDto) {
-    return this.usuarioService.criar(dto);
-  }
+	@Post()
+	@HttpCode(HttpStatus.CREATED)
+	@UsePipes(new ZodValidationPipe(createUserSchema))
+	public async criar(@Body() dto: CreateUserDto): Promise<UsuarioResponseDto> {
+		return this.usuarioService.criar(dto);
+	}
 
-  @Get()
-  @UseGuards(JwtAuthGuardStrategy)
-  async handleFindByEmail(@Query('email') email: string) {
-    return this.usuarioService.findByEmail(email);
-  }
+	@Get()
+	@UseGuards(JwtAuthGuardStrategy)
+	public async handleFindByEmail(@Query('email') email: string): Promise<UsuarioResponseDto | null> {
+		return this.usuarioService.findByEmail(email);
+	}
 
-  @Put(':id')
-  @UseGuards(JwtAuthGuardStrategy)
-  @UsePipes(new ZodValidationPipe(atualizarUsuarioSchema))
-  async atualizar(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AtualizarUsuarioDto,
-  ) {
-    return this.usuarioService.atualizar(id, dto);
-  }
+	@Put(':id')
+	@UseGuards(JwtAuthGuardStrategy)
+	@UsePipes(new ZodValidationPipe(atualizarUsuarioSchema))
+	public async atualizar(
+		@Param('id', ParseIntPipe) id: number,
+		@Body() dto: AtualizarUsuarioDto,
+	): Promise<UsuarioResponseDto> {
+		return this.usuarioService.atualizar(id, dto);
+	}
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuardStrategy)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deletar(@Param('id', ParseIntPipe) id: number) {
-    await this.usuarioService.deletar(id);
-  }
+	@Delete(':id')
+	@UseGuards(JwtAuthGuardStrategy)
+	@HttpCode(HttpStatus.NO_CONTENT)
+	public async deletar(@Param('id', ParseIntPipe) id: number): Promise<void> {
+		await this.usuarioService.deletar(id);
+	}
 }
