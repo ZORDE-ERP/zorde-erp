@@ -11,12 +11,14 @@ import {
   HttpStatus,
   UsePipes,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { UsuarioService } from '../../application/services/usuario.service';
-import { CriarUsuarioDto, criarUsuarioSchema } from '../../application/dtos/criar-usuario.dto';
 import { AtualizarUsuarioDto, atualizarUsuarioSchema } from '../../application/dtos/atualizar-usuario.dto';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
-import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
+import { createUserSchema } from '../dto/userDto';
+import type { CreateUserDto } from '../dto/userDto';
+import { JwtAuthGuardStrategy } from 'src/modules/auth/presentation/guards/jwtAuth.guard';
 
 @Controller('api/usuarios')
 export class UsuarioController {
@@ -24,19 +26,19 @@ export class UsuarioController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(criarUsuarioSchema))
-  async criar(@Body() dto: CriarUsuarioDto) {
+  @UsePipes(new ZodValidationPipe(createUserSchema))
+  async criar(@Body() dto: CreateUserDto) {
     return this.usuarioService.criar(dto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  async listar() {
-    return this.usuarioService.listar();
+  @UseGuards(JwtAuthGuardStrategy)
+  async handleFindByEmail(@Query('email') email: string) {
+    return this.usuarioService.findByEmail(email);
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuardStrategy)
   @UsePipes(new ZodValidationPipe(atualizarUsuarioSchema))
   async atualizar(
     @Param('id', ParseIntPipe) id: number,
@@ -46,7 +48,7 @@ export class UsuarioController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuardStrategy)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletar(@Param('id', ParseIntPipe) id: number) {
     await this.usuarioService.deletar(id);

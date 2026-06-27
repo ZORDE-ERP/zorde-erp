@@ -10,35 +10,35 @@ class OrdemDeServicoMapper {
   static toDomain(raw: any): OrdemDeServicoEntity {
     return new OrdemDeServicoEntity({
       id: raw.id,
-      codigoOs: raw.codigo_os,
-      clienteId: raw.cliente_id,
+      codigoOs: raw.codigoOS,
+      clienteId: raw.clienteId,
       valor: raw.valor || undefined,
-      tabelaMontagemId: raw.tabela_montagem_id || undefined,
-      usuarioId: raw.usuario_id,
-      createdAt: raw.created_at,
-      updatedAt: raw.updated_at || undefined,
-      deletedAt: raw.deleted_at || undefined,
+      tabelaMontagemId: raw.tabelaMontagemId || undefined,
+      usuarioId: raw.usuarioId,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt || undefined,
+      deletedAt: raw.deletedAt || undefined,
       cliente: raw.cliente
         ? new ClienteEntity({
             id: raw.cliente.id,
             nome: raw.cliente.nome,
-            tipoPessoa: raw.cliente.tipo_pessoa,
+            tipoPessoa: raw.cliente.tipoPessoa,
             documento: raw.cliente.documento,
-            usuarioId: raw.cliente.usuario_id,
-            createdAt: raw.cliente.created_at,
-            updatedAt: raw.cliente.updated_at || undefined,
-            deletedAt: raw.cliente.deleted_at || undefined,
+            usuarioId: raw.cliente.usuarioId,
+            createdAt: raw.cliente.createdAt,
+            updatedAt: raw.cliente.updatedAt || undefined,
+            deletedAt: raw.cliente.deletedAt || undefined,
           })
         : undefined,
       tabelaMontagem: raw.tabelaMontagem
         ? new TabelaMontagemEntity({
             id: raw.tabelaMontagem.id,
-            clienteId: raw.tabelaMontagem.cliente_id,
+            clienteId: raw.tabelaMontagem.clienteId,
             servico: raw.tabelaMontagem.servico as TipoServico,
             valor: raw.tabelaMontagem.valor,
-            createdAt: raw.tabelaMontagem.created_at,
-            updatedAt: raw.tabelaMontagem.updated_at || undefined,
-            deletedAt: raw.tabelaMontagem.deleted_at || undefined,
+            createdAt: raw.tabelaMontagem.createdAt,
+            updatedAt: raw.tabelaMontagem.updatedAt || undefined,
+            deletedAt: raw.tabelaMontagem.deletedAt || undefined,
           })
         : undefined,
     });
@@ -46,12 +46,12 @@ class OrdemDeServicoMapper {
 
   static toPersistence(entity: OrdemDeServicoEntity) {
     return {
-      codigo_os: entity.codigoOs,
-      cliente_id: entity.clienteId,
+      codigoOS: entity.codigoOs,
+      clienteId: entity.clienteId,
       valor: entity.valor,
-      tabela_montagem_id: entity.tabelaMontagemId,
-      usuario_id: entity.usuarioId,
-      created_at: entity.createdAt,
+      tabelaMontagemId: entity.tabelaMontagemId,
+      usuarioId: entity.usuarioId,
+      createdAt: entity.createdAt,
     };
   }
 }
@@ -71,7 +71,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 
   async buscarPorId(id: number): Promise<OrdemDeServicoEntity | null> {
     const raw = await this.prisma.ordemDeServico.findFirst({
-      where: { id, deleted_at: null },
+      where: { id, deletedAt: null },
       include: { cliente: true, tabelaMontagem: true },
     });
     if (!raw) return null;
@@ -80,7 +80,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 
   async listarPorUsuario(usuarioId: number): Promise<OrdemDeServicoEntity[]> {
     const items = await this.prisma.ordemDeServico.findMany({
-      where: { usuario_id: usuarioId, deleted_at: null },
+      where: { usuarioId, deletedAt: null },
       include: { cliente: true, tabelaMontagem: true },
       orderBy: { id: 'desc' },
     });
@@ -89,11 +89,11 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 
   async atualizar(id: number, ordem: Partial<OrdemDeServicoEntity>): Promise<OrdemDeServicoEntity> {
     const updateData: any = {};
-    if (ordem.codigoOs !== undefined) updateData.codigo_os = ordem.codigoOs;
-    if (ordem.clienteId !== undefined) updateData.cliente_id = ordem.clienteId;
+    if (ordem.codigoOs !== undefined) updateData.codigoOS = ordem.codigoOs;
+    if (ordem.clienteId !== undefined) updateData.clienteId = ordem.clienteId;
     if (ordem.valor !== undefined) updateData.valor = ordem.valor;
-    if (ordem.tabelaMontagemId !== undefined) updateData.tabela_montagem_id = ordem.tabelaMontagemId;
-    if (ordem.updatedAt !== undefined) updateData.updated_at = ordem.updatedAt;
+    if (ordem.tabelaMontagemId !== undefined) updateData.tabelaMontagemId = ordem.tabelaMontagemId;
+    if (ordem.updatedAt !== undefined) updateData.updatedAt = ordem.updatedAt;
 
     const updated = await this.prisma.ordemDeServico.update({
       where: { id },
@@ -106,7 +106,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
   async deletarSoft(id: number): Promise<void> {
     await this.prisma.ordemDeServico.update({
       where: { id },
-      data: { deleted_at: new Date() },
+      data: { deletedAt: new Date() },
     });
   }
 }

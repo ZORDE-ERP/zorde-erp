@@ -72,11 +72,11 @@ Se precisar de informações sobre como configurar a biblioteca `argon2` no Node
 - [ ] Implemente `src/modules/auth/auth.module.ts`:
   - Registrar os imports necessários: `JwtModule` (configurado dinamicamente ou estaticamente com `JWT_SECRET`), `DatabaseModule`, `@nestjs/config`.
   - Registrar no array de `providers`:
-    - `{ provide: I_AUTENTICACAO_REPOSITORY, useClass: PrismaAutenticacaoRepository }`
+    - `{ provide: IAUTENTICACAO_REPOSITORY, useClass: PrismaAutenticacaoRepository }`
     - `PasswordHashingService` (e outros serviços necessários)
     - `LoginUseCase`, `RefreshTokenUseCase`, `LogoutUseCase`
     - `AuthService`
-  - Exportar o `AuthService`, `I_AUTENTICACAO_REPOSITORY` e `JwtModule` para outros módulos.
+  - Exportar o `AuthService`, `IAUTENTICACAO_REPOSITORY` e `JwtModule` para outros módulos.
 
 ---
 

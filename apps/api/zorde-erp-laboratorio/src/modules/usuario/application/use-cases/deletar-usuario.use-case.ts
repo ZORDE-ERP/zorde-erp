@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { I_USUARIO_REPOSITORY } from '../../domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../domain/repositories/i-usuario.repository';
 import type { IUsuarioRepository } from '../../domain/repositories/i-usuario.repository';
 import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
 
 @Injectable()
 export class DeletarUsuarioUseCase {
   constructor(
-    @Inject(I_USUARIO_REPOSITORY)
+    @Inject(IUSUARIO_REPOSITORY)
     private readonly usuarioRepository: IUsuarioRepository,
   ) {}
 

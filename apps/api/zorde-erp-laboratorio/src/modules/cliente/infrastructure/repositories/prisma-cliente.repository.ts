@@ -13,7 +13,7 @@ class ClienteMapper {
       nome: raw.nome,
       email: raw.email,
       contato: raw.contato || undefined,
-      tipoPessoa: raw.tipo_pessoa as TipoPessoa,
+      tipoPessoa: raw.tipoPessoa as TipoPessoa,
       documento: raw.documento,
       status: raw.status as StatusPessoa,
       cep: raw.cep || undefined,
@@ -23,10 +23,10 @@ class ClienteMapper {
       numero: raw.numero || undefined,
       bairro: raw.bairro || undefined,
       observacao: raw.observacao || undefined,
-      usuarioId: raw.usuario_id,
-      createdAt: raw.created_at,
-      updatedAt: raw.updated_at || undefined,
-      deletedAt: raw.deleted_at || undefined,
+      usuarioId: raw.usuarioId,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt || undefined,
+      deletedAt: raw.deletedAt || undefined,
     });
   }
 
@@ -35,7 +35,7 @@ class ClienteMapper {
       nome: entity.nome,
       email: entity.email,
       contato: entity.contato,
-      tipo_pessoa: entity.tipoPessoa,
+      tipoPessoa: entity.tipoPessoa,
       documento: entity.documento,
       status: entity.status,
       cep: entity.cep,
@@ -45,8 +45,8 @@ class ClienteMapper {
       numero: entity.numero,
       bairro: entity.bairro,
       observacao: entity.observacao,
-      usuario_id: entity.usuarioId,
-      created_at: entity.createdAt,
+      usuarioId: entity.usuarioId,
+      createdAt: entity.createdAt,
     };
   }
 }
@@ -63,7 +63,7 @@ export class PrismaClienteRepository implements IClienteRepository {
 
   async buscarPorId(id: number): Promise<ClienteEntity | null> {
     const raw = await this.prisma.cliente.findFirst({
-      where: { id, deleted_at: null },
+      where: { id, deletedAt: null },
     });
     if (!raw) return null;
     return ClienteMapper.toDomain(raw);
@@ -71,7 +71,7 @@ export class PrismaClienteRepository implements IClienteRepository {
 
   async listarPorUsuario(usuarioId: number): Promise<ClienteEntity[]> {
     const list = await this.prisma.cliente.findMany({
-      where: { usuario_id: usuarioId, deleted_at: null },
+      where: { usuarioId, deletedAt: null },
       orderBy: { id: 'asc' },
     });
     return list.map(ClienteMapper.toDomain);
@@ -82,7 +82,7 @@ export class PrismaClienteRepository implements IClienteRepository {
     if (cliente.nome !== undefined) updateData.nome = cliente.nome;
     if (cliente.email !== undefined) updateData.email = cliente.email;
     if (cliente.contato !== undefined) updateData.contato = cliente.contato;
-    if (cliente.tipoPessoa !== undefined) updateData.tipo_pessoa = cliente.tipoPessoa;
+    if (cliente.tipoPessoa !== undefined) updateData.tipoPessoa = cliente.tipoPessoa;
     if (cliente.documento !== undefined) updateData.documento = cliente.documento;
     if (cliente.status !== undefined) updateData.status = cliente.status;
     if (cliente.cep !== undefined) updateData.cep = cliente.cep;
@@ -92,7 +92,7 @@ export class PrismaClienteRepository implements IClienteRepository {
     if (cliente.numero !== undefined) updateData.numero = cliente.numero;
     if (cliente.bairro !== undefined) updateData.bairro = cliente.bairro;
     if (cliente.observacao !== undefined) updateData.observacao = cliente.observacao;
-    if (cliente.updatedAt !== undefined) updateData.updated_at = cliente.updatedAt;
+    if (cliente.updatedAt !== undefined) updateData.updatedAt = cliente.updatedAt;
 
     const updated = await this.prisma.cliente.update({
       where: { id },
@@ -104,7 +104,7 @@ export class PrismaClienteRepository implements IClienteRepository {
   async deletarSoft(id: number): Promise<void> {
     await this.prisma.cliente.update({
       where: { id },
-      data: { deleted_at: new Date() },
+      data: { deletedAt: new Date() },
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { I_USUARIO_REPOSITORY } from '../../domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../domain/repositories/i-usuario.repository';
 import type { IUsuarioRepository } from '../../domain/repositories/i-usuario.repository';
 import { PasswordHashingService } from '../../../auth/infra/services/password-hashing.service';
 import { AtualizarUsuarioDto } from '../dtos/atualizar-usuario.dto';
@@ -9,7 +9,7 @@ import { ConflictException, EntityNotFoundException } from '../../../../shared/e
 @Injectable()
 export class AtualizarUsuarioUseCase {
   constructor(
-    @Inject(I_USUARIO_REPOSITORY)
+    @Inject(IUSUARIO_REPOSITORY)
     private readonly usuarioRepository: IUsuarioRepository,
     private readonly passwordHashingService: PasswordHashingService,
   ) {}
@@ -25,17 +25,17 @@ export class AtualizarUsuarioUseCase {
     if (dto.nome !== undefined) updateData.nome = dto.nome;
     if (dto.contato !== undefined) updateData.contato = dto.contato;
 
-    if (dto.email !== undefined && dto.email !== existing.email) {
+    if (dto.email !== undefined && dto.email !== existing.getEmail()) {
       const other = await this.usuarioRepository.buscarPorEmail(dto.email);
-      if (other && other.id !== id) {
+      if (other && other.getId() !== id) {
         throw new ConflictException('E-mail já em uso por outro usuário');
       }
       updateData.email = dto.email;
     }
 
-    if (dto.documento !== undefined && dto.documento !== existing.documento) {
+    if (dto.documento !== undefined && dto.documento !== existing.getDocumento()) {
       const other = await this.usuarioRepository.buscarPorDocumento(dto.documento);
-      if (other && other.id !== id) {
+      if (other && other.getId() !== id) {
         throw new ConflictException('Documento já em uso por outro usuário');
       }
       updateData.documento = dto.documento;

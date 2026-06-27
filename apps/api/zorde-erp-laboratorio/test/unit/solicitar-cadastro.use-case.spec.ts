@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SolicitarCadastroUseCase } from '../../src/modules/solicitacaoCadastro/application/use-cases/solicitar-cadastro.use-case';
-import { I_USUARIO_REPOSITORY } from '../../src/modules/usuario/domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../src/modules/usuario/domain/repositories/i-usuario.repository';
 import { I_SOLICITACAO_CADASTRO_REPOSITORY } from '../../src/modules/solicitacaoCadastro/domain/repositories/i-solicitacao-cadastro.repository';
 import { ResendEmailService } from '../../src/modules/solicitacaoCadastro/infrastructure/services/resend-email.service';
 import { ConflictException } from '../../src/shared/errors/app.exception';
@@ -29,7 +29,7 @@ describe('SolicitarCadastroUseCase', () => {
       providers: [
         SolicitarCadastroUseCase,
         {
-          provide: I_USUARIO_REPOSITORY,
+          provide: IUSUARIO_REPOSITORY,
           useValue: usuarioRepositoryMock,
         },
         {

@@ -2,13 +2,14 @@ import { forwardRef, Module } from '@nestjs/common';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { UsuarioService } from './application/services/usuario.service';
 import { CriarUsuarioUseCase } from './application/use-cases/criar-usuario.use-case';
-import { ListarUsuariosUseCase } from './application/use-cases/listar-usuarios.use-case';
+import { FindByEmailUserUseCase } from './application/use-cases/findByEmailUser';
 import { AtualizarUsuarioUseCase } from './application/use-cases/atualizar-usuario.use-case';
 import { DeletarUsuarioUseCase } from './application/use-cases/deletar-usuario.use-case';
-import { I_USUARIO_REPOSITORY } from './domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from './domain/repositories/i-usuario.repository';
 import { PrismaUsuarioRepository } from './infrastructure/repositories/prisma-usuario.repository';
 import { UsuarioController } from './presentation/controllers/usuario.controller';
 import { AuthModule } from '../auth/auth.module';
+import { BcryptService } from 'src/shared/utils/bcrypt.service';
 
 @Module({
   imports: [
@@ -16,19 +17,20 @@ import { AuthModule } from '../auth/auth.module';
   ],
   controllers: [UsuarioController],
   providers: [
+    BcryptService,
     CriarUsuarioUseCase,
-    ListarUsuariosUseCase,
+    FindByEmailUserUseCase,
     AtualizarUsuarioUseCase,
     DeletarUsuarioUseCase,
     UsuarioService,
     {
-      provide: I_USUARIO_REPOSITORY,
+      provide: IUSUARIO_REPOSITORY,
       useClass: PrismaUsuarioRepository,
     },
   ],
   exports: [
     UsuarioService,
-    I_USUARIO_REPOSITORY,
+    IUSUARIO_REPOSITORY,
   ],
 })
 export class UsuarioModule {}

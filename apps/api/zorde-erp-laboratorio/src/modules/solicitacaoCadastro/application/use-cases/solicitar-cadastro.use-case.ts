@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { I_USUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
 import type { IUsuarioRepository } from '../../../usuario/domain/repositories/i-usuario.repository';
 import { I_SOLICITACAO_CADASTRO_REPOSITORY } from '../../domain/repositories/i-solicitacao-cadastro.repository';
 import type { ISolicitacaoCadastroRepository } from '../../domain/repositories/i-solicitacao-cadastro.repository';
@@ -12,7 +12,7 @@ import { ConflictException } from '../../../../shared/errors/app.exception';
 @Injectable()
 export class SolicitarCadastroUseCase {
   constructor(
-    @Inject(I_USUARIO_REPOSITORY)
+    @Inject(IUSUARIO_REPOSITORY)
     private readonly usuarioRepository: IUsuarioRepository,
     @Inject(I_SOLICITACAO_CADASTRO_REPOSITORY)
     private readonly solicitacaoCadastroRepository: ISolicitacaoCadastroRepository,

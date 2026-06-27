@@ -50,7 +50,7 @@ Se precisar de exemplos sobre modelagem de use cases focados com inversão de de
     - `atualizarStatus(id: number, status: StatusSessao): Promise<void>`
     - `deletarPorUsuario(idUsuario: number): Promise<void>`
   - Exportar o token de injeção de dependência associado:
-    `export const I_AUTENTICACAO_REPOSITORY = 'IAutenticacaoRepository';`
+    `export const IAUTENTICACAO_REPOSITORY = 'IAutenticacaoRepository';`
 
 ### 2. DTOs com Validação Zod
 - [ ] Crie `src/modules/auth/application/dtos/login.dto.ts`:
