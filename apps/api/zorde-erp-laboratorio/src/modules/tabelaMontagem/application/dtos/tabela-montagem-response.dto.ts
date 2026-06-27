@@ -1,28 +1,28 @@
-import { TabelaMontagemEntity } from '../../domain/entities/tabela-montagem.entity';
-import { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
+import type { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
+import type { TabelaMontagemEntity } from '../../domain/entities/tabela-montagem.entity';
 
 export class TabelaMontagemResponseDto {
-  id: number;
-  clienteId: number;
-  nomeCliente?: string;
-  servico: TipoServico;
-  valor: number;
-  createdAt: Date;
-  updatedAt?: Date;
+	public id: number;
+	public clienteId: number;
+	public nomeCliente?: string;
+	public servico: TipoServico;
+	public valor: number;
+	public createdAt: Date;
+	public updatedAt?: Date;
 
-  static fromEntity(entity: TabelaMontagemEntity): TabelaMontagemResponseDto {
-    return {
-      id: entity.id,
-      clienteId: entity.clienteId,
-      nomeCliente: entity.nomeCliente,
-      servico: entity.servico,
-      valor: entity.valor,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-    };
-  }
+	public static fromEntity(entity: TabelaMontagemEntity): TabelaMontagemResponseDto {
+		return {
+			id: entity.id,
+			clienteId: entity.clienteId,
+			nomeCliente: entity.nomeCliente,
+			servico: entity.servico,
+			valor: entity.valor,
+			createdAt: entity.createdAt,
+			updatedAt: entity.updatedAt,
+		};
+	}
 
-  static fromEntities(entities: TabelaMontagemEntity[]): TabelaMontagemResponseDto[] {
-    return entities.map((entity) => this.fromEntity(entity));
-  }
+	public static fromEntities(entities: TabelaMontagemEntity[]): TabelaMontagemResponseDto[] {
+		return entities.map((entity) => TabelaMontagemResponseDto.fromEntity(entity));
+	}
 }
