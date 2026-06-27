@@ -1,18 +1,20 @@
 export class SolicitacaoCadastroEntity {
-  id: number;
-  email: string;
-  codigo: string;
-  expiracao: Date;
-  criadoEm: Date;
+	public id: number;
+	public email: string;
+	public codigo: string;
+	public expiracao: Date;
+	public criadoEm: Date;
 
-  constructor(props: Partial<SolicitacaoCadastroEntity>) {
-    Object.assign(this, props);
-  }
+	public constructor(props: Partial<SolicitacaoCadastroEntity>) {
+		Object.assign(this, props);
+	}
 
-  static create(props: Omit<SolicitacaoCadastroEntity, 'id' | 'criadoEm'> & { id?: number; criadoEm?: Date }) {
-    return new SolicitacaoCadastroEntity({
-      ...props,
-      criadoEm: props.criadoEm || new Date(),
-    });
-  }
+	public static create(
+		props: Omit<SolicitacaoCadastroEntity, 'id' | 'criadoEm'> & { id?: number; criadoEm?: Date },
+	): SolicitacaoCadastroEntity {
+		return new SolicitacaoCadastroEntity({
+			...props,
+			criadoEm: props.criadoEm || new Date(),
+		});
+	}
 }
