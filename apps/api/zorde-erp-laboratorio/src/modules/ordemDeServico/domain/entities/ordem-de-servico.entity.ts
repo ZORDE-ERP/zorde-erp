@@ -1,29 +1,31 @@
-import { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';
-import { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabela-montagem.entity';
+import type { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';
+import type { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabela-montagem.entity';
 
 export class OrdemDeServicoEntity {
-  id: number;
-  codigoOs: string;
-  clienteId: number;
-  valor?: number;
-  tabelaMontagemId?: number;
-  usuarioId: number;
-  createdAt: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
+	public id: number;
+	public codigoOs: string;
+	public clienteId: number;
+	public valor?: number;
+	public tabelaMontagemId?: number;
+	public usuarioId: number;
+	public createdAt: Date;
+	public updatedAt?: Date;
+	public deletedAt?: Date;
 
-  // Relacionamentos carregados opcionalmente
-  cliente?: ClienteEntity;
-  tabelaMontagem?: TabelaMontagemEntity;
+	// Relacionamentos carregados opcionalmente
+	public cliente?: ClienteEntity;
+	public tabelaMontagem?: TabelaMontagemEntity;
 
-  constructor(props: Partial<OrdemDeServicoEntity>) {
-    Object.assign(this, props);
-  }
+	public constructor(props: Partial<OrdemDeServicoEntity>) {
+		Object.assign(this, props);
+	}
 
-  static create(props: Omit<OrdemDeServicoEntity, 'id' | 'createdAt'> & { id?: number; createdAt?: Date }) {
-    return new OrdemDeServicoEntity({
-      ...props,
-      createdAt: props.createdAt || new Date(),
-    });
-  }
+	public static create(
+		props: Omit<OrdemDeServicoEntity, 'id' | 'createdAt'> & { id?: number; createdAt?: Date },
+	): OrdemDeServicoEntity {
+		return new OrdemDeServicoEntity({
+			...props,
+			createdAt: props.createdAt || new Date(),
+		});
+	}
 }
