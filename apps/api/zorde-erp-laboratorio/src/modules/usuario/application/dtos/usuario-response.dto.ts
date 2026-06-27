@@ -1,35 +1,35 @@
-import { UsuarioEntity } from '../../domain/entities/usuario.entity';
+import type { UsuarioEntity } from '../../domain/entities/usuario.entity';
 
 export class UsuarioResponseDto {
-  id: number;
-  email: string;
-  nome: string;
-  documento: string;
-  contato: string;
-  senha?: string;
-  ativo: boolean;
-  tipoUsuario: 'ADMIN' | 'USUARIO';
-  ultimoAcesso: Date | null;
-  createdAt: Date;
-  updatedAt: Date | null;
+	public id: number;
+	public email: string;
+	public nome: string;
+	public documento: string;
+	public contato: string;
+	public senha?: string;
+	public ativo: boolean;
+	public tipoUsuario: 'ADMIN' | 'USUARIO';
+	public ultimoAcesso: Date | null;
+	public createdAt: Date;
+	public updatedAt: Date | null;
 
-  static fromEntity(entity: UsuarioEntity): UsuarioResponseDto {
-    return {
-      id: entity.getId()!,
-      email: entity.getEmail(),
-      nome: entity.getNome(),
-      documento: entity.getDocumento(),
-      contato: entity.getContato(),
-      senha: entity.getSenha()!,
-      ativo: entity.getAtivo()!,
-      tipoUsuario: entity.getTipoUsuario(),
-      ultimoAcesso: entity.getUltimoAcesso(),
-      createdAt: entity.getCreatedAt()!,
-      updatedAt: entity.getUpdatedAt(),
-    };
-  }
+	public static fromEntity(entity: UsuarioEntity): UsuarioResponseDto {
+		return {
+			id: entity.getId() as number,
+			email: entity.getEmail(),
+			nome: entity.getNome(),
+			documento: entity.getDocumento(),
+			contato: entity.getContato(),
+			senha: entity.getSenha() as string,
+			ativo: entity.getAtivo() as boolean,
+			tipoUsuario: entity.getTipoUsuario(),
+			ultimoAcesso: entity.getUltimoAcesso(),
+			createdAt: entity.getCreatedAt() as Date,
+			updatedAt: entity.getUpdatedAt(),
+		};
+	}
 
-  static fromEntities(entities: UsuarioEntity[]): UsuarioResponseDto[] {
-    return entities.map(this.fromEntity);
-  }
+	public static fromEntities(entities: UsuarioEntity[]): UsuarioResponseDto[] {
+		return entities.map(UsuarioResponseDto.fromEntity);
+	}
 }
