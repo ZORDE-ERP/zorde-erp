@@ -1,0 +1,31 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+	"extends": "//",
+	"linter": {
+		"rules": {
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error"
+			},
+			"nursery": {
+				"noFloatingPromises": "error",
+				"useExplicitReturnType": "error",
+				"useExplicitType": "error"
+			},
+		"style": {
+			"useConsistentMemberAccessibility": {
+				"level": "error",
+				"options": {
+					"accessibility": "explicit"
+				}
+			},
+			"useImportType": "off"
+		},
+			"suspicious": {
+				"noConsole": "error",
+				"noExplicitAny": "error",
+				"noVar": "error"
+			}
+		}
+	}
+}
