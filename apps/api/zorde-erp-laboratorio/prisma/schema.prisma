@@ -1,5 +1,6 @@
 datasource db {
   provider = "postgresql"
+  schemas = ["entidades", "enderecos", "autenticacao", "financeiro"]
 }
 
 generator client {
@@ -9,6 +10,7 @@ generator client {
 enum TipoUsuario {
   ADMIN
   USUARIO
+  @@schema("entidades")
 }
 
 model Usuario {
@@ -25,12 +27,12 @@ model Usuario {
   deletedAt    DateTime?
   tipoUsuario  TipoUsuario @default(ADMIN)
 
-  autenticacoes Autenticacao[]
-  clientes      Cliente[]
-  fornecedores  Fornecedor[]
-  ordens        OrdemDeServico[]
-
+  Autenticacoes Autenticacao[]
+  Clientes      Cliente[]
+  Fornecedores  Fornecedor[]
+  Ordens        OrdemDeServico[]
   @@unique([email, documento, ativo], name: "uni_usuario_email_documento_ativo")
+  @@schema("entidades")
 }
 
 model Autenticacao {
@@ -45,6 +47,11 @@ model Autenticacao {
   updatedAt    DateTime? @updatedAt
 
   usuario Usuario @relation(fields: [idUsuario], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([idUsuario])
+  @@index([jti])
+  @@index([idUsuario, createdAt])
+  @@schema("autenticacao")
 }
 
 model Cliente {
@@ -55,44 +62,59 @@ model Cliente {
   tipoPessoa String
   documento  String
   status     String    @default("ATIVO")
-  cep        String?
-  uf         String?
-  cidade     String?
-  logradouro String?
-  numero     String?
-  bairro     String?
+  cep String?
+  razaoSocial String?
+  nomeFantasia String?
   observacao String?
+  numeroEndereco String?
   usuarioId  Int
   createdAt  DateTime  @default(now())
   updatedAt  DateTime? @updatedAt
   deletedAt  DateTime?
 
-  usuario         Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tabelasMontagem TabelaMontagem[]
-  ordens          OrdemDeServico[]
+  Usuario         Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  TabelasMontagem TabelaMontagem[]
+  Ordens          OrdemDeServico[]
+  Endereco        Endereco?         @relation(fields: [cep], references: [cep], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([usuarioId])
+  @@index([documento])
+  @@index([email])
+  @@index([usuarioId, status])
+  @@index([usuarioId, deletedAt])
+  @@unique([usuarioId, documento], name: "uni_cliente_usuario_documento")
+  @@unique([usuarioId, email], name: "uni_cliente_usuario_email")
+  @@schema("entidades")
 }
 
 model Fornecedor {
   id         Int       @id @default(autoincrement())
+  usuarioId  Int
   nome       String
   email      String
   contato    String?
   tipoPessoa String
   documento  String
   status     String    @default("ATIVO")
-  cep        String?
-  uf         String?
-  cidade     String?
-  logradouro String?
-  numero     String?
-  bairro     String?
+  cep String?
   observacao String?
-  usuarioId  Int
+  razaoSocial String?
+  nomeFantasia String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime? @updatedAt
   deletedAt  DateTime?
 
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Usuario Usuario @relation(fields: [usuarioId], references: [id])
+  Endereco Endereco? @relation(fields: [cep], references: [cep])
+
+  @@index([usuarioId])
+  @@index([documento])
+  @@index([email])
+  @@index([usuarioId, status])
+  @@index([usuarioId, deletedAt])
+  @@unique([usuarioId, documento], name: "uni_fornecedor_usuario_documento")
+  @@unique([usuarioId, email], name: "uni_fornecedor_usuario_email")
+  @@schema("entidades")
 }
 
 model TabelaMontagem {
@@ -104,8 +126,13 @@ model TabelaMontagem {
   updatedAt DateTime? @updatedAt
   deletedAt DateTime?
 
-  cliente Cliente          @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  ordens  OrdemDeServico[]
+  Cliente Cliente          @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Ordens  OrdemDeServico[]
+
+  @@index([clienteId])
+  @@index([clienteId, deletedAt])
+  @@unique([clienteId, servico], name: "uni_tabela_montagem_cliente_servico")
+  @@schema("entidades")
 }
 
 model OrdemDeServico {
@@ -119,9 +146,18 @@ model OrdemDeServico {
   updatedAt        DateTime? @updatedAt
   deletedAt        DateTime?
 
-  cliente        Cliente         @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tabelaMontagem TabelaMontagem? @relation(fields: [tabelaMontagemId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  usuario        Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Cliente        Cliente         @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  TabelaMontagem TabelaMontagem? @relation(fields: [tabelaMontagemId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  Usuario        Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([usuarioId, clienteId])
+  @@index([usuarioId])
+  @@index([tabelaMontagemId])
+  @@index([codigoOS])
+  @@index([clienteId, deletedAt])
+  @@index([usuarioId, createdAt])
+  @@unique([usuarioId, codigoOS, clienteId], name: "uni_ordem_de_servico_usuario_codigo_os_cliente_id")
+  @@schema("entidades")
 }
 
 model SolicitacaoCadastro {
@@ -130,4 +166,29 @@ model SolicitacaoCadastro {
   codigo    String   @db.VarChar(6)
   expiracao DateTime
   createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([expiracao])
+  @@schema("autenticacao")
 }
+
+model Endereco {
+  id        Int       @id @default(autoincrement())
+  cep       String? @unique
+  uf        String?
+  cidade    String?
+  logradouro String?
+  bairro    String?
+  ibge      String?
+  complemento String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+  
+  Cliente Cliente[]
+  Fornecedor Fornecedor[]
+
+  @@index([uf, cidade])
+  @@index([ibge])
+  @@schema("enderecos")
+}
+

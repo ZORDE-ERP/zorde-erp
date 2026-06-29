@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
-import type { IClienteRepository } from '../../../cliente/domain/repositories/i-cliente.repository';
-import { I_CLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/i-cliente.repository';
+import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
+import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
 import { TabelaMontagemEntity } from '../../domain/entities/tabela-montagem.entity';
 import type { ITabelaMontagemRepository } from '../../domain/repositories/i-tabela-montagem.repository';
 import { I_TABELA_MONTAGEM_REPOSITORY } from '../../domain/repositories/i-tabela-montagem.repository';
@@ -13,14 +13,14 @@ export class CriarTabelaMontagemUseCase {
 	public constructor(
 		@Inject(I_TABELA_MONTAGEM_REPOSITORY)
 		private readonly tabelaMontagemRepository: ITabelaMontagemRepository,
-		@Inject(I_CLIENTE_REPOSITORY)
+		@Inject(ICLIENTE_REPOSITORY)
 		private readonly clienteRepository: IClienteRepository,
 	) {}
 
 	public async execute(dto: CriarTabelaMontagemDto, usuarioId: number): Promise<TabelaMontagemResponseDto> {
-		const cliente = await this.clienteRepository.buscarPorId(dto.clienteId);
+		const cliente = await this.clienteRepository.findById(dto.clienteId, usuarioId);
 
-		if (!cliente || cliente.deletedAt || cliente.usuarioId !== usuarioId) {
+		if (!cliente) {
 			throw new EntityNotFoundException('Cliente não encontrado');
 		}
 
@@ -31,7 +31,7 @@ export class CriarTabelaMontagemUseCase {
 		});
 
 		const created = await this.tabelaMontagemRepository.criar(entity);
-		created.nomeCliente = cliente.nome;
+		created.nomeCliente = cliente.getNome();
 
 		return TabelaMontagemResponseDto.fromEntity(created);
 	}

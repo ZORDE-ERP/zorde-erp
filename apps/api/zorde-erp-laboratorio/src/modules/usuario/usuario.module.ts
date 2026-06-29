@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { PasswordHashingService } from '../auth/infra/services/password-hashing.service';
 import { UsuarioService } from './application/services/usuario.service';
@@ -9,7 +10,6 @@ import { FindByEmailUserUseCase } from './application/use-cases/findByEmailUser'
 import { IUSUARIO_REPOSITORY } from './domain/repositories/i-usuario.repository';
 import { PrismaUsuarioRepository } from './infrastructure/repositories/prisma-usuario.repository';
 import { UsuarioController } from './presentation/controllers/usuario.controller';
-import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 
 @Module({
 	imports: [DatabaseModule],

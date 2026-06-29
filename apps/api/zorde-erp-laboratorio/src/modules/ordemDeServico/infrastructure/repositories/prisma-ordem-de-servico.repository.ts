@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Cliente, OrdemDeServico, TabelaMontagem } from '@prisma/client';
+import { StatusPessoa } from 'src/shared/enums/status-pessoa.enum';
 import type { TipoPessoa } from 'src/shared/enums/tipo-pessoa.enum';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import type { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
@@ -29,12 +30,14 @@ const OrdemDeServicoMapper = {
 				? new ClienteEntity({
 						id: raw.cliente.id,
 						nome: raw.cliente.nome,
-						tipoPessoa: raw.cliente.tipoPessoa as unknown as TipoPessoa,
+						tipoPessoa: raw.cliente.tipoPessoa as TipoPessoa,
 						documento: raw.cliente.documento,
+						email: raw.cliente.email,
+						status: raw.cliente.status as StatusPessoa,
 						usuarioId: raw.cliente.usuarioId,
 						createdAt: raw.cliente.createdAt,
-						updatedAt: raw.cliente.updatedAt || undefined,
-						deletedAt: raw.cliente.deletedAt || undefined,
+						updatedAt: raw.cliente.updatedAt ?? undefined,
+						deletedAt: raw.cliente.deletedAt ?? undefined,
 					})
 				: undefined,
 			tabelaMontagem: raw.tabelaMontagem
@@ -78,7 +81,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 		const data = OrdemDeServicoMapper.toPersistence(ordem);
 		const created = await this.prisma.ordemDeServico.create({
 			data,
-			include: { cliente: true, tabelaMontagem: true },
+			include: { Cliente: true, TabelaMontagem: true },
 		});
 		return OrdemDeServicoMapper.toDomain(created);
 	}
@@ -86,7 +89,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 	public async buscarPorId(id: number): Promise<OrdemDeServicoEntity | null> {
 		const raw = await this.prisma.ordemDeServico.findFirst({
 			where: { id, deletedAt: null },
-			include: { cliente: true, tabelaMontagem: true },
+			include: { Cliente: true, TabelaMontagem: true },
 		});
 		if (!raw) return null;
 		return OrdemDeServicoMapper.toDomain(raw);
@@ -95,7 +98,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 	public async listarPorUsuario(usuarioId: number): Promise<OrdemDeServicoEntity[]> {
 		const items = await this.prisma.ordemDeServico.findMany({
 			where: { usuarioId, deletedAt: null },
-			include: { cliente: true, tabelaMontagem: true },
+			include: { Cliente: true, TabelaMontagem: true },
 			orderBy: { id: 'desc' },
 		});
 		return items.map(OrdemDeServicoMapper.toDomain);
@@ -112,7 +115,7 @@ export class PrismaOrdemDeServicoRepository implements IOrdemDeServicoRepository
 		const updated = await this.prisma.ordemDeServico.update({
 			where: { id },
 			data: updateData,
-			include: { cliente: true, tabelaMontagem: true },
+			include: { Cliente: true, TabelaMontagem: true },
 		});
 		return OrdemDeServicoMapper.toDomain(updated);
 	}

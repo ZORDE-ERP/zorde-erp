@@ -1,8 +1,9 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { globalEnvironment } from 'src/config/env.validation';
-import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
-import type { JwtPayload } from '../../../../shared/interfaces/jwt-payload.interface';
+import { Public } from 'src/shared/decorators/publicRoutes.decorator';
+import { User } from '../../../../shared/decorators/user.decorator';
+import type { JwtPayload } from '../../../../shared/interfaces/jwtPayload.interface';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
 import type { AuthResponseDto } from '../../application/dtos/auth-response.dto';
 import { AuthService } from '../../application/services/auth.service';
@@ -15,6 +16,7 @@ import { IsUserValidGuard } from '../guards/validationUser.guard';
 export class AuthController {
 	public constructor(private readonly authService: AuthService) {}
 
+	@Public()
 	@Post('login')
 	@UseGuards(IsUserValidGuard)
 	@HttpCode(HttpStatus.OK)
@@ -44,6 +46,7 @@ export class AuthController {
 		};
 	}
 
+	@Public()
 	@Post('refresh')
 	@HttpCode(HttpStatus.OK)
 	public async handleRefresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<AuthResponseDto> {
@@ -68,7 +71,7 @@ export class AuthController {
 	@Post('logout')
 	@UseGuards(JwtAuthGuardStrategy)
 	@HttpCode(HttpStatus.NO_CONTENT)
-	public async logout(@CurrentUser() user: JwtPayload, @Res({ passthrough: true }) res: Response): Promise<void> {
+	public async logout(@User() user: JwtPayload, @Res({ passthrough: true }) res: Response): Promise<void> {
 		await this.authService.logout(user.sub);
 		res.clearCookie('Fgp');
 	}

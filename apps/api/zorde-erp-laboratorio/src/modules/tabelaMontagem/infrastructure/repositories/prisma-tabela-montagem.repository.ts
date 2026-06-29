@@ -41,7 +41,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		const data = TabelaMontagemMapper.toPersistence(tabela);
 		const created = await this.prisma.tabelaMontagem.create({
 			data,
-			include: { cliente: true },
+			include: { Cliente: true },
 		});
 		return TabelaMontagemMapper.toDomain(created);
 	}
@@ -49,7 +49,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 	public async buscarPorId(id: number): Promise<TabelaMontagemEntity | null> {
 		const raw = await this.prisma.tabelaMontagem.findFirst({
 			where: { id, deletedAt: null },
-			include: { cliente: true },
+			include: { Cliente: true },
 		});
 		if (!raw) return null;
 		return TabelaMontagemMapper.toDomain(raw);
@@ -97,7 +97,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 				where,
 				skip,
 				take,
-				include: { cliente: true },
+				include: { Cliente: true },
 				orderBy: { id: 'desc' },
 			}),
 			this.prisma.tabelaMontagem.count({ where }),
@@ -119,7 +119,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		const updated = await this.prisma.tabelaMontagem.update({
 			where: { id },
 			data: updateData,
-			include: { cliente: true },
+			include: { Cliente: true },
 		});
 		return TabelaMontagemMapper.toDomain(updated);
 	}

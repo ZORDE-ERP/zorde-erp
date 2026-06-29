@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
-import type { IClienteRepository } from '../../../cliente/domain/repositories/i-cliente.repository';
-import { I_CLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/i-cliente.repository';
+import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
+import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
 import type { ITabelaMontagemRepository } from '../../domain/repositories/i-tabela-montagem.repository';
 import { I_TABELA_MONTAGEM_REPOSITORY } from '../../domain/repositories/i-tabela-montagem.repository';
 import type { AtualizarTabelaMontagemDto } from '../dtos/atualizar-tabela-montagem.dto';
@@ -12,7 +12,7 @@ export class AtualizarTabelaMontagemUseCase {
 	public constructor(
 		@Inject(I_TABELA_MONTAGEM_REPOSITORY)
 		private readonly tabelaMontagemRepository: ITabelaMontagemRepository,
-		@Inject(I_CLIENTE_REPOSITORY)
+		@Inject(ICLIENTE_REPOSITORY)
 		private readonly clienteRepository: IClienteRepository,
 	) {}
 
@@ -24,21 +24,21 @@ export class AtualizarTabelaMontagemUseCase {
 		}
 
 		// Verificar se o cliente da tabela existente pertence ao usuário
-		const existingCliente = await this.clienteRepository.buscarPorId(existing.clienteId);
-		if (!existingCliente || existingCliente.usuarioId !== usuarioId) {
+		const existingCliente = await this.clienteRepository.findById(existing.clienteId, usuarioId);
+		if (!existingCliente || existingCliente.getUsuarioId() !== usuarioId) {
 			throw new EntityNotFoundException('Tabela de montagem não encontrada');
 		}
 
 		const updateData: Record<string, unknown> = {};
-		let finalClienteNome = existingCliente.nome;
+		let finalClienteNome = existingCliente.getNome();
 
 		if (dto.clienteId !== undefined && dto.clienteId !== existing.clienteId) {
-			const newCliente = await this.clienteRepository.buscarPorId(dto.clienteId);
-			if (!newCliente || newCliente.deletedAt || newCliente.usuarioId !== usuarioId) {
+			const newCliente = await this.clienteRepository.findById(dto.clienteId, usuarioId);
+			if (!newCliente || newCliente.getDeletedAt() || newCliente.getUsuarioId() !== usuarioId) {
 				throw new EntityNotFoundException('Cliente não encontrado');
 			}
 			updateData.clienteId = dto.clienteId;
-			finalClienteNome = newCliente.nome;
+			finalClienteNome = newCliente.getNome();
 		}
 
 		if (dto.servico !== undefined) updateData.servico = dto.servico;

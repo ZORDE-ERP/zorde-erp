@@ -1,7 +1,7 @@
 import type { OrdemDeServicoEntity } from '../../domain/entities/ordem-de-servico.entity';
 
 export class OrdemDeServicoResponseDto {
-	public id: number;
+	public id: number | null;
 	public codigoOs: string;
 	public clienteId: number;
 	public valor?: number;
@@ -34,8 +34,8 @@ export class OrdemDeServicoResponseDto {
 
 		if (entity.cliente) {
 			response.cliente = {
-				id: entity.cliente.id,
-				nome: entity.cliente.nome,
+				id: entity.cliente.getId() as number,
+				nome: entity.cliente.getNome(),
 			};
 		}
 
