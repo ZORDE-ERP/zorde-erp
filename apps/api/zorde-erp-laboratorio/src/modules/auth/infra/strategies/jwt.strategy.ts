@@ -5,10 +5,8 @@ import { globalEnvironment } from 'src/config/env.validation';
 
 interface JwtPayload {
 	sub: number;
-	username?: string;
-	role?: string;
-	nome?: string;
-	email?: string;
+	role: string;
+	nome: string;
 	jti?: string;
 	iat?: number;
 	exp?: number;
@@ -25,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		});
 	}
 
-	public async validate(payload: JwtPayload): Promise<{ userId: number; username: string }> {
-		return { userId: payload.sub as number, username: payload.username as string };
+	public async validate(payload: JwtPayload): Promise<{ userId: number; nome: string; role: string }> {
+		return { userId: payload.sub as number, nome: payload.nome, role: payload.role };
 	}
 }
