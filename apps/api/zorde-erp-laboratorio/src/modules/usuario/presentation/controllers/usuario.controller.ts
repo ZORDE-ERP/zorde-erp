@@ -14,17 +14,18 @@ import {
 	UsePipes,
 } from '@nestjs/common';
 import { JwtAuthGuardStrategy } from 'src/modules/auth/presentation/guards/jwtAuth.guard';
+import { Public } from 'src/shared/decorators/publicRoutes.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
 import { type AtualizarUsuarioDto, atualizarUsuarioSchema } from '../../application/dtos/atualizar-usuario.dto';
 import type { UsuarioResponseDto } from '../../application/dtos/usuario-response.dto';
 import { UsuarioService } from '../../application/services/usuario.service';
-import type { CreateUserDto } from '../dto/userDto';
-import { createUserSchema } from '../dto/userDto';
+import { type CreateUserDto, createUserSchema } from '../dto/userDto';
 
 @Controller('api/usuarios')
 export class UsuarioController {
 	public constructor(private readonly usuarioService: UsuarioService) {}
 
+	@Public()
 	@Post()
 	@HttpCode(HttpStatus.CREATED)
 	@UsePipes(new ZodValidationPipe(createUserSchema))

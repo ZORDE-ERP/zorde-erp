@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
-import type { IClienteRepository } from '../../../cliente/domain/repositories/i-cliente.repository';
-import { I_CLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/i-cliente.repository';
+import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
+import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
 import type { ITabelaMontagemRepository } from '../../domain/repositories/i-tabela-montagem.repository';
 import { I_TABELA_MONTAGEM_REPOSITORY } from '../../domain/repositories/i-tabela-montagem.repository';
 
@@ -10,7 +10,7 @@ export class DeletarTabelaMontagemUseCase {
 	public constructor(
 		@Inject(I_TABELA_MONTAGEM_REPOSITORY)
 		private readonly tabelaMontagemRepository: ITabelaMontagemRepository,
-		@Inject(I_CLIENTE_REPOSITORY)
+		@Inject(ICLIENTE_REPOSITORY)
 		private readonly clienteRepository: IClienteRepository,
 	) {}
 
@@ -21,8 +21,8 @@ export class DeletarTabelaMontagemUseCase {
 			throw new EntityNotFoundException('Tabela de montagem não encontrada');
 		}
 
-		const cliente = await this.clienteRepository.buscarPorId(existing.clienteId);
-		if (!cliente || cliente.usuarioId !== usuarioId) {
+		const cliente = await this.clienteRepository.findById(existing.clienteId, usuarioId);
+		if (!cliente) {
 			throw new EntityNotFoundException('Tabela de montagem não encontrada');
 		}
 

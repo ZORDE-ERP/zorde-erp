@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BusinessRuleException, EntityNotFoundException } from '../../../../shared/errors/app.exception';
-import type { IClienteRepository } from '../../../cliente/domain/repositories/i-cliente.repository';
-import { I_CLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/i-cliente.repository';
+import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
+import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
 import type { ITabelaMontagemRepository } from '../../../tabelaMontagem/domain/repositories/i-tabela-montagem.repository';
 import { I_TABELA_MONTAGEM_REPOSITORY } from '../../../tabelaMontagem/domain/repositories/i-tabela-montagem.repository';
 import type { OrdemDeServicoEntity } from '../../domain/entities/ordem-de-servico.entity';
@@ -15,7 +15,7 @@ export class AtualizarOrdemUseCase {
 	public constructor(
 		@Inject(I_ORDEM_DE_SERVICO_REPOSITORY)
 		private readonly ordemDeServicoRepository: IOrdemDeServicoRepository,
-		@Inject(I_CLIENTE_REPOSITORY)
+		@Inject(ICLIENTE_REPOSITORY)
 		private readonly clienteRepository: IClienteRepository,
 		@Inject(I_TABELA_MONTAGEM_REPOSITORY)
 		private readonly tabelaMontagemRepository: ITabelaMontagemRepository,
@@ -34,8 +34,8 @@ export class AtualizarOrdemUseCase {
 
 		let targetClienteId = existing.clienteId;
 		if (dto.clienteId !== undefined && dto.clienteId !== existing.clienteId) {
-			const newCliente = await this.clienteRepository.buscarPorId(dto.clienteId);
-			if (!newCliente || newCliente.deletedAt || newCliente.usuarioId !== usuarioId) {
+			const newCliente = await this.clienteRepository.findById(dto.clienteId, usuarioId);
+			if (!newCliente) {
 				throw new EntityNotFoundException('Cliente não encontrado');
 			}
 			targetClienteId = dto.clienteId;
@@ -75,7 +75,7 @@ export class AtualizarOrdemUseCase {
 
 		// Eager load details manually if not fully filled by repo update
 		if (!updated.cliente) {
-			const cliente = await this.clienteRepository.buscarPorId(updated.clienteId);
+			const cliente = await this.clienteRepository.findById(updated.clienteId, usuarioId);
 			if (cliente) updated.cliente = cliente;
 		}
 		if (updated.tabelaMontagemId && !updated.tabelaMontagem) {

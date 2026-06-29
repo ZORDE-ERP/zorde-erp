@@ -10,13 +10,11 @@ import {
 	Post,
 	Put,
 	Query,
-	UseGuards,
 	UsePipes,
 } from '@nestjs/common';
 import { z } from 'zod';
-import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
-import type { JwtPayload } from '../../../../shared/interfaces/jwt-payload.interface';
+import { User } from '../../../../shared/decorators/user.decorator';
+import type { JwtPayload } from '../../../../shared/interfaces/jwtPayload.interface';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
 import type { AtualizarTabelaMontagemDto } from '../../application/dtos/atualizar-tabela-montagem.dto';
 import { atualizarTabelaMontagemSchema } from '../../application/dtos/atualizar-tabela-montagem.dto';
@@ -34,16 +32,12 @@ const listarQuerySchema = z.object({
 type ListarQueryDto = z.infer<typeof listarQuerySchema>;
 
 @Controller('api/tabela-montagem')
-@UseGuards(JwtAuthGuard)
 export class TabelaMontagemController {
 	public constructor(private readonly tabelaMontagemService: TabelaMontagemService) {}
 
 	@Post()
 	@UsePipes(new ZodValidationPipe(criarTabelaMontagemSchema))
-	public async criar(
-		@Body() dto: CriarTabelaMontagemDto,
-		@CurrentUser() user: JwtPayload,
-	): Promise<TabelaMontagemResponseDto> {
+	public async criar(@Body() dto: CriarTabelaMontagemDto, @User() user: JwtPayload): Promise<TabelaMontagemResponseDto> {
 		return this.tabelaMontagemService.criar(dto, user.sub);
 	}
 
@@ -51,7 +45,7 @@ export class TabelaMontagemController {
 	@UsePipes(new ZodValidationPipe(listarQuerySchema))
 	public async listar(
 		@Query() query: ListarQueryDto,
-		@CurrentUser() user: JwtPayload,
+		@User() user: JwtPayload,
 	): Promise<{ items: TabelaMontagemResponseDto[]; total: number }> {
 		return this.tabelaMontagemService.listarPaginado(query, user.sub);
 	}
@@ -61,14 +55,14 @@ export class TabelaMontagemController {
 	public async atualizar(
 		@Param('id', ParseIntPipe) id: number,
 		@Body() dto: AtualizarTabelaMontagemDto,
-		@CurrentUser() user: JwtPayload,
+		@User() user: JwtPayload,
 	): Promise<TabelaMontagemResponseDto> {
 		return this.tabelaMontagemService.atualizar(id, dto, user.sub);
 	}
 
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
-	public async deletar(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: JwtPayload): Promise<void> {
+	public async deletar(@Param('id', ParseIntPipe) id: number, @User() user: JwtPayload): Promise<void> {
 		await this.tabelaMontagemService.deletar(id, user.sub);
 	}
 }
