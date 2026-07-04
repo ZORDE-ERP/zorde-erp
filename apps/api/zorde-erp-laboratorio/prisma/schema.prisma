@@ -100,6 +100,7 @@ model Fornecedor {
   observacao String?
   razaoSocial String?
   nomeFantasia String?
+  numeroEndereco String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime? @updatedAt
   deletedAt  DateTime?

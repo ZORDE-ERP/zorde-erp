@@ -85,7 +85,7 @@ Se precisar de suporte com query filters compostos com condicionais opcionais no
   - `@Controller('api/fornecedores')` decorado com `@UseGuards(JwtAuthGuard)`.
   - Injetar `FornecedorService` facade.
   - Mapear os 5 métodos HTTP (POST, GET, GET /:id, PUT /:id, DELETE /:id).
-  - Injetar o ID do usuário autenticado nos use cases a partir do decorator `@CurrentUser('id')`.
+  - Injetar o ID do usuário autenticado nos use cases a partir do decorator `@User('id')`.
 
 ### 6. Configuração do Módulo
 - [ ] Configurar `src/modules/fornecedor/fornecedor.module.ts` declarando as injeções e exports correspondentes. Registrar o módulo no `AppModule` principal.
