@@ -10,7 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuardStrategy } from './modules/auth/presentation/guards/jwtAuth.guard';
 import { ClienteModule } from './modules/cliente/cliente.module';
 import { FornecedorModule } from './modules/fornecedor/fornecedor.module';
-import { OrdemDeServicoModule } from './modules/ordemDeServico/ordemDeServico.module';
+import { ServiceOrderModule } from './modules/ordemDeServico/ordemDeServico.module';
 import { SolicitacaoCadastroModule } from './modules/solicitacaoCadastro/solicitacaoCadastro.module';
 import { TabelaMontagemModule } from './modules/tabelaMontagem/tabelaMontagem.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
@@ -29,7 +29,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 		ClienteModule,
 		FornecedorModule,
 		TabelaMontagemModule,
-		OrdemDeServicoModule,
+		ServiceOrderModule,
 	],
 	controllers: [AppController],
 	providers: [
