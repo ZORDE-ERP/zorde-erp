@@ -3,10 +3,10 @@ import type { UserInfo } from 'src/shared/interfaces/user.interface';
 import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
 import {
-	type UpdateFornecedorDto,
-	updateFornecedorSchema,
 	type CreateFornecedorDto,
 	createFornecedorSchema,
+	type UpdateFornecedorDto,
+	updateFornecedorSchema,
 } from '../../application/dtos/fornecedor.dto';
 import type { FornecedorResponseDto } from '../../application/dtos/fornecedorResponse.dto';
 import { FornecedorService } from '../../application/services/fornecedor.service';
@@ -20,7 +20,6 @@ export class FornecedorController {
 		@Body(new ZodValidationPipe(createFornecedorSchema)) body: CreateFornecedorDto,
 		@User() user: UserInfo,
 	): Promise<FornecedorResponseDto | null> {
-		console.log('body fornecedor', body, user)
 		return this.fornecedorService.create(body, user.userId);
 	}
 

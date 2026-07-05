@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateFornecedorDto, CreateFornecedorDto } from '../dtos/fornecedor.dto';
+import { CreateFornecedorDto, UpdateFornecedorDto } from '../dtos/fornecedor.dto';
 import type { FornecedorResponseDto } from '../dtos/fornecedorResponse.dto';
 import { UpdateFornecedorUseCase } from '../use-cases/atualizarFornecedor.useCase';
 import { FindByIdFornecedorUseCase } from '../use-cases/buscarFornecedor.useCase';
 import { CreateFornecedorUseCase } from '../use-cases/criarFornecedor.useCase';
-import { FindAllFornecedoresUseCase } from '../use-cases/listarFornecedores.useCase';
 import { DeleteFornecedorUseCase } from '../use-cases/deletarFornecedor.useCase';
+import { FindAllFornecedoresUseCase } from '../use-cases/listarFornecedores.useCase';
 
 @Injectable()
 export class FornecedorService {
