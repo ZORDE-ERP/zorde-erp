@@ -16,7 +16,6 @@ export interface FornecedorResponseDto {
 	cidade?: string | null;
 	logradouro?: string | null;
 	complemento?: string | null;
-	numero?: string | null; // Keep if needed for backward compatibility or remove if not in customer. Customer response has: `numero?: string | null`? Wait, let's look at ClienteResponseDto. It has: `numero?: string | null`. Let's keep it just in case.
 	bairro?: string | null;
 	ibge?: string | null;
 	observacao?: string | null;
