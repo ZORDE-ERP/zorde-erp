@@ -87,7 +87,7 @@ Se precisar de detalhes sobre como estruturar relacionamentos Prisma ou gerencia
 ### 5. Controller Autenticado
 - [ ] Crie `src/modules/ordemDeServico/presentation/controllers/ordem-de-servico.controller.ts`:
   - Mapear endpoints CRUD sob `@Controller('api/ordens-de-servico')` protegidos com `@UseGuards(JwtAuthGuard)`.
-  - Injetar o ID do usuário autenticado a partir do decorator `@CurrentUser('id')`.
+  - Injetar o ID do usuário autenticado a partir do decorator `@User('id')`.
 
 ### 6. Configuração do Módulo
 - [ ] Configurar `src/modules/ordemDeServico/ordem-de-servico.module.ts`. Importar `ClienteModule` e `TabelaMontagemModule` para ter acesso aos seus respectivos repositórios. Registrar no `AppModule` principal.
