@@ -17,6 +17,7 @@
 		"start:debug": "nest start --debug --watch",
 		"start:prod": "node dist/main",
 		"lint": "biome check . --write",
+		"check-types": "tsc -p tsconfig.build.json --noEmit",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:cov": "jest --coverage",
