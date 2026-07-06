@@ -1,4 +1,16 @@
 {
+	"explorer.excludeGitIgnore": false,
+	"search.useIgnoreFiles": true,
+	"search.useGlobalIgnoreFiles": true,
+	"search.quickOpen.includeHistory": false,
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/node_modules/**": true
+	},
+	"files.exclude": {
+		"**/node_modules": true,
+		"**/node_modules/**": true
+	},
 	"editor.formatOnSave": true,
 	"editor.defaultFormatter": "biomejs.biome",
 	"[typescript]": {

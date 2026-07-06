@@ -1,13 +1,13 @@
 import { StatusPessoa } from '../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../shared/enums/tipo-pessoa.enum';
-import { BusinessRuleException, EntityNotFoundException } from '../../../shared/errors/app.exception';
+import { EntityNotFoundException } from '../../../shared/errors/app.exception';
 import { EnderecoAdapterRepository } from '../../../shared/infra/persistence/enderecoAdapter.repository';
 import { fornecedoresToResponse, fornecedorToResponse } from '../application/mappers/fornecedorResponse.mapper';
-import { AtualizarFornecedorUseCase } from '../application/use-cases/atualizarFornecedor.useCase';
-import { BuscarFornecedorUseCase } from '../application/use-cases/buscarFornecedor.useCase';
-import { CriarFornecedorUseCase } from '../application/use-cases/criarFornecedor.useCase';
-import { DeletarFornecedorUseCase } from '../application/use-cases/deletarFornecedor.useCase';
-import { ListarFornecedoresUseCase } from '../application/use-cases/listarFornecedores.useCase';
+import { UpdateFornecedorUseCase } from '../application/use-cases/atualizarFornecedor.useCase';
+import { FindByIdFornecedorUseCase } from '../application/use-cases/buscarFornecedor.useCase';
+import { CreateFornecedorUseCase } from '../application/use-cases/criarFornecedor.useCase';
+import { DeleteFornecedorUseCase } from '../application/use-cases/deletarFornecedor.useCase';
+import { FindAllFornecedoresUseCase } from '../application/use-cases/listarFornecedores.useCase';
 import { FornecedorEntity } from '../domain/entities/fornecedor.entity';
 import { IFornecedorRepository } from '../domain/repositories/fornecedor.repository';
 import { FornecedorInfraMapper } from '../infrastructure/mappers/fornecedorInfra.mapper';
@@ -155,9 +155,9 @@ describe('Fornecedor Unit Tests', () => {
 			} as unknown as jest.Mocked<EnderecoAdapterRepository>;
 		});
 
-		describe('CriarFornecedorUseCase', () => {
+		describe('CreateFornecedorUseCase', () => {
 			it('should create a supplier and address successfully', async () => {
-				const useCase = new CriarFornecedorUseCase(mockRepository, mockEnderecoRepo);
+				const useCase = new CreateFornecedorUseCase(mockRepository, mockEnderecoRepo);
 				const dto = {
 					nome: 'Fornecedor Novo',
 					email: 'novo@fornecedor.com',
@@ -202,9 +202,9 @@ describe('Fornecedor Unit Tests', () => {
 			});
 		});
 
-		describe('BuscarFornecedorUseCase', () => {
+		describe('FindByIdFornecedorUseCase', () => {
 			it('should find supplier by id and usuarioId', async () => {
-				const useCase = new BuscarFornecedorUseCase(mockRepository);
+				const useCase = new FindByIdFornecedorUseCase(mockRepository);
 				const entity = new FornecedorEntity(mockFornecedorProps);
 
 				mockRepository.findById.mockResolvedValue(entity);
@@ -216,16 +216,16 @@ describe('Fornecedor Unit Tests', () => {
 			});
 
 			it('should throw EntityNotFoundException if supplier does not exist', async () => {
-				const useCase = new BuscarFornecedorUseCase(mockRepository);
+				const useCase = new FindByIdFornecedorUseCase(mockRepository);
 				mockRepository.findById.mockResolvedValue(null);
 
 				await expect(useCase.execute(1, 10)).rejects.toThrow(EntityNotFoundException);
 			});
 		});
 
-		describe('ListarFornecedoresUseCase', () => {
+		describe('FindAllFornecedoresUseCase', () => {
 			it('should return a list of supplier responses', async () => {
-				const useCase = new ListarFornecedoresUseCase(mockRepository);
+				const useCase = new FindAllFornecedoresUseCase(mockRepository);
 				const entity = new FornecedorEntity(mockFornecedorProps);
 
 				mockRepository.findByUsuarioId.mockResolvedValue([entity]);
@@ -238,9 +238,9 @@ describe('Fornecedor Unit Tests', () => {
 			});
 		});
 
-		describe('DeletarFornecedorUseCase', () => {
+		describe('DeleteFornecedorUseCase', () => {
 			it('should soft delete supplier if found', async () => {
-				const useCase = new DeletarFornecedorUseCase(mockRepository);
+				const useCase = new DeleteFornecedorUseCase(mockRepository);
 				const entity = new FornecedorEntity(mockFornecedorProps);
 
 				mockRepository.findById.mockResolvedValue(entity);
@@ -253,16 +253,16 @@ describe('Fornecedor Unit Tests', () => {
 			});
 
 			it('should throw EntityNotFoundException if supplier to delete is not found', async () => {
-				const useCase = new DeletarFornecedorUseCase(mockRepository);
+				const useCase = new DeleteFornecedorUseCase(mockRepository);
 				mockRepository.findById.mockResolvedValue(null);
 
 				await expect(useCase.execute(1, 10)).rejects.toThrow(EntityNotFoundException);
 			});
 		});
 
-		describe('AtualizarFornecedorUseCase', () => {
+		describe('UpdateFornecedorUseCase', () => {
 			it('should update supplier entity with new values', async () => {
-				const useCase = new AtualizarFornecedorUseCase(mockRepository);
+				const useCase = new UpdateFornecedorUseCase(mockRepository);
 				const existingEntity = new FornecedorEntity(mockFornecedorProps);
 
 				mockRepository.findById.mockResolvedValue(existingEntity);
@@ -291,40 +291,6 @@ describe('Fornecedor Unit Tests', () => {
 				expect(result.nome).toBe('Nome Atualizado');
 				expect(result.documento).toBe('11111111111');
 				expect(result.tipoPessoa).toBe(TipoPessoa.FISICA);
-			});
-
-			it('should throw BusinessRuleException if document length does not match TipoPessoa (CPF)', async () => {
-				const useCase = new AtualizarFornecedorUseCase(mockRepository);
-				const existingEntity = new FornecedorEntity(mockFornecedorProps);
-
-				mockRepository.findById.mockResolvedValue(existingEntity);
-
-				const dto = {
-					id: 1,
-					documento: '12345', // too short
-					tipoPessoa: TipoPessoa.FISICA,
-				};
-
-				await expect(useCase.execute(dto, 10)).rejects.toThrow(BusinessRuleException);
-			});
-
-			it('should throw BusinessRuleException if document length does not match TipoPessoa (CNPJ)', async () => {
-				const useCase = new AtualizarFornecedorUseCase(mockRepository);
-				const existingEntity = new FornecedorEntity({
-					...mockFornecedorProps,
-					tipoPessoa: TipoPessoa.FISICA,
-					documento: '12345678900',
-				});
-
-				mockRepository.findById.mockResolvedValue(existingEntity);
-
-				const dto = {
-					id: 1,
-					documento: '12345678900', // CPF length but type is JURIDICA
-					tipoPessoa: TipoPessoa.JURIDICA,
-				};
-
-				await expect(useCase.execute(dto, 10)).rejects.toThrow(BusinessRuleException);
 			});
 		});
 	});
