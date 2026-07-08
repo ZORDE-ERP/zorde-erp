@@ -1,29 +1,31 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../infra/database/database.module';
 import { ClienteModule } from '../cliente/cliente.module';
-import { TabelaMontagemService } from './application/services/tabela-montagem.service';
-import { AtualizarTabelaMontagemUseCase } from './application/use-cases/atualizar-tabela-montagem.use-case';
-import { CriarTabelaMontagemUseCase } from './application/use-cases/criar-tabela-montagem.use-case';
-import { DeletarTabelaMontagemUseCase } from './application/use-cases/deletar-tabela-montagem.use-case';
-import { ListarTabelaMontagemUseCase } from './application/use-cases/listar-tabela-montagem.use-case';
-import { I_TABELA_MONTAGEM_REPOSITORY } from './domain/repositories/i-tabela-montagem.repository';
-import { PrismaTabelaMontagemRepository } from './infrastructure/repositories/prisma-tabela-montagem.repository';
-import { TabelaMontagemController } from './presentation/controllers/tabela-montagem.controller';
+import { TabelaMontagemService } from './application/services/tabelaMontagem.service';
+import { UpdateTabelaMontagemUseCase } from './application/use-cases/atualizarTabelaMontagem.useCase';
+import { FindByIdTabelaMontagemUseCase } from './application/use-cases/buscarTabelaMontagem.useCase';
+import { CreateTabelaMontagemUseCase } from './application/use-cases/criarTabelaMontagem.useCase';
+import { DeleteTabelaMontagemUseCase } from './application/use-cases/deletarTabelaMontagem.useCase';
+import { FindAllTabelaMontagemUseCase } from './application/use-cases/listarTabelaMontagem.useCase';
+import { ITABELA_MONTAGEM_REPOSITORY } from './domain/repositories/tabelaMontagem.repository';
+import { PrismaTabelaMontagemRepository } from './infrastructure/repositories/tabelaMontagemAdapter.repository';
+import { TabelaMontagemController } from './presentation/controllers/tabelaMontagem.controller';
 
 @Module({
 	imports: [DatabaseModule, ClienteModule],
 	controllers: [TabelaMontagemController],
 	providers: [
-		CriarTabelaMontagemUseCase,
-		ListarTabelaMontagemUseCase,
-		AtualizarTabelaMontagemUseCase,
-		DeletarTabelaMontagemUseCase,
+		CreateTabelaMontagemUseCase,
+		FindByIdTabelaMontagemUseCase,
+		FindAllTabelaMontagemUseCase,
+		UpdateTabelaMontagemUseCase,
+		DeleteTabelaMontagemUseCase,
 		TabelaMontagemService,
 		{
-			provide: I_TABELA_MONTAGEM_REPOSITORY,
+			provide: ITABELA_MONTAGEM_REPOSITORY,
 			useClass: PrismaTabelaMontagemRepository,
 		},
 	],
-	exports: [TabelaMontagemService, I_TABELA_MONTAGEM_REPOSITORY],
+	exports: [TabelaMontagemService, ITABELA_MONTAGEM_REPOSITORY],
 })
 export class TabelaMontagemModule {}
