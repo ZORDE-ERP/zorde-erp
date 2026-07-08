@@ -10,6 +10,7 @@
 	},
 	"scripts": {
 		"build": "nest build",
+		"prisma:generate": "prisma generate",
 		"lint:check": "biome check .",
 		"format": "biome format . --write",
 		"start": "nest start",

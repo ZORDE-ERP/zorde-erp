@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { UsuarioResponseDto } from 'src/modules/usuario/application/dtos/usuario-response.dto';
+import { UsuarioResponseDto } from 'src/modules/usuario/application/dtos/usuarioResponse.dto';
 import { UsuarioService } from 'src/modules/usuario/application/services/usuario.service';
 import { PasswordHashingService } from '../../infra/services/password-hashing.service';
 import type { LoginDto } from '../../presentation/dto/loginDto';

@@ -3,8 +3,9 @@ import { ConflictException, EntityNotFoundException } from '../../../../shared/e
 import { PasswordHashingService } from '../../../auth/infra/services/password-hashing.service';
 import type { IUsuarioRepository } from '../../domain/repositories/i-usuario.repository';
 import { IUSUARIO_REPOSITORY } from '../../domain/repositories/i-usuario.repository';
-import type { AtualizarUsuarioDto } from '../dtos/atualizar-usuario.dto';
-import { UsuarioResponseDto } from '../dtos/usuario-response.dto';
+import type { AtualizarUsuarioDto } from '../dtos/usuario.dto';
+import type { UsuarioResponseDto } from '../dtos/usuarioResponse.dto';
+import { usuarioToResponse } from '../mappers/usuarioResponse.mapper';
 
 @Injectable()
 export class AtualizarUsuarioUseCase {
@@ -16,39 +17,27 @@ export class AtualizarUsuarioUseCase {
 
 	public async execute(id: number, dto: AtualizarUsuarioDto): Promise<UsuarioResponseDto> {
 		const existing = await this.usuarioRepository.buscarPorId(id);
-		if (!existing) {
-			throw new EntityNotFoundException('Usuário não encontrado');
-		}
-
-		const updateData: Record<string, unknown> = {};
-
-		if (dto.nome !== undefined) updateData.nome = dto.nome;
-		if (dto.contato !== undefined) updateData.contato = dto.contato;
+		if (!existing) throw new EntityNotFoundException('Usuário não encontrado');
 
 		if (dto.email !== undefined && dto.email !== existing.getEmail()) {
 			const other = await this.usuarioRepository.buscarPorEmail(dto.email);
-			if (other && other.getId() !== id) {
-				throw new ConflictException('E-mail já em uso por outro usuário');
-			}
-			updateData.email = dto.email;
+			if (other && other.getId() !== id) throw new ConflictException('E-mail já cadastrado');
 		}
 
 		if (dto.documento !== undefined && dto.documento !== existing.getDocumento()) {
 			const other = await this.usuarioRepository.buscarPorDocumento(dto.documento);
-			if (other && other.getId() !== id) {
-				throw new ConflictException('Documento já em uso por outro usuário');
-			}
-			updateData.documento = dto.documento;
+			if (other && other.getId() !== id) throw new ConflictException('Documento já cadastrado');
 		}
 
-		if (dto.senha !== undefined) {
-			updateData.senha = await this.passwordHashingService.hash(dto.senha);
-		}
+		const senhaHash = dto.senha ? await this.passwordHashingService.hash(dto.senha) : undefined;
 
-		updateData.updatedAt = new Date();
+		const updated = await this.usuarioRepository.atualizar(id, {
+			...dto,
+			senha: senhaHash,
+			updatedAt: new Date(),
+		});
 
-		const updated = await this.usuarioRepository.atualizar(id, updateData);
-
-		return UsuarioResponseDto.fromEntity(updated);
+		const { senha, ...responseDto } = usuarioToResponse(updated);
+		return responseDto;
 	}
 }

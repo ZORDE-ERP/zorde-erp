@@ -22,6 +22,10 @@
 			"inputs": ["src/**", "tsconfig*.json"],
 			"outputs": []
 		},
+		"test": {
+			"inputs": ["src/**", "test/**", "tsconfig*.json", "prisma/**"],
+			"outputs": []
+		},
 		"test:cov": {
 			"inputs": ["src/**", "test/**", "tsconfig*.json", "prisma/**"],
 			"outputs": ["coverage/**"]

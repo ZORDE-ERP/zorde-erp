@@ -9,13 +9,7 @@ export const criarUsuarioSchema = z.object({
 	tipoUsuario: z.enum(['ADMIN', 'USUARIO']),
 });
 
-export type CriarUsuarioDto = z.infer<typeof criarUsuarioSchema>;
+export const atualizarUsuarioSchema = criarUsuarioSchema.partial();
 
-// export interface CriarUsuarioDto {
-//   email: string;
-//   senha: string;
-//   nome: string;
-//   documento: string;
-//   contato: string;
-//   tipoUsuario: 'ADMIN' | 'USUARIO';
-// }
+export type CriarUsuarioDto = z.infer<typeof criarUsuarioSchema>;
+export type AtualizarUsuarioDto = z.infer<typeof atualizarUsuarioSchema>;
