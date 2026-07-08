@@ -3,8 +3,9 @@ import { ConflictException } from '../../../../shared/errors/app.exception';
 import { PasswordHashingService } from '../../../auth/infra/services/password-hashing.service';
 import { UsuarioEntity } from '../../domain/entities/usuario.entity';
 import { IUSUARIO_REPOSITORY, type IUsuarioRepository } from '../../domain/repositories/i-usuario.repository';
-import type { CreateUserDto } from '../../presentation/dto/userDto';
-import { UsuarioResponseDto } from '../dtos/usuario-response.dto';
+import type { CriarUsuarioDto } from '../dtos/usuario.dto';
+import type { UsuarioResponseDto } from '../dtos/usuarioResponse.dto';
+import { usuarioToResponse } from '../mappers/usuarioResponse.mapper';
 
 @Injectable()
 export class CriarUsuarioUseCase {
@@ -14,7 +15,7 @@ export class CriarUsuarioUseCase {
 		private readonly passwordHashingService: PasswordHashingService,
 	) {}
 
-	public async execute(dto: CreateUserDto): Promise<UsuarioResponseDto> {
+	public async execute(dto: CriarUsuarioDto): Promise<UsuarioResponseDto> {
 		const user = await this.usuarioRepository.buscarPorEmail(dto.email);
 		if (user) throw new ConflictException('E-mail já cadastrado');
 
@@ -31,7 +32,6 @@ export class CriarUsuarioUseCase {
 		});
 
 		const created = await this.usuarioRepository.criar(newUser);
-
-		return UsuarioResponseDto.fromEntity(created);
+		return usuarioToResponse(created);
 	}
 }

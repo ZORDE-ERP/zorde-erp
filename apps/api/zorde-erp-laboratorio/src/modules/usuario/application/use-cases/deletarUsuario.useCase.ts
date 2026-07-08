@@ -1,20 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
 import type { IUsuarioRepository } from '../../domain/repositories/i-usuario.repository';
 import { IUSUARIO_REPOSITORY } from '../../domain/repositories/i-usuario.repository';
-import { UsuarioResponseDto } from '../dtos/usuario-response.dto';
 
 @Injectable()
-export class FindByEmailUserUseCase {
+export class DeletarUsuarioUseCase {
 	public constructor(
 		@Inject(IUSUARIO_REPOSITORY)
 		private readonly usuarioRepository: IUsuarioRepository,
 	) {}
 
-	public async execute(email: string): Promise<UsuarioResponseDto | null> {
-		const user = await this.usuarioRepository.buscarPorEmail(email);
-
-		if (!user?.getId()) return null;
-
-		return UsuarioResponseDto.fromEntity(user);
+	public async execute(id: number): Promise<void> {
+		const existing = await this.usuarioRepository.buscarPorId(id);
+		if (!existing) throw new EntityNotFoundException('Usuário não encontrado');
+		await this.usuarioRepository.deletar(id);
 	}
 }
