@@ -1,30 +1,32 @@
-import type { Cliente, TabelaMontagem } from '@prisma/client';
-import type { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
+import type { Cliente, Servico, TabelaMontagem } from '@prisma/client';
 import { TabelaMontagemEntity } from '../../domain/entities/tabelaMontagem.entity';
 
 export class TabelaMontagemInfraMapper {
-	public static toDomain(raw: TabelaMontagem & { Cliente?: Cliente | null }): TabelaMontagemEntity {
+	public static toDomain(
+		raw: TabelaMontagem & { Cliente?: Cliente | null; Servico?: Servico | null },
+	): TabelaMontagemEntity {
 		return new TabelaMontagemEntity({
 			id: raw.id,
 			clienteId: raw.clienteId,
-			servico: raw.servico as TipoServico,
+			servicoId: raw.servicoId,
 			valor: raw.valor,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt || null,
 			deletedAt: raw.deletedAt || null,
 			nomeCliente: raw.Cliente?.nome || null,
+			nomeServico: raw.Servico?.nome || null,
 		});
 	}
 
 	public static toPersistence(entity: TabelaMontagemEntity): {
 		clienteId: number;
-		servico: string;
+		servicoId: number;
 		valor: number;
 		createdAt: Date;
 	} {
 		return {
 			clienteId: entity.getClienteId(),
-			servico: entity.getServico(),
+			servicoId: entity.getServicoId(),
 			valor: entity.getValor(),
 			createdAt: entity.getCreatedAt() as Date,
 		};

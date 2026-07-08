@@ -31,6 +31,7 @@ model Usuario {
   Clientes      Cliente[]
   Fornecedores  Fornecedor[]
   Ordens        OrdemDeServico[]
+  Servicos      Servico[]
   @@unique([email, documento, ativo], name: "uni_usuario_email_documento_ativo")
   @@schema("entidades")
 }
@@ -121,18 +122,19 @@ model Fornecedor {
 model TabelaMontagem {
   id        Int       @id @default(autoincrement())
   clienteId Int
-  servico   String
+  servicoId Int
   valor     Float
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
   deletedAt DateTime?
 
   Cliente Cliente          @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Servico Servico          @relation(fields: [servicoId], references: [id], onDelete: NoAction)
   Ordens  OrdemDeServico[]
 
   @@index([clienteId])
   @@index([clienteId, deletedAt])
-  @@unique([clienteId, servico], name: "uni_tabela_montagem_cliente_servico")
+  @@unique([clienteId, servicoId], name: "uni_tabela_montagem_cliente_servico")
   @@schema("entidades")
 }
 
@@ -193,3 +195,19 @@ model Endereco {
   @@schema("enderecos")
 }
 
+
+model Servico {
+  id        Int       @id @default(autoincrement())
+  usuarioId Int
+  nome      String
+  descricao String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  Usuario         Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  TabelasMontagem TabelaMontagem[]
+
+  @@unique([usuarioId, nome], name: "uni_servico_usuario_nome")
+  @@index([usuarioId])
+  @@schema("entidades")
+}

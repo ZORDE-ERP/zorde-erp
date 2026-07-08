@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../infra/database/database.module';
 import { ClienteModule } from '../cliente/cliente.module';
+import { ServicoModule } from '../servico/servico.module';
 import { TabelaMontagemService } from './application/services/tabelaMontagem.service';
 import { UpdateTabelaMontagemUseCase } from './application/use-cases/atualizarTabelaMontagem.useCase';
 import { FindByIdTabelaMontagemUseCase } from './application/use-cases/buscarTabelaMontagem.useCase';
@@ -12,7 +12,7 @@ import { PrismaTabelaMontagemRepository } from './infrastructure/repositories/ta
 import { TabelaMontagemController } from './presentation/controllers/tabelaMontagem.controller';
 
 @Module({
-	imports: [DatabaseModule, ClienteModule],
+	imports: [ClienteModule, ServicoModule],
 	controllers: [TabelaMontagemController],
 	providers: [
 		CreateTabelaMontagemUseCase,

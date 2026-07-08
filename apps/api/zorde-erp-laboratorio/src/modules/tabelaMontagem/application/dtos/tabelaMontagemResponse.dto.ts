@@ -1,10 +1,9 @@
-import type { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
-
 export interface TabelaMontagemResponseDto {
 	id: number;
 	clienteId: number;
 	nomeCliente?: string | null;
-	servico: TipoServico;
+	servicoId: number;
+	nomeServico?: string | null;
 	valor: number;
 	createdAt: Date;
 	updatedAt?: Date | null;

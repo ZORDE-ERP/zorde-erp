@@ -11,6 +11,7 @@ import { JwtAuthGuardStrategy } from './modules/auth/presentation/guards/jwtAuth
 import { ClienteModule } from './modules/cliente/cliente.module';
 import { FornecedorModule } from './modules/fornecedor/fornecedor.module';
 import { ServiceOrderModule } from './modules/ordemDeServico/ordemDeServico.module';
+import { ServicoModule } from './modules/servico/servico.module';
 import { SolicitacaoCadastroModule } from './modules/solicitacaoCadastro/solicitacaoCadastro.module';
 import { TabelaMontagemModule } from './modules/tabelaMontagem/tabelaMontagem.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
@@ -29,6 +30,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 		ClienteModule,
 		FornecedorModule,
 		TabelaMontagemModule,
+		ServicoModule,
 		ServiceOrderModule,
 	],
 	controllers: [AppController],

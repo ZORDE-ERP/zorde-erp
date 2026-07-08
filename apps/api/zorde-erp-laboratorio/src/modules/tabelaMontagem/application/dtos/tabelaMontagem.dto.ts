@@ -1,21 +1,14 @@
 import { z } from 'zod';
-import { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
 
 export const createTabelaMontagemSchema = z.object({
 	clienteId: z.coerce.number().int().positive('clienteId deve ser um número inteiro positivo'),
-	servico: z.enum(TipoServico, {
-		message: 'Serviço inválido. Valores aceitos: MONTAGEM SIMPLES, PARAFUSO, TRANSPOSICAO, COLORACAO, SOMENTE ENCAIXAR',
-	}),
+	servicoId: z.coerce.number().int().positive('servicoId deve ser um número inteiro positivo'),
 	valor: z.coerce.number().positive('O valor deve ser um número positivo'),
 });
 
 export const updateTabelaMontagemSchema = z.object({
 	clienteId: z.coerce.number().int().positive().optional(),
-	servico: z
-		.enum(TipoServico, {
-			message: 'Serviço inválido. Valores aceitos: MONTAGEM SIMPLES, PARAFUSO, TRANSPOSICAO, COLORACAO, SOMENTE ENCAIXAR',
-		})
-		.optional(),
+	servicoId: z.coerce.number().int().positive('servicoId deve ser um número inteiro positivo').optional(),
 	valor: z.coerce.number().positive('O valor deve ser um número positivo').optional(),
 });
 

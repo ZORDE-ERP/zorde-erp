@@ -1,9 +1,10 @@
 import { StatusPessoa } from '../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../shared/enums/tipo-pessoa.enum';
-import { TipoServico } from '../../../shared/enums/tipo-servico.enum';
 import { EntityNotFoundException } from '../../../shared/errors/app.exception';
 import { ClienteEntity } from '../../cliente/domain/entities/cliente.entity';
 import type { IClienteRepository } from '../../cliente/domain/repositories/cliente.repository';
+import { ServicoEntity } from '../../servico/domain/entities/servico.entity';
+import type { IServicoRepository } from '../../servico/domain/repositories/servico.repository';
 import { tabelaMontagemToResponse, tabelaMontagensToResponse } from '../application/mappers/tabelaMontagemResponse.mapper';
 import { UpdateTabelaMontagemUseCase } from '../application/use-cases/atualizarTabelaMontagem.useCase';
 import { FindByIdTabelaMontagemUseCase } from '../application/use-cases/buscarTabelaMontagem.useCase';
@@ -18,12 +19,13 @@ describe('TabelaMontagem Unit Tests', () => {
 	const mockTabelaMontagemProps = {
 		id: 1,
 		clienteId: 10,
-		servico: TipoServico.MONTAGEM_SIMPLES,
+		servicoId: 3,
 		valor: 150.5,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		deletedAt: null,
 		nomeCliente: 'Cliente Teste',
+		nomeServico: 'MONTAGEM SIMPLES',
 	};
 
 	const mockClienteProps = {
@@ -40,15 +42,25 @@ describe('TabelaMontagem Unit Tests', () => {
 		deletedAt: null,
 	};
 
+	const mockServicoProps = {
+		id: 3,
+		usuarioId: 5,
+		nome: 'MONTAGEM SIMPLES',
+		descricao: null,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+
 	describe('TabelaMontagemEntity', () => {
 		it('should create a TabelaMontagemEntity with props', () => {
 			const entity = new TabelaMontagemEntity(mockTabelaMontagemProps);
 
 			expect(entity.getId()).toBe(1);
 			expect(entity.getClienteId()).toBe(10);
-			expect(entity.getServico()).toBe(TipoServico.MONTAGEM_SIMPLES);
+			expect(entity.getServicoId()).toBe(3);
 			expect(entity.getValor()).toBe(150.5);
 			expect(entity.getNomeCliente()).toBe('Cliente Teste');
+			expect(entity.getNomeServico()).toBe('MONTAGEM SIMPLES');
 			expect(entity.getCreatedAt()).toBeInstanceOf(Date);
 			expect(entity.getUpdatedAt()).toBeInstanceOf(Date);
 			expect(entity.getDeletedAt()).toBeNull();
@@ -62,9 +74,10 @@ describe('TabelaMontagem Unit Tests', () => {
 
 			expect(response.id).toBe(entity.getId());
 			expect(response.clienteId).toBe(entity.getClienteId());
-			expect(response.servico).toBe(entity.getServico());
+			expect(response.servicoId).toBe(entity.getServicoId());
 			expect(response.valor).toBe(entity.getValor());
 			expect(response.nomeCliente).toBe(entity.getNomeCliente());
+			expect(response.nomeServico).toBe(entity.getNomeServico());
 		});
 
 		it('should map list of TabelaMontagemEntity to Response DTO list', () => {
@@ -79,7 +92,7 @@ describe('TabelaMontagem Unit Tests', () => {
 			const raw = {
 				id: 1,
 				clienteId: 10,
-				servico: 'MONTAGEM SIMPLES',
+				servicoId: 3,
 				valor: 150.5,
 				createdAt: new Date(),
 				updatedAt: new Date(),
@@ -88,12 +101,18 @@ describe('TabelaMontagem Unit Tests', () => {
 					id: 10,
 					nome: 'Cliente Teste',
 				},
+				Servico: {
+					id: 3,
+					nome: 'MONTAGEM SIMPLES',
+				},
 			};
 
 			const entity = TabelaMontagemInfraMapper.toDomain(raw);
 			expect(entity.getId()).toBe(raw.id);
 			expect(entity.getClienteId()).toBe(raw.clienteId);
+			expect(entity.getServicoId()).toBe(raw.servicoId);
 			expect(entity.getNomeCliente()).toBe('Cliente Teste');
+			expect(entity.getNomeServico()).toBe('MONTAGEM SIMPLES');
 		});
 
 		it('should map domain entity to Prisma persistence object', () => {
@@ -101,7 +120,7 @@ describe('TabelaMontagem Unit Tests', () => {
 			const persistence = TabelaMontagemInfraMapper.toPersistence(entity);
 
 			expect(persistence.clienteId).toBe(entity.getClienteId());
-			expect(persistence.servico).toBe(entity.getServico());
+			expect(persistence.servicoId).toBe(entity.getServicoId());
 			expect(persistence.valor).toBe(entity.getValor());
 		});
 	});
@@ -109,6 +128,7 @@ describe('TabelaMontagem Unit Tests', () => {
 	describe('Use Cases', () => {
 		let mockRepository: jest.Mocked<ITabelaMontagemRepository>;
 		let mockClienteRepository: jest.Mocked<IClienteRepository>;
+		let mockServicoRepository: jest.Mocked<IServicoRepository>;
 
 		beforeEach(() => {
 			mockRepository = {
@@ -122,18 +142,23 @@ describe('TabelaMontagem Unit Tests', () => {
 			mockClienteRepository = {
 				findById: jest.fn(),
 			} as unknown as jest.Mocked<IClienteRepository>;
+
+			mockServicoRepository = {
+				findById: jest.fn(),
+			} as unknown as jest.Mocked<IServicoRepository>;
 		});
 
 		describe('CreateTabelaMontagemUseCase', () => {
 			it('should create assembly table successfully', async () => {
-				const useCase = new CreateTabelaMontagemUseCase(mockRepository, mockClienteRepository);
+				const useCase = new CreateTabelaMontagemUseCase(mockRepository, mockClienteRepository, mockServicoRepository);
 				const dto = {
 					clienteId: 10,
-					servico: TipoServico.PARAFUSO,
+					servicoId: 3,
 					valor: 200,
 				};
 
 				const cliente = new ClienteEntity(mockClienteProps);
+				const servico = new ServicoEntity(mockServicoProps);
 				const returnedEntity = new TabelaMontagemEntity({
 					...dto,
 					id: 123,
@@ -141,21 +166,34 @@ describe('TabelaMontagem Unit Tests', () => {
 				});
 
 				mockClienteRepository.findById.mockResolvedValue(cliente);
+				mockServicoRepository.findById.mockResolvedValue(servico);
 				mockRepository.create.mockResolvedValue(returnedEntity);
 
 				const result = await useCase.execute(dto, 5);
 
 				expect(mockClienteRepository.findById).toHaveBeenCalledWith(10, 5);
+				expect(mockServicoRepository.findById).toHaveBeenCalledWith(3, 5);
 				expect(mockRepository.create).toHaveBeenCalled();
 				expect(result.id).toBe(123);
 				expect(result.nomeCliente).toBe('Cliente Teste');
+				expect(result.nomeServico).toBe('MONTAGEM SIMPLES');
 			});
 
 			it('should throw EntityNotFoundException if client does not exist', async () => {
-				const useCase = new CreateTabelaMontagemUseCase(mockRepository, mockClienteRepository);
+				const useCase = new CreateTabelaMontagemUseCase(mockRepository, mockClienteRepository, mockServicoRepository);
 				mockClienteRepository.findById.mockResolvedValue(null);
 
-				await expect(useCase.execute({ clienteId: 10, servico: TipoServico.PARAFUSO, valor: 200 }, 5)).rejects.toThrow(
+				await expect(useCase.execute({ clienteId: 10, servicoId: 3, valor: 200 }, 5)).rejects.toThrow(
+					EntityNotFoundException,
+				);
+			});
+
+			it('should throw EntityNotFoundException if servico does not exist', async () => {
+				const useCase = new CreateTabelaMontagemUseCase(mockRepository, mockClienteRepository, mockServicoRepository);
+				mockClienteRepository.findById.mockResolvedValue(new ClienteEntity(mockClienteProps));
+				mockServicoRepository.findById.mockResolvedValue(null);
+
+				await expect(useCase.execute({ clienteId: 10, servicoId: 3, valor: 200 }, 5)).rejects.toThrow(
 					EntityNotFoundException,
 				);
 			});
@@ -226,21 +264,24 @@ describe('TabelaMontagem Unit Tests', () => {
 
 		describe('UpdateTabelaMontagemUseCase', () => {
 			it('should update assembly table entity with new values', async () => {
-				const useCase = new UpdateTabelaMontagemUseCase(mockRepository, mockClienteRepository);
+				const useCase = new UpdateTabelaMontagemUseCase(mockRepository, mockClienteRepository, mockServicoRepository);
 				const existingEntity = new TabelaMontagemEntity(mockTabelaMontagemProps);
 				const cliente = new ClienteEntity(mockClienteProps);
+				const servico = new ServicoEntity({ ...mockServicoProps, id: 4, nome: 'COLORACAO' });
 
 				mockRepository.findById.mockResolvedValue(existingEntity);
 				mockClienteRepository.findById.mockResolvedValue(cliente);
+				mockServicoRepository.findById.mockResolvedValue(servico);
 
 				const dto = {
-					servico: TipoServico.COLORACAO,
+					servicoId: 4,
 					valor: 300,
 				};
 
 				const expectedUpdatedEntity = new TabelaMontagemEntity({
 					...mockTabelaMontagemProps,
-					servico: TipoServico.COLORACAO,
+					servicoId: 4,
+					nomeServico: 'COLORACAO',
 					valor: 300,
 				});
 
@@ -249,8 +290,9 @@ describe('TabelaMontagem Unit Tests', () => {
 				const result = await useCase.execute(1, dto, 5);
 
 				expect(mockRepository.findById).toHaveBeenCalledWith(1, 5);
+				expect(mockServicoRepository.findById).toHaveBeenCalledWith(4, 5);
 				expect(mockRepository.update).toHaveBeenCalled();
-				expect(result.servico).toBe(TipoServico.COLORACAO);
+				expect(result.servicoId).toBe(4);
 				expect(result.valor).toBe(300);
 			});
 		});

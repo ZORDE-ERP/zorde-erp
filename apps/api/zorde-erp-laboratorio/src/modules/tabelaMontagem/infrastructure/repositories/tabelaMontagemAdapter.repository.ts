@@ -4,6 +4,8 @@ import { TabelaMontagemEntity } from '../../domain/entities/tabelaMontagem.entit
 import { ITabelaMontagemRepository } from '../../domain/repositories/tabelaMontagem.repository';
 import { TabelaMontagemInfraMapper } from '../mappers/tabelaMontagemInfra.mapper';
 
+const includeRelations = { Cliente: true, Servico: true } as const;
+
 @Injectable()
 export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository {
 	public constructor(private readonly prisma: PrismaService) {}
@@ -12,7 +14,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		const data = TabelaMontagemInfraMapper.toPersistence(tabela);
 		const created = await this.prisma.tabelaMontagem.create({
 			data,
-			include: { Cliente: true },
+			include: includeRelations,
 		});
 		return TabelaMontagemInfraMapper.toDomain(created);
 	}
@@ -27,7 +29,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 					deletedAt: null,
 				},
 			},
-			include: { Cliente: true },
+			include: includeRelations,
 		});
 
 		if (!raw) return null;
@@ -56,9 +58,11 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		if (search) {
 			where.OR = [
 				{
-					servico: {
-						contains: search,
-						mode: 'insensitive',
+					Servico: {
+						nome: {
+							contains: search,
+							mode: 'insensitive',
+						},
 					},
 				},
 				{
@@ -77,7 +81,7 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 				where,
 				skip,
 				take,
-				include: { Cliente: true },
+				include: includeRelations,
 				orderBy: { id: 'desc' },
 			}),
 			this.prisma.tabelaMontagem.count({ where }),
@@ -94,11 +98,11 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 			where: { id: tabela.getId() as number },
 			data: {
 				clienteId: tabela.getClienteId(),
-				servico: tabela.getServico(),
+				servicoId: tabela.getServicoId(),
 				valor: tabela.getValor(),
 				updatedAt: new Date(),
 			},
-			include: { Cliente: true },
+			include: includeRelations,
 		});
 
 		return TabelaMontagemInfraMapper.toDomain(updated);

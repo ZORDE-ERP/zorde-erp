@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
 import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
 import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
+import type { IServicoRepository } from '../../../servico/domain/repositories/servico.repository';
+import { ISERVICO_REPOSITORY } from '../../../servico/domain/repositories/servico.repository';
 import { TabelaMontagemEntity } from '../../domain/entities/tabelaMontagem.entity';
 import type { ITabelaMontagemRepository } from '../../domain/repositories/tabelaMontagem.repository';
 import { ITABELA_MONTAGEM_REPOSITORY } from '../../domain/repositories/tabelaMontagem.repository';
@@ -16,6 +18,8 @@ export class UpdateTabelaMontagemUseCase {
 		private readonly tabelaMontagemRepository: ITabelaMontagemRepository,
 		@Inject(ICLIENTE_REPOSITORY)
 		private readonly clienteRepository: IClienteRepository,
+		@Inject(ISERVICO_REPOSITORY)
+		private readonly servicoRepository: IServicoRepository,
 	) {}
 
 	public async execute(id: number, dto: UpdateTabelaMontagemDto, usuarioId: number): Promise<TabelaMontagemResponseDto> {
@@ -42,10 +46,22 @@ export class UpdateTabelaMontagemUseCase {
 			finalClienteNome = newCliente.getNome();
 		}
 
+		let finalServicoId = existing.getServicoId();
+		let finalServicoNome = existing.getNomeServico() ?? '';
+
+		if (dto.servicoId !== undefined && dto.servicoId !== existing.getServicoId()) {
+			const servico = await this.servicoRepository.findById(dto.servicoId, usuarioId);
+			if (!servico) {
+				throw new EntityNotFoundException('Serviço não encontrado');
+			}
+			finalServicoId = dto.servicoId;
+			finalServicoNome = servico.getNome();
+		}
+
 		const tabelaMontagem = new TabelaMontagemEntity({
 			id: existing.getId(),
 			clienteId: finalClienteId,
-			servico: dto.servico ?? existing.getServico(),
+			servicoId: finalServicoId,
 			valor: dto.valor ?? existing.getValor(),
 			createdAt: existing.getCreatedAt(),
 			updatedAt: new Date(),
@@ -54,6 +70,7 @@ export class UpdateTabelaMontagemUseCase {
 
 		const updated = await this.tabelaMontagemRepository.update(tabelaMontagem);
 		updated.setNomeCliente(finalClienteNome);
+		updated.setNomeServico(finalServicoNome);
 
 		return tabelaMontagemToResponse(updated);
 	}

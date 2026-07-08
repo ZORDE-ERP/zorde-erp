@@ -1,35 +1,36 @@
-import type { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
-
 interface TabelaMontagemProps {
 	id?: number | null;
 	clienteId: number;
-	servico: TipoServico;
+	servicoId: number;
 	valor: number;
 	createdAt?: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;
 	nomeCliente?: string | null;
+	nomeServico?: string | null;
 }
 
 export class TabelaMontagemEntity {
 	private id?: number | null;
 	private clienteId: number;
-	private servico: TipoServico;
+	private servicoId: number;
 	private valor: number;
 	private createdAt?: Date | null;
 	private updatedAt?: Date | null;
 	private deletedAt?: Date | null;
 	private nomeCliente?: string | null;
+	private nomeServico?: string | null;
 
 	public constructor(props: TabelaMontagemProps) {
 		this.id = props.id ?? null;
 		this.clienteId = props.clienteId;
-		this.servico = props.servico;
+		this.servicoId = props.servicoId;
 		this.valor = props.valor;
 		this.createdAt = props.createdAt ?? null;
 		this.updatedAt = props.updatedAt ?? null;
 		this.deletedAt = props.deletedAt ?? null;
 		this.nomeCliente = props.nomeCliente ?? null;
+		this.nomeServico = props.nomeServico ?? null;
 	}
 
 	public static create(
@@ -49,8 +50,8 @@ export class TabelaMontagemEntity {
 		return this.clienteId;
 	}
 
-	public getServico(): TipoServico {
-		return this.servico;
+	public getServicoId(): number {
+		return this.servicoId;
 	}
 
 	public getValor(): number {
@@ -73,7 +74,15 @@ export class TabelaMontagemEntity {
 		return this.nomeCliente ?? null;
 	}
 
+	public getNomeServico(): string | null {
+		return this.nomeServico ?? null;
+	}
+
 	public setNomeCliente(nomeCliente: string): void {
 		this.nomeCliente = nomeCliente;
+	}
+
+	public setNomeServico(nomeServico: string): void {
+		this.nomeServico = nomeServico;
 	}
 }
