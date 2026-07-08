@@ -16,7 +16,8 @@ export interface ServiceOrderResponseDto {
 
 	tabelaMontagem?: {
 		id: number;
-		servico: string;
+		servicoId: number;
+		nomeServico?: string | null;
 		valor: string | null;
 	} | null;
 }

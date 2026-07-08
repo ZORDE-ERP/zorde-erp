@@ -5,6 +5,8 @@ import { ServiceOrderEntity } from '../../domain/entities/ordemDeServico.entity'
 import type { IServiceOrderRepository } from '../../domain/repositories/ordemDeServico.repository';
 import { ServiceOrderInfraMapper } from '../mappers/ordemDeServicoInfra.mapper';
 
+const includeRelations = { Cliente: true, TabelaMontagem: { include: { Servico: true } } } as const;
+
 @Injectable()
 export class PrismaServiceOrderRepository implements IServiceOrderRepository {
 	public constructor(private readonly prisma: PrismaService) {}
@@ -20,7 +22,7 @@ export class PrismaServiceOrderRepository implements IServiceOrderRepository {
 				usuarioId: persistenceData.usuarioId as number,
 				createdAt: persistenceData.createdAt || new Date(),
 			},
-			include: { Cliente: true, TabelaMontagem: true },
+			include: includeRelations,
 		});
 		return ServiceOrderInfraMapper.toDomain(serviceOrderResult);
 	}
@@ -31,7 +33,7 @@ export class PrismaServiceOrderRepository implements IServiceOrderRepository {
 				id,
 				AND: [{ usuarioId }, { deletedAt: null }],
 			},
-			include: { Cliente: true, TabelaMontagem: true },
+			include: includeRelations,
 		});
 		if (!serviceOrderResult) return null;
 		return ServiceOrderInfraMapper.toDomain(serviceOrderResult);
@@ -40,7 +42,7 @@ export class PrismaServiceOrderRepository implements IServiceOrderRepository {
 	public async findByUsuarioId(usuarioId: number): Promise<ServiceOrderEntity[]> {
 		const serviceOrderResults = await this.prisma.ordemDeServico.findMany({
 			where: { usuarioId, deletedAt: null },
-			include: { Cliente: true, TabelaMontagem: true },
+			include: includeRelations,
 			orderBy: { id: 'desc' },
 		});
 		return serviceOrderResults.map(ServiceOrderInfraMapper.toDomain);
@@ -54,7 +56,7 @@ export class PrismaServiceOrderRepository implements IServiceOrderRepository {
 				AND: { usuarioId: { equals: serviceOrder.getUsuarioId() } },
 			},
 			data: persistenceData as Prisma.OrdemDeServicoUncheckedUpdateInput,
-			include: { Cliente: true, TabelaMontagem: true },
+			include: includeRelations,
 		});
 		return ServiceOrderInfraMapper.toDomain(serviceOrderResult);
 	}

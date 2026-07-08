@@ -1,16 +1,15 @@
-import type { Cliente, OrdemDeServico, TabelaMontagem } from '@prisma/client';
+import type { Cliente, OrdemDeServico, Servico, TabelaMontagem } from '@prisma/client';
 import { StatusPessoa } from '../../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../../shared/enums/tipo-pessoa.enum';
-import type { TipoServico } from '../../../../shared/enums/tipo-servico.enum';
 import { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';
-import { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabela-montagem.entity';
+import { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabelaMontagem.entity';
 import { ServiceOrderEntity } from '../../domain/entities/ordemDeServico.entity';
 
 export class ServiceOrderInfraMapper {
 	public static toDomain(
 		raw: OrdemDeServico & {
 			Cliente?: Cliente | null;
-			TabelaMontagem?: TabelaMontagem | null;
+			TabelaMontagem?: (TabelaMontagem & { Servico?: Servico | null }) | null;
 		},
 	): ServiceOrderEntity {
 		return new ServiceOrderEntity({
@@ -47,11 +46,12 @@ export class ServiceOrderInfraMapper {
 				? new TabelaMontagemEntity({
 						id: raw.TabelaMontagem.id,
 						clienteId: raw.TabelaMontagem.clienteId,
-						servico: raw.TabelaMontagem.servico as TipoServico,
+						servicoId: raw.TabelaMontagem.servicoId,
 						valor: raw.TabelaMontagem.valor,
 						createdAt: raw.TabelaMontagem.createdAt,
-						updatedAt: raw.TabelaMontagem.updatedAt || undefined,
-						deletedAt: raw.TabelaMontagem.deletedAt || undefined,
+						updatedAt: raw.TabelaMontagem.updatedAt || null,
+						deletedAt: raw.TabelaMontagem.deletedAt || null,
+						nomeServico: raw.TabelaMontagem.Servico?.nome || null,
 					})
 				: undefined,
 		});
