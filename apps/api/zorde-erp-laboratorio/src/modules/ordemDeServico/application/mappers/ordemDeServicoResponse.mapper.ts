@@ -23,9 +23,9 @@ export function serviceOrderToResponse(entity: ServiceOrderEntity): ServiceOrder
 			: null,
 		tabelaMontagem: tabelaMontagem
 			? {
-					id: tabelaMontagem.id,
-					servico: tabelaMontagem.servico,
-					valor: tabelaMontagem.valor.toString(),
+					id: tabelaMontagem.getId() as number,
+					servico: tabelaMontagem.getServico(),
+					valor: tabelaMontagem.getValor().toString(),
 				}
 			: null,
 	};

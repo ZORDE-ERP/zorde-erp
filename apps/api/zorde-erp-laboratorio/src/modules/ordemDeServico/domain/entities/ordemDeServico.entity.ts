@@ -1,5 +1,5 @@
 import type { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';
-import type { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabela-montagem.entity';
+import type { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabelaMontagem.entity';
 
 interface ServiceOrderProps {
 	id?: number | null;
