@@ -1,16 +1,16 @@
 import * as crypto from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { BusinessRuleException } from '../../../../shared/errors/app.exception';
-import { SolicitacaoCadastroEntity } from '../../domain/entities/solicitacao-cadastro.entity';
-import type { ISolicitacaoCadastroRepository } from '../../domain/repositories/i-solicitacao-cadastro.repository';
-import { I_SOLICITACAO_CADASTRO_REPOSITORY } from '../../domain/repositories/i-solicitacao-cadastro.repository';
-import { ResendEmailService } from '../../infrastructure/services/resend-email.service';
-import type { ReenviarCodigoDto } from '../dtos/reenviar-codigo.dto';
+import { SolicitacaoCadastroEntity } from '../../domain/entities/solicitacaoCadastro.entity';
+import type { ISolicitacaoCadastroRepository } from '../../domain/repositories/solicitacaoCadastro.repository';
+import { ISOLICITACAO_CADASTRO_REPOSITORY } from '../../domain/repositories/solicitacaoCadastro.repository';
+import { ResendEmailService } from '../../infrastructure/services/resendEmail.service';
+import type { ReenviarCodigoDto } from '../dtos/reenviarCodigo.dto';
 
 @Injectable()
 export class ReenviarCodigoUseCase {
 	public constructor(
-		@Inject(I_SOLICITACAO_CADASTRO_REPOSITORY)
+		@Inject(ISOLICITACAO_CADASTRO_REPOSITORY)
 		private readonly solicitacaoCadastroRepository: ISolicitacaoCadastroRepository,
 		private readonly emailService: ResendEmailService,
 	) {}
@@ -22,17 +22,14 @@ export class ReenviarCodigoUseCase {
 			throw new BusinessRuleException('Nenhuma solicitação de cadastro pendente encontrada para este e-mail');
 		}
 
-		// Validar tempo mínimo (cooldown) de reenvio de 30 segundos
 		const diffInSeconds = (Date.now() - solicitacao.criadoEm.getTime()) / 1000;
 		if (diffInSeconds < 30) {
 			const restSecs = Math.ceil(30 - diffInSeconds);
 			throw new BusinessRuleException(`Aguarde ${restSecs} segundos antes de solicitar um novo envio`);
 		}
 
-		// Remover solicitação antiga
 		await this.solicitacaoCadastroRepository.deletarPorEmail(dto.email);
 
-		// Regenerar código OTP
 		const novoCodigo = crypto.randomInt(100000, 999999).toString();
 		const novaExpiracao = new Date(Date.now() + 5 * 60 * 1000);
 
@@ -44,7 +41,6 @@ export class ReenviarCodigoUseCase {
 
 		await this.solicitacaoCadastroRepository.criar(novaSolicitacao);
 
-		// Enviar o novo e-mail
 		await this.emailService.enviarCodigoOtp(dto.email, novoCodigo);
 
 		return {

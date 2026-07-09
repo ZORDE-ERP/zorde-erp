@@ -1,27 +1,26 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../infra/database/database.module';
 import { UsuarioModule } from '../usuario/usuario.module';
-import { ReenviarCodigoUseCase } from './application/use-cases/reenviar-codigo.use-case';
-import { SolicitarCadastroUseCase } from './application/use-cases/solicitar-cadastro.use-case';
-import { VerificarEmailUseCase } from './application/use-cases/verificar-email.use-case';
-import { I_SOLICITACAO_CADASTRO_REPOSITORY } from './domain/repositories/i-solicitacao-cadastro.repository';
-import { PrismaSolicitacaoCadastroRepository } from './infrastructure/repositories/prisma-solicitacao-cadastro.repository';
-import { ResendEmailService } from './infrastructure/services/resend-email.service';
-import { SolicitacaoCadastroController } from './presentation/controllers/solicitacao-cadastro.controller';
+import { ReenviarCodigoUseCase } from './application/use-cases/reenviarCodigo.useCase';
+import { SolicitarCadastroUseCase } from './application/use-cases/solicitarCadastro.useCase';
+import { VerificarEmailUseCase } from './application/use-cases/verificarEmail.useCase';
+import { ISOLICITACAO_CADASTRO_REPOSITORY } from './domain/repositories/solicitacaoCadastro.repository';
+import { PrismaSolicitacaoCadastroRepository } from './infrastructure/repositories/solicitacaoCadastroAdapter.repository';
+import { ResendEmailService } from './infrastructure/services/resendEmail.service';
+import { SolicitacaoCadastroController } from './presentation/controllers/solicitacaoCadastro.controller';
 
 @Module({
-	imports: [DatabaseModule, UsuarioModule],
+	imports: [UsuarioModule],
 	controllers: [SolicitacaoCadastroController],
 	providers: [
+		ResendEmailService,
 		SolicitarCadastroUseCase,
 		VerificarEmailUseCase,
 		ReenviarCodigoUseCase,
-		ResendEmailService,
 		{
-			provide: I_SOLICITACAO_CADASTRO_REPOSITORY,
+			provide: ISOLICITACAO_CADASTRO_REPOSITORY,
 			useClass: PrismaSolicitacaoCadastroRepository,
 		},
 	],
-	exports: [I_SOLICITACAO_CADASTRO_REPOSITORY, SolicitarCadastroUseCase, VerificarEmailUseCase, ReenviarCodigoUseCase],
+	exports: [ISOLICITACAO_CADASTRO_REPOSITORY, SolicitarCadastroUseCase, VerificarEmailUseCase, ReenviarCodigoUseCase],
 })
 export class SolicitacaoCadastroModule {}

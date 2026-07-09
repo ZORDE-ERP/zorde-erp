@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 
 @Injectable()
@@ -119,17 +119,18 @@ export class ResendEmailService {
       </html>
     `;
 
-		try {
-			await this.resend.emails.send({
-				from: 'Zorde Laboratório <onboarding@resend.dev>',
-				to: email,
-				subject: `${codigo} é o seu código de confirmação`,
-				html,
-			});
-			this.logger.log(`E-mail OTP enviado com sucesso para ${email}`);
-		} catch (error) {
+		const { data, error } = await this.resend.emails.send({
+			from: 'Zorde Laboratório <onboarding@resend.dev>',
+			to: email,
+			subject: `${codigo} é o seu código de confirmação`,
+			html,
+		});
+
+		if (error) {
 			this.logger.error(`Erro ao enviar e-mail OTP para ${email}:`, error);
-			throw error;
+			throw new InternalServerErrorException('Falha ao enviar e-mail de confirmação');
 		}
+
+		this.logger.log(`E-mail OTP enviado com sucesso para ${email}. ID: ${data?.id}`);
 	}
 }
