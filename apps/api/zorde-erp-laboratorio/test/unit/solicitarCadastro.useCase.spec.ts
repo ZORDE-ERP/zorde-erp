@@ -1,31 +1,43 @@
 import { Test, type TestingModule } from '@nestjs/testing';
-import { SolicitarCadastroUseCase } from '../../src/modules/solicitacaoCadastro/application/use-cases/solicitar-cadastro.use-case';
-import type { ISolicitacaoCadastroRepository } from '../../src/modules/solicitacaoCadastro/domain/repositories/i-solicitacao-cadastro.repository';
-import { I_SOLICITACAO_CADASTRO_REPOSITORY } from '../../src/modules/solicitacaoCadastro/domain/repositories/i-solicitacao-cadastro.repository';
-import { ResendEmailService } from '../../src/modules/solicitacaoCadastro/infrastructure/services/resend-email.service';
+import { SolicitarCadastroUseCase } from '../../src/modules/solicitacaoCadastro/application/use-cases/solicitarCadastro.useCase';
+import { SolicitacaoCadastroEntity } from '../../src/modules/solicitacaoCadastro/domain/entities/solicitacaoCadastro.entity';
+import type { ISolicitacaoCadastroRepository } from '../../src/modules/solicitacaoCadastro/domain/repositories/solicitacaoCadastro.repository';
+import { ISOLICITACAO_CADASTRO_REPOSITORY } from '../../src/modules/solicitacaoCadastro/domain/repositories/solicitacaoCadastro.repository';
+import { ResendEmailService } from '../../src/modules/solicitacaoCadastro/infrastructure/services/resendEmail.service';
+import { UsuarioEntity } from '../../src/modules/usuario/domain/entities/usuario.entity';
 import type { IUsuarioRepository } from '../../src/modules/usuario/domain/repositories/i-usuario.repository';
 import { IUSUARIO_REPOSITORY } from '../../src/modules/usuario/domain/repositories/i-usuario.repository';
 import { ConflictException } from '../../src/shared/errors/app.exception';
+
+function createEmailServiceMock(
+	enviarCodigoOtp: jest.MockedFunction<ResendEmailService['enviarCodigoOtp']> = jest.fn().mockResolvedValue(undefined),
+): ResendEmailService {
+	return { enviarCodigoOtp } as unknown as ResendEmailService;
+}
 
 describe('SolicitarCadastroUseCase', () => {
 	let solicitarCadastroUseCase: SolicitarCadastroUseCase;
 	let usuarioRepositoryMock: jest.Mocked<IUsuarioRepository>;
 	let solicitacaoCadastroRepositoryMock: jest.Mocked<ISolicitacaoCadastroRepository>;
-	let emailServiceMock: jest.Mocked<ResendEmailService>;
+	let emailServiceMock: ResendEmailService;
 
 	beforeEach(async () => {
 		usuarioRepositoryMock = {
 			buscarPorEmail: jest.fn(),
-		};
+			criar: jest.fn(),
+			buscarPorId: jest.fn(),
+			buscarPorDocumento: jest.fn(),
+			atualizar: jest.fn(),
+			deletar: jest.fn(),
+		} as unknown as jest.Mocked<IUsuarioRepository>;
 
 		solicitacaoCadastroRepositoryMock = {
+			buscarPorEmail: jest.fn(),
 			deletarPorEmail: jest.fn(),
 			criar: jest.fn(),
-		};
+		} as unknown as jest.Mocked<ISolicitacaoCadastroRepository>;
 
-		emailServiceMock = {
-			enviarCodigoOtp: jest.fn(),
-		};
+		emailServiceMock = createEmailServiceMock();
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
@@ -35,7 +47,7 @@ describe('SolicitarCadastroUseCase', () => {
 					useValue: usuarioRepositoryMock,
 				},
 				{
-					provide: I_SOLICITACAO_CADASTRO_REPOSITORY,
+					provide: ISOLICITACAO_CADASTRO_REPOSITORY,
 					useValue: solicitacaoCadastroRepositoryMock,
 				},
 				{
@@ -50,9 +62,16 @@ describe('SolicitarCadastroUseCase', () => {
 
 	it('should successfully request registration by sending OTP', async () => {
 		usuarioRepositoryMock.buscarPorEmail.mockResolvedValue(null);
-		solicitacaoCadastroRepositoryMock.deletarPorEmail.mockResolvedValue(null);
-		solicitacaoCadastroRepositoryMock.criar.mockResolvedValue(null);
-		emailServiceMock.enviarCodigoOtp.mockResolvedValue(null);
+		solicitacaoCadastroRepositoryMock.deletarPorEmail.mockResolvedValue(undefined);
+		solicitacaoCadastroRepositoryMock.criar.mockResolvedValue(
+			new SolicitacaoCadastroEntity({
+				id: 1,
+				email: 'new_user@zorde.com.br',
+				codigo: '123456',
+				expiracao: new Date(),
+				criadoEm: new Date(),
+			}),
+		);
 
 		const result = await solicitarCadastroUseCase.execute({ email: 'new_user@zorde.com.br' });
 
@@ -67,10 +86,22 @@ describe('SolicitarCadastroUseCase', () => {
 	});
 
 	it('should throw ConflictException if user email already exists', async () => {
-		usuarioRepositoryMock.buscarPorEmail.mockResolvedValue({
-			id: 'existing-user-id',
-			email: 'existing_user@zorde.com.br',
-		});
+		usuarioRepositoryMock.buscarPorEmail.mockResolvedValue(
+			new UsuarioEntity({
+				id: 1,
+				email: 'existing_user@zorde.com.br',
+				senha: 'HASH',
+				nome: 'Teste',
+				documento: '12345678901',
+				contato: '11999999999',
+				tipoUsuario: 'ADMIN',
+				ultimoAcesso: null,
+				ativo: true,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				deletedAt: null,
+			}),
+		);
 
 		await expect(solicitarCadastroUseCase.execute({ email: 'existing_user@zorde.com.br' })).rejects.toThrow(
 			ConflictException,
