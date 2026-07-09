@@ -1,6 +1,6 @@
-import type { SolicitacaoCadastroEntity } from '../entities/solicitacao-cadastro.entity';
+import type { SolicitacaoCadastroEntity } from '../entities/solicitacaoCadastro.entity';
 
-export const I_SOLICITACAO_CADASTRO_REPOSITORY = 'ISolicitacaoCadastroRepository';
+export const ISOLICITACAO_CADASTRO_REPOSITORY = 'ISolicitacaoCadastroRepository';
 
 export interface ISolicitacaoCadastroRepository {
 	criar(solicitacao: SolicitacaoCadastroEntity): Promise<SolicitacaoCadastroEntity>;
