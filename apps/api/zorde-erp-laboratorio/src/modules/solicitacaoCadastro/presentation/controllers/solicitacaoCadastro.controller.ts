@@ -1,14 +1,15 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UsePipes } from '@nestjs/common';
+import { Public } from '../../../../shared/decorators/publicRoutes.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
-import type { ReenviarCodigoDto } from '../../application/dtos/reenviar-codigo.dto';
-import { reenviarCodigoSchema } from '../../application/dtos/reenviar-codigo.dto';
-import type { SolicitarCadastroDto } from '../../application/dtos/solicitar-cadastro.dto';
-import { solicitarCadastroSchema } from '../../application/dtos/solicitar-cadastro.dto';
-import type { VerificarEmailDto } from '../../application/dtos/verificar-email.dto';
-import { verificarEmailSchema } from '../../application/dtos/verificar-email.dto';
-import { ReenviarCodigoUseCase } from '../../application/use-cases/reenviar-codigo.use-case';
-import { SolicitarCadastroUseCase } from '../../application/use-cases/solicitar-cadastro.use-case';
-import { VerificarEmailUseCase } from '../../application/use-cases/verificar-email.use-case';
+import type { ReenviarCodigoDto } from '../../application/dtos/reenviarCodigo.dto';
+import { reenviarCodigoSchema } from '../../application/dtos/reenviarCodigo.dto';
+import type { SolicitarCadastroDto } from '../../application/dtos/solicitarCadastro.dto';
+import { solicitarCadastroSchema } from '../../application/dtos/solicitarCadastro.dto';
+import type { VerificarEmailDto } from '../../application/dtos/verificarEmail.dto';
+import { verificarEmailSchema } from '../../application/dtos/verificarEmail.dto';
+import { ReenviarCodigoUseCase } from '../../application/use-cases/reenviarCodigo.useCase';
+import { SolicitarCadastroUseCase } from '../../application/use-cases/solicitarCadastro.useCase';
+import { VerificarEmailUseCase } from '../../application/use-cases/verificarEmail.useCase';
 
 @Controller('api/auth')
 export class SolicitacaoCadastroController {
@@ -18,6 +19,7 @@ export class SolicitacaoCadastroController {
 		private readonly reenviarCodigoUseCase: ReenviarCodigoUseCase,
 	) {}
 
+	@Public()
 	@Post('solicitar-cadastro')
 	@HttpCode(HttpStatus.OK)
 	@UsePipes(new ZodValidationPipe(solicitarCadastroSchema))
@@ -25,6 +27,7 @@ export class SolicitacaoCadastroController {
 		return this.solicitarCadastroUseCase.execute(dto);
 	}
 
+	@Public()
 	@Post('verificar-email')
 	@HttpCode(HttpStatus.OK)
 	@UsePipes(new ZodValidationPipe(verificarEmailSchema))
@@ -32,6 +35,7 @@ export class SolicitacaoCadastroController {
 		return this.verificarEmailUseCase.execute(dto);
 	}
 
+	@Public()
 	@Post('reenviar-codigo')
 	@HttpCode(HttpStatus.OK)
 	@UsePipes(new ZodValidationPipe(reenviarCodigoSchema))
