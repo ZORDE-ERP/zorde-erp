@@ -6,6 +6,7 @@ import { PedidosService, Pedido, PaginatedResponse, PedidosFilters } from '../..
 import { AdminService, PipelineStage } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { RealtimeService } from '../../services/realtime.service';
+import { ToastService } from '../../services/toast.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -18,7 +19,7 @@ import { takeUntil } from 'rxjs/operators';
     <div class="pedidos-page">
       <div class="header">
         <h1>📋 Pedidos</h1>
-        <button (click)="abrirModalNovoPedido()" class="btn-primary" *ngIf="podecriar">
+        <button (click)="abrirModalNovoPedido()" class="btn-primary" *ngIf="podeCriar">
           ➕ Novo Pedido
         </button>
       </div>
@@ -417,6 +418,7 @@ export class Pedidos implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
   private realtimeService = inject(RealtimeService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
   private destroy$ = new Subject<void>();
 
@@ -439,7 +441,7 @@ export class Pedidos implements OnInit, OnDestroy {
   formFiltros: FormGroup;
 
   // Permissions
-  podecriar = false;
+  podeCriar = false;
   podeAtualizarStage = false;
 
   constructor() {
@@ -462,7 +464,7 @@ export class Pedidos implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
-    this.podecriar = user?.permissions.some(p => p.resource === 'pedidos' && p.action === 'create') ?? false;
+    this.podeCriar = user?.permissions.some(p => p.resource === 'pedidos' && p.action === 'create') ?? false;
     this.podeAtualizarStage = user?.permissions.some(p => p.resource === 'pedidos' && p.action === 'update_stage') ?? false;
 
     // Connect to WebSocket for real-time updates
@@ -513,7 +515,7 @@ export class Pedidos implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar pedidos:', err);
+        this.toastService.error('Erro ao carregar pedidos');
         this.loading = false;
       },
     });
@@ -524,7 +526,7 @@ export class Pedidos implements OnInit, OnDestroy {
       next: (stages) => {
         this.stages = stages.sort((a, b) => a.order - b.order);
       },
-      error: (err) => console.error('Erro ao carregar stages:', err),
+      error: (err) => this.toastService.error('Erro ao carregar stages'),
     });
   }
 
@@ -586,18 +588,20 @@ export class Pedidos implements OnInit, OnDestroy {
     if (this.editandoPedido) {
       this.pedidosService.atualizar(this.editandoPedido.id, data).subscribe({
         next: () => {
+          this.toastService.success('Pedido atualizado com sucesso');
           this.carregarPedidos();
           this.fecharModal();
         },
-        error: (err) => console.error('Erro ao atualizar pedido:', err),
+        error: (err) => this.toastService.error('Erro ao atualizar pedido'),
       });
     } else {
       this.pedidosService.criar(data).subscribe({
         next: () => {
+          this.toastService.success('Pedido criado com sucesso');
           this.carregarPedidos();
           this.fecharModal();
         },
-        error: (err) => console.error('Erro ao criar pedido:', err),
+        error: (err) => this.toastService.error('Erro ao criar pedido'),
       });
     }
   }
@@ -608,10 +612,11 @@ export class Pedidos implements OnInit, OnDestroy {
     const stageId = this.formStage.get('stageId')?.value;
     this.pedidosService.atualizarStage(this.pedidoParaAtualizarStage.id, stageId).subscribe({
       next: () => {
+        this.toastService.success('Status atualizado com sucesso');
         this.carregarPedidos();
         this.fecharModalStage();
       },
-      error: (err) => console.error('Erro ao atualizar stage:', err),
+      error: (err) => this.toastService.error('Erro ao atualizar status'),
     });
   }
 
@@ -619,8 +624,11 @@ export class Pedidos implements OnInit, OnDestroy {
     if (!confirm('Tem certeza que deseja deletar este pedido?')) return;
 
     this.pedidosService.deletar(id).subscribe({
-      next: () => this.carregarPedidos(),
-      error: (err) => console.error('Erro ao deletar pedido:', err),
+      next: () => {
+        this.toastService.success('Pedido deletado com sucesso');
+        this.carregarPedidos();
+      },
+      error: (err) => this.toastService.error('Erro ao deletar pedido'),
     });
   }
 }
