@@ -45,6 +45,7 @@ export const createMockPrismaService = () => ({
   // Roles
   role: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -57,9 +58,16 @@ export const createMockPrismaService = () => ({
     create: jest.fn(),
     delete: jest.fn(),
   },
+  // Role Permissions
+  rolePermission: {
+    create: jest.fn(),
+    delete: jest.fn(),
+    findMany: jest.fn(),
+  },
   // Pipeline Stages
   pipelineStage: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
