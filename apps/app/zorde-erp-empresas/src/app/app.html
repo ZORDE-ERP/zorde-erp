@@ -1,5 +1,7 @@
 ﻿<div class="h-dvh overflow-hidden bg-slate-100 text-slate-950">
-  <aside class="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-slate-200 bg-slate-950 text-white md:flex md:flex-col">
+  <aside
+    class="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-slate-200 bg-slate-950 text-white md:flex md:flex-col"
+  >
     <div class="border-b border-white/10 px-6 py-5">
       <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Zorde ERP</p>
       <h1 class="mt-1 text-lg font-semibold">Empresas</h1>
@@ -46,16 +48,34 @@
         </div>
 
         <nav class="flex gap-2 md:hidden">
-          <a routerLink="/produtos" class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100">Produtos</a>
-          <a routerLink="/compras" class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100">Compras</a>
-          <a routerLink="/estoque" class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100">Estoque</a>
-          <a routerLink="/fornecedores" class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100">Fornecedores</a>
+          <a
+            routerLink="/produtos"
+            class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+            >Produtos</a
+          >
+          <a
+            routerLink="/compras"
+            class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+            >Compras</a
+          >
+          <a
+            routerLink="/estoque"
+            class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+            >Estoque</a
+          >
+          <a
+            routerLink="/fornecedores"
+            class="rounded-md px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+            >Fornecedores</a
+          >
         </nav>
       </div>
     </header>
 
     <main class="min-h-0 flex-1 overflow-hidden p-3 sm:p-4 md:p-6 xl:p-8">
-      <div class="h-full w-full overflow-hidden rounded-md border border-slate-200 bg-white p-4 shadow-sm sm:p-5 md:p-6 xl:p-8">
+      <div
+        class="h-full w-full overflow-hidden rounded-md border border-slate-200 bg-white p-4 shadow-sm sm:p-5 md:p-6 xl:p-8"
+      >
         <router-outlet />
       </div>
     </main>
@@ -63,4 +83,3 @@
 
   <app-toast-container></app-toast-container>
 </div>
-
