@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../infra/database/prisma/prisma.service';
+import { EntityNotFoundException } from '../shared/exceptions/app.exception';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 
@@ -8,57 +9,57 @@ export class PedidosService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createPedidoDto: CreatePedidoDto) {
-    return this.prisma.compras.create({
-      data: createPedidoDto,
+    return this.prisma.pedido.create({
+      data: createPedidoDto as any,
       include: {
         produto: true,
-        fornecedor: true,
+        currentStage: true,
       },
     });
   }
 
   findAll() {
-    return this.prisma.compras.findMany({
+    return this.prisma.pedido.findMany({
       include: {
         produto: true,
-        fornecedor: true,
+        currentStage: true,
       },
     });
   }
 
-  async findOne(id: number) {
-    const pedido = await this.prisma.compras.findUnique({
+  async findOne(id: string) {
+    const pedido = await this.prisma.pedido.findUnique({
       where: { id },
       include: {
         produto: true,
-        fornecedor: true,
+        currentStage: true,
       },
     });
 
     if (!pedido) {
-      throw new NotFoundException(`Pedido ${id} não encontrado`);
+      throw new EntityNotFoundException('Pedido', id);
     }
 
     return pedido;
   }
 
-  async update(id: number, updatePedidoDto: UpdatePedidoDto) {
+  async update(id: string, updatePedidoDto: UpdatePedidoDto) {
     await this.findOne(id);
 
-    return this.prisma.compras.update({
+    return this.prisma.pedido.update({
       where: { id },
-      data: updatePedidoDto,
+      data: updatePedidoDto as any,
       include: {
         produto: true,
-        fornecedor: true,
+        currentStage: true,
       },
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     await this.findOne(id);
 
-    return this.prisma.compras.delete({
+    return this.prisma.pedido.delete({
       where: { id },
     });
   }

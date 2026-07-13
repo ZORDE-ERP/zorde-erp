@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import databaseConfig from './config/database.config';
@@ -9,6 +10,8 @@ import { DatabaseModule } from './infra/database/database.module';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { ProdutosModule } from './produtos/produtos.module';
 import { FornecedoresModule } from './fornecedores/fornecedores.module';
+import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -17,7 +20,10 @@ import { FornecedoresModule } from './fornecedores/fornecedores.module';
       load: [databaseConfig],
       validate: validateEnv,
     }),
+    EventEmitterModule.forRoot(),
     DatabaseModule,
+    AuthModule,
+    AdminModule,
     ProdutosModule,
     EstoqueModule,
     PedidosModule,
@@ -27,3 +33,5 @@ import { FornecedoresModule } from './fornecedores/fornecedores.module';
   providers: [AppService],
 })
 export class AppModule {}
+
+

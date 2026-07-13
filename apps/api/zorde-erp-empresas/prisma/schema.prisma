@@ -7,70 +7,309 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model produtos {
-  id        Int       @id @default(autoincrement())
-  estoques  estoque[] @relation("produto_estoque")
-  compras   compras[] @relation("produto_compras")
-  pedidos   pedidos[]
-  descricao String    @db.VarChar(255)
-  preco     String    @db.VarChar(255)
+// ============================================================================
+// ORGANIZAÇÕES (Multitenancy)
+// ============================================================================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  type      OrgType  @default(LABORATORIO)
+  email     String   @db.VarChar(255)
+  telefone  String?  @db.VarChar(20)
+  endereco  String?  @db.VarChar(255)
+
+  // Relationships
+  users            User[]
+  roles            Role[]
+  pipelineStages   PipelineStage[]
+  produtos         Produto[]
+  fornecedores     Fornecedor[]
+  clientes         Cliente[]
+  pedidos          Pedido[]
+  estoque          Estoque[]
+  compras          Compra[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   @@schema("public")
 }
 
-model estoque {
-  id         Int      @id @default(autoincrement())
-  produto_id Int
-  produto    produtos @relation("produto_estoque", fields: [produto_id], references: [id])
-  quantidade Int      @db.Integer
+enum OrgType {
+  LABORATORIO
+  OTICA
+  CLIENTE
 
   @@schema("public")
 }
 
-model clientes {
-  id       Int    @id @default(autoincrement())
-  nome     String @db.VarChar(255)
-  email    String @db.VarChar(255)
-  telefone String @db.VarChar(255)
-  endereco String @db.VarChar(255)
-  pedidos  pedidos[]
+// ============================================================================
+// USUÁRIOS & AUTENTICAÇÃO
+// ============================================================================
+
+model User {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  email            String   @unique @db.VarChar(255)
+  senha            String
+  nome             String   @db.VarChar(255)
+
+  roleId           String
+  role             Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  // Audit
+  statusHistories  OrderStatusHistory[] @relation("changedBy")
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  @@unique([organizationId, email])
+  @@schema("public")
+}
+
+// ============================================================================
+// CONTROLE DE ACESSO (RBAC)
+// ============================================================================
+
+model Role {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String   @db.VarChar(100)
+  description      String?  @db.VarChar(255)
+
+  // Relationships
+  users            User[]
+  permissions      RolePermission[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@schema("public")
+}
+
+model Permission {
+  id        String   @id @default(cuid())
+  resource  String   @db.VarChar(100)
+  action    String   @db.VarChar(100)
+
+  // Relationships
+  roles     RolePermission[]
+
+  @@unique([resource, action])
+  @@schema("public")
+}
+
+model RolePermission {
+  roleId        String
+  role          Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId  String
+  permission    Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@schema("public")
+}
+
+// ============================================================================
+// PIPELINE DE PRODUÇÃO
+// ============================================================================
+
+model PipelineStage {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String   @db.VarChar(100)
+  order            Int      // Sequência dentro do pipeline
+  isTerminal       Boolean  @default(false) // É o último estágio?
+
+  // Relationships
+  pedidosAtual     Pedido[]     @relation("currentStage")
+  statusHistories  OrderStatusHistory[] @relation("toStage")
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@schema("public")
+}
+
+// ============================================================================
+// PRODUTOS
+// ============================================================================
+
+model Produto {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  descricao        String   @db.VarChar(255)
+  preco            Decimal  @db.Decimal(10, 2)
+
+  // Relationships
+  estoques         Estoque[] @relation("produtoEstoque")
+  compras          Compra[]  @relation("produtoCompra")
+  pedidos          Pedido[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
 
   @@schema("public")
 }
 
-model fornecedores {
-  id       Int       @id @default(autoincrement())
-  nome     String    @db.VarChar(255)
-  email    String    @db.VarChar(255)
-  telefone String    @db.VarChar(255)
-  endereco String    @db.VarChar(255)
-  compras  compras[]
+// ============================================================================
+// ESTOQUE
+// ============================================================================
+
+model Estoque {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  produtoId        String
+  produto          Produto @relation("produtoEstoque", fields: [produtoId], references: [id], onDelete: Cascade)
+
+  quantidade       Int      @default(0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, produtoId])
+  @@schema("public")
+}
+
+// ============================================================================
+// FORNECEDORES
+// ============================================================================
+
+model Fornecedor {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  nome             String   @db.VarChar(255)
+  email            String   @db.VarChar(255)
+  telefone         String   @db.VarChar(20)
+  endereco         String   @db.VarChar(255)
+
+  // Relationships
+  compras          Compra[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
 
   @@schema("public")
 }
 
-model compras {
-  id             Int          @id @default(autoincrement())
-  fornecedor_id  Int
-  fornecedor     fornecedores @relation(fields: [fornecedor_id], references: [id])
-  produto_id     Int
-  produto        produtos     @relation("produto_compras", fields: [produto_id], references: [id])
-  data           DateTime
-  total          String       @db.VarChar(255)
-  valor_unitario String       @db.VarChar(255)
-  quantidade     Int          @db.Integer
+// ============================================================================
+// CLIENTES (Óticas e Clientes Finais)
+// ============================================================================
+
+model Cliente {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  nome             String   @db.VarChar(255)
+  email            String   @db.VarChar(255)
+  telefone         String   @db.VarChar(20)
+  endereco         String   @db.VarChar(255)
+
+  // Relationships
+  pedidos          Pedido[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
 
   @@schema("public")
 }
 
-model pedidos {
-  id             Int          @id @default(autoincrement())
-  cliente_id     Int
-  cliente        clientes     @relation(fields: [cliente_id], references: [id])
-  produto_id     Int
-  produto        produtos     @relation(fields: [produto_id], references: [id])
-  status_pedido  Int
-  statusPedidos  statusPedidos @relation(fields: [status_pedido], references: [id])
+// ============================================================================
+// COMPRAS (Pedidos de Fornecedores)
+// ============================================================================
+
+model Compra {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  fornecedorId     String
+  fornecedor       Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Restrict)
+
+  produtoId        String
+  produto          Produto @relation("produtoCompra", fields: [produtoId], references: [id], onDelete: Restrict)
+
+  quantidade       Int
+  valorUnitario    Decimal  @db.Decimal(10, 2)
+  total            Decimal  @db.Decimal(10, 2)
+  data             DateTime
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  @@schema("public")
+}
+
+// ============================================================================
+// PEDIDOS (Ordens de Serviço / Vendas)
+// ============================================================================
+
+model Pedido {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  clienteId        String?
+  cliente          Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+
+  produtoId        String
+  produto          Produto @relation(fields: [produtoId], references: [id], onDelete: Restrict)
+
+  currentStageId   String
+  currentStage     PipelineStage @relation("currentStage", fields: [currentStageId], references: [id], onDelete: Restrict)
+
+  // Relacionamento com os pontos de visita (ClienteOrganizacao que pediu)
+  clienteOrganizacaoId String? // Se foi de uma Ótica, referencia a Org da Ótica
+
+  // Relationships
+  statusHistories  OrderStatusHistory[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  @@schema("public")
+}
+
+// ============================================================================
+// HISTÓRICO DE STATUS DOS PEDIDOS
+// ============================================================================
+
+model OrderStatusHistory {
+  id               String   @id @default(cuid())
+
+  pedidoId         String
+  pedido           Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+
+  fromStageId      String?
+  toStageId        String
+  toStage          PipelineStage @relation("toStage", fields: [toStageId], references: [id], onDelete: Restrict)
+
+  changedById      String
+  changedBy        User @relation("changedBy", fields: [changedById], references: [id], onDelete: Restrict)
+
+  changedAt        DateTime @default(now())
 
   @@schema("public")
 }

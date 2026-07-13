@@ -1,123 +1,512 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-
-type Fornecedor = {
-  id: number;
-  nome: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-  compras?: unknown[];
-};
-
-type FornecedorForm = {
-  nome: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-};
-
-const API_URL = 'http://localhost:3001/fornecedores';
-const EMPTY_FORM: FornecedorForm = {
-  nome: '',
-  email: '',
-  telefone: '',
-  endereco: '',
-};
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { FornecedoresService, Fornecedor, PaginatedResponse, FornecedoresFilters } from '../../services/fornecedores.service';
+import { AuthService } from '../../services/auth.service';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-fornecedores',
-  imports: [FormsModule],
-  templateUrl: './fornecedores.html',
-  styleUrl: './fornecedores.scss',
-})
-export class Fornecedores {
-  private readonly http = inject(HttpClient);
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PaginationComponent],
+  template: `
+    <div class="fornecedores-page">
+      <div class="header">
+        <h1>🏭 Fornecedores</h1>
+        <button (click)="abrirModalNovoFornecedor()" class="btn-primary" *ngIf="podeCriar">
+          ➕ Novo Fornecedor
+        </button>
+      </div>
 
-  fornecedores = signal<Fornecedor[]>([]);
-  form: FornecedorForm = { ...EMPTY_FORM };
-  editingId = signal<number | null>(null);
-  loading = signal(false);
-  saving = signal(false);
-  error = signal('');
+      <!-- Filtros -->
+      <div class="filters-section">
+        <h3>🔍 Filtros</h3>
+        <form [formGroup]="formFiltros" (ngSubmit)="aplicarFiltros()" class="filters-form">
+          <div class="filter-group">
+            <label>Nome</label>
+            <input type="text" formControlName="nome" placeholder="Buscar por nome" class="form-control" />
+          </div>
+
+          <div class="filter-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="Buscar por email" class="form-control" />
+          </div>
+
+          <button type="submit" class="btn-filter">Filtrar</button>
+          <button type="button" (click)="limparFiltros()" class="btn-secondary">Limpar</button>
+        </form>
+      </div>
+
+      <div *ngIf="loading" class="loading">Carregando fornecedores...</div>
+
+      <div *ngIf="!loading && fornecedores.length > 0" class="fornecedores-list">
+        <div *ngFor="let fornecedor of fornecedores" class="fornecedor-card">
+          <div class="fornecedor-header">
+            <h3>{{ fornecedor.nome }}</h3>
+            <div class="actions">
+              <button (click)="abrirModalEditar(fornecedor)" class="btn-small">✏️</button>
+              <button (click)="deletar(fornecedor.id)" class="btn-small danger">🗑️</button>
+            </div>
+          </div>
+          <div class="fornecedor-body">
+            <p><strong>Email:</strong> {{ fornecedor.email }}</p>
+            <p><strong>Telefone:</strong> {{ fornecedor.telefone }}</p>
+            <p><strong>Endereço:</strong> {{ fornecedor.endereco }}</p>
+            <p><strong>Criado:</strong> {{ fornecedor.createdAt | date: 'short' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && fornecedores.length === 0" class="empty-state">
+        <p>Nenhum fornecedor encontrado.</p>
+      </div>
+
+      <!-- Paginação -->
+      <app-pagination
+        *ngIf="total > 0"
+        [total]="total"
+        [skip]="skip"
+        [take]="take"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+
+      <!-- Modal Novo/Editar Fornecedor -->
+      <div *ngIf="mostrarModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>{{ editandoFornecedor ? 'Editar Fornecedor' : 'Novo Fornecedor' }}</h2>
+            <button (click)="fecharModal()" class="btn-close">✕</button>
+          </div>
+          <form [formGroup]="formFornecedor" (ngSubmit)="salvarFornecedor()">
+            <div class="form-group">
+              <label>Nome</label>
+              <input type="text" formControlName="nome" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" formControlName="email" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="tel" formControlName="telefone" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>Endereço</label>
+              <input type="text" formControlName="endereco" class="form-control" required />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" [disabled]="!formFornecedor.valid" class="btn-primary">
+                Salvar
+              </button>
+              <button type="button" (click)="fecharModal()" class="btn-secondary">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [
+    `
+      .fornecedores-page {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      h1 {
+        margin: 0;
+        color: #333;
+      }
+
+      .filters-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .filters-section h3 {
+        margin: 0 0 1rem 0;
+        color: #333;
+      }
+
+      .filters-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        align-items: flex-end;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .filter-group label {
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 500;
+        font-size: 0.875rem;
+      }
+
+      .form-control {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-family: inherit;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .btn-filter {
+        padding: 0.75rem 1.5rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-filter:hover {
+        background: #5568d3;
+      }
+
+      .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background: #f0f0f0;
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .btn-secondary:hover {
+        background: #e0e0e0;
+      }
+
+      .fornecedores-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .fornecedor-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .fornecedor-card:hover {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .fornecedor-header {
+        background: #f5f5f5;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .fornecedor-header h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1rem;
+      }
+
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .btn-small {
+        padding: 0.5rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .btn-small:hover {
+        background: #5568d3;
+      }
+
+      .btn-small.danger {
+        background: #e74c3c;
+      }
+
+      .btn-small.danger:hover {
+        background: #c0392b;
+      }
+
+      .fornecedor-body {
+        padding: 1rem;
+      }
+
+      .fornecedor-body p {
+        margin: 0.5rem 0;
+        color: #666;
+        font-size: 0.875rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+        background: white;
+        border-radius: 8px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .btn-primary {
+        padding: 0.75rem 1rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: #5568d3;
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        min-width: 400px;
+        max-width: 600px;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+      }
+
+      .btn-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+      }
+    `,
+  ],
+})
+export class Fornecedores implements OnInit {
+  private fornecedoresService = inject(FornecedoresService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+
+  fornecedores: Fornecedor[] = [];
+  loading = false;
+  total = 0;
+  skip = 0;
+  take = 10;
+
+  mostrarModal = false;
+  editandoFornecedor: Fornecedor | null = null;
+
+  formFornecedor: FormGroup;
+  formFiltros: FormGroup;
+
+  podeCriar = false;
 
   constructor() {
-    this.loadFornecedores();
+    this.formFornecedor = this.fb.group({
+      nome: ['', Validators.required],
+      email: ['', Validators.required],
+      telefone: ['', Validators.required],
+      endereco: ['', Validators.required],
+    });
+
+    this.formFiltros = this.fb.group({
+      nome: [''],
+      email: [''],
+    });
   }
 
-  loadFornecedores() {
-    this.loading.set(true);
-    this.error.set('');
+  ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    this.podeCriar = user?.permissions.some(p => p.resource === 'fornecedores' && p.action === 'create') ?? false;
 
-    this.http.get<Fornecedor[]>(API_URL).subscribe({
-      next: (fornecedores) => {
-        this.fornecedores.set(fornecedores);
-        this.loading.set(false);
+    this.carregarFornecedores();
+  }
+
+  carregarFornecedores(): void {
+    this.loading = true;
+    const filters: FornecedoresFilters = {
+      skip: this.skip,
+      take: this.take,
+    };
+
+    const nome = this.formFiltros.get('nome')?.value;
+    const email = this.formFiltros.get('email')?.value;
+
+    if (nome) filters.nome = nome;
+    if (email) filters.email = email;
+
+    this.fornecedoresService.listar(filters).subscribe({
+      next: (response: PaginatedResponse<Fornecedor>) => {
+        this.fornecedores = response.data;
+        this.total = response.total;
+        this.loading = false;
       },
-      error: () => {
-        this.error.set('Nao foi possivel carregar os fornecedores.');
-        this.loading.set(false);
+      error: (err) => {
+        console.error('Erro ao carregar fornecedores:', err);
+        this.loading = false;
       },
     });
   }
 
-  save() {
-    const data = { ...this.form };
-
-    if (!data.nome.trim() || !data.email.trim() || !data.telefone.trim() || !data.endereco.trim()) {
-      this.error.set('Preencha todos os campos.');
-      return;
-    }
-
-    this.saving.set(true);
-    this.error.set('');
-
-    const editingId = this.editingId();
-    const request = editingId
-      ? this.http.patch<Fornecedor>(`${API_URL}/${editingId}`, data)
-      : this.http.post<Fornecedor>(API_URL, data);
-
-    request.subscribe({
-      next: () => {
-        this.resetForm();
-        this.saving.set(false);
-        this.loadFornecedores();
-      },
-      error: () => {
-        this.error.set('Nao foi possivel salvar o fornecedor.');
-        this.saving.set(false);
-      },
-    });
+  aplicarFiltros(): void {
+    this.skip = 0;
+    this.carregarFornecedores();
   }
 
-  edit(fornecedor: Fornecedor) {
-    this.editingId.set(fornecedor.id);
-    this.form = {
+  limparFiltros(): void {
+    this.formFiltros.reset();
+    this.skip = 0;
+    this.carregarFornecedores();
+  }
+
+  onPageChange(event: { skip: number; take: number }): void {
+    this.skip = event.skip;
+    this.take = event.take;
+    this.carregarFornecedores();
+  }
+
+  abrirModalNovoFornecedor(): void {
+    this.editandoFornecedor = null;
+    this.formFornecedor.reset();
+    this.mostrarModal = true;
+  }
+
+  abrirModalEditar(fornecedor: Fornecedor): void {
+    this.editandoFornecedor = fornecedor;
+    this.formFornecedor.patchValue({
       nome: fornecedor.nome,
       email: fornecedor.email,
       telefone: fornecedor.telefone,
       endereco: fornecedor.endereco,
-    };
-  }
-
-  remove(fornecedor: Fornecedor) {
-    const shouldRemove = window.confirm(`Excluir fornecedor "${fornecedor.nome}"?`);
-
-    if (!shouldRemove) {
-      return;
-    }
-
-    this.error.set('');
-
-    this.http.delete(`${API_URL}/${fornecedor.id}`).subscribe({
-      next: () => this.loadFornecedores(),
-      error: () => this.error.set('Nao foi possivel excluir o fornecedor.'),
     });
+    this.mostrarModal = true;
   }
 
-  resetForm() {
-    this.editingId.set(null);
-    this.form = { ...EMPTY_FORM };
+  fecharModal(): void {
+    this.mostrarModal = false;
+    this.editandoFornecedor = null;
+    this.formFornecedor.reset();
+  }
+
+  salvarFornecedor(): void {
+    if (!this.formFornecedor.valid) return;
+
+    const data = this.formFornecedor.value;
+
+    if (this.editandoFornecedor) {
+      this.fornecedoresService.atualizar(this.editandoFornecedor.id, data).subscribe({
+        next: () => {
+          this.carregarFornecedores();
+          this.fecharModal();
+        },
+        error: (err) => console.error('Erro ao atualizar fornecedor:', err),
+      });
+    } else {
+      this.fornecedoresService.criar(data).subscribe({
+        next: () => {
+          this.carregarFornecedores();
+          this.fecharModal();
+        },
+        error: (err) => console.error('Erro ao criar fornecedor:', err),
+      });
+    }
+  }
+
+  deletar(id: string): void {
+    if (!confirm('Tem certeza que deseja deletar este fornecedor?')) return;
+
+    this.fornecedoresService.deletar(id).subscribe({
+      next: () => this.carregarFornecedores(),
+      error: (err) => console.error('Erro ao deletar fornecedor:', err),
+    });
   }
 }

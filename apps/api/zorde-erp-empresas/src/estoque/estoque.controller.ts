@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateEstoqueDto } from './dto/create-estoque.dto';
 import { EstoqueService } from './estoque.service';
 import { UpdateEstoqueDto } from './dto/update-estoque.dto';
@@ -18,17 +18,17 @@ export class EstoqueController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.estoqueService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateEstoqueDto: UpdateEstoqueDto) {
+  update(@Param('id') id: string, @Body() updateEstoqueDto: UpdateEstoqueDto) {
     return this.estoqueService.update(id, updateEstoqueDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.estoqueService.remove(id);
   }
 }

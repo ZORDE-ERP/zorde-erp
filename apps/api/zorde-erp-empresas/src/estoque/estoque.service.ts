@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../infra/database/prisma/prisma.service';
+import { EntityNotFoundException } from '../shared/exceptions/app.exception';
 import { CreateEstoqueDto } from './dto/create-estoque.dto';
 import { UpdateEstoqueDto } from './dto/update-estoque.dto';
 
@@ -9,7 +10,7 @@ export class EstoqueService {
 
   create(createEstoqueDto: CreateEstoqueDto) {
     return this.prisma.estoque.create({
-      data: createEstoqueDto,
+      data: createEstoqueDto as any,
       include: {
         produto: true,
       },
@@ -24,7 +25,7 @@ export class EstoqueService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const estoque = await this.prisma.estoque.findUnique({
       where: { id },
       include: {
@@ -33,13 +34,13 @@ export class EstoqueService {
     });
 
     if (!estoque) {
-      throw new NotFoundException(`Estoque ${id} não encontrado`);
+      throw new EntityNotFoundException('Estoque', id);
     }
 
     return estoque;
   }
 
-  async update(id: number, updateEstoqueDto: UpdateEstoqueDto) {
+  async update(id: string, updateEstoqueDto: UpdateEstoqueDto) {
     await this.findOne(id);
 
     return this.prisma.estoque.update({
@@ -51,7 +52,7 @@ export class EstoqueService {
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     await this.findOne(id);
 
     return this.prisma.estoque.delete({

@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../infra/database/prisma/prisma.service';
+import { EntityNotFoundException } from '../shared/exceptions/app.exception';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';
 import { UpdateFornecedoreDto } from './dto/update-fornecedore.dto';
 
@@ -8,8 +9,8 @@ export class FornecedoresService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createFornecedoreDto: CreateFornecedoreDto) {
-    return this.prisma.fornecedores.create({
-      data: createFornecedoreDto,
+    return this.prisma.fornecedor.create({
+      data: createFornecedoreDto as any,
       include: {
         compras: true,
       },
@@ -17,15 +18,15 @@ export class FornecedoresService {
   }
 
   findAll() {
-    return this.prisma.fornecedores.findMany({
+    return this.prisma.fornecedor.findMany({
       include: {
         compras: true,
       },
     });
   }
 
-  async findOne(id: number) {
-    const fornecedor = await this.prisma.fornecedores.findUnique({
+  async findOne(id: string) {
+    const fornecedor = await this.prisma.fornecedor.findUnique({
       where: { id },
       include: {
         compras: true,
@@ -33,28 +34,28 @@ export class FornecedoresService {
     });
 
     if (!fornecedor) {
-      throw new NotFoundException(`Fornecedor ${id} nao encontrado`);
+      throw new EntityNotFoundException('Fornecedor', id);
     }
 
     return fornecedor;
   }
 
-  async update(id: number, updateFornecedoreDto: UpdateFornecedoreDto) {
+  async update(id: string, updateFornecedoreDto: UpdateFornecedoreDto) {
     await this.findOne(id);
 
-    return this.prisma.fornecedores.update({
+    return this.prisma.fornecedor.update({
       where: { id },
-      data: updateFornecedoreDto,
+      data: updateFornecedoreDto as any,
       include: {
         compras: true,
       },
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     await this.findOne(id);
 
-    return this.prisma.fornecedores.delete({
+    return this.prisma.fornecedor.delete({
       where: { id },
     });
   }

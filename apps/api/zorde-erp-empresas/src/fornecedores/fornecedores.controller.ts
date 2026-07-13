@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { FornecedoresService } from './fornecedores.service';
 import { CreateFornecedoreDto } from './dto/create-fornecedore.dto';
 import { UpdateFornecedoreDto } from './dto/update-fornecedore.dto';
@@ -18,17 +18,17 @@ export class FornecedoresController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.fornecedoresService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateFornecedoreDto: UpdateFornecedoreDto) {
+  update(@Param('id') id: string, @Body() updateFornecedoreDto: UpdateFornecedoreDto) {
     return this.fornecedoresService.update(id, updateFornecedoreDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.fornecedoresService.remove(id);
   }
 }
