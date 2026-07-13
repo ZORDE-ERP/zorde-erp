@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
 import { AdminService, Role, PipelineStage } from '../../services/admin.service';
 
 @Component({
@@ -421,6 +422,7 @@ import { AdminService, Role, PipelineStage } from '../../services/admin.service'
 })
 export class Admin implements OnInit {
   private adminService = inject(AdminService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
 
   tabAtual: 'stages' | 'roles' = 'stages';
@@ -465,7 +467,7 @@ export class Admin implements OnInit {
         this.loadingStages = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar stages:', err);
+        this.toastService.error('Erro ao carregar stages');
         this.loadingStages = false;
       },
     });
@@ -479,7 +481,7 @@ export class Admin implements OnInit {
         this.loadingRoles = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar roles:', err);
+        this.toastService.error('Erro ao carregar roles');
         this.loadingRoles = false;
       },
     });
@@ -532,7 +534,7 @@ export class Admin implements OnInit {
           this.carregarStages();
           this.fecharModalStage();
         },
-        error: (err) => console.error('Erro ao atualizar stage:', err),
+        error: (err) => this.toastService.error('Erro ao atualizar stage'),
       });
     } else {
       this.adminService.criarStage(data).subscribe({
@@ -540,7 +542,7 @@ export class Admin implements OnInit {
           this.carregarStages();
           this.fecharModalStage();
         },
-        error: (err) => console.error('Erro ao criar stage:', err),
+        error: (err) => this.toastService.error('Erro ao criar stage'),
       });
     }
   }
@@ -555,7 +557,7 @@ export class Admin implements OnInit {
         this.carregarRoles();
         this.fecharModalRole();
       },
-      error: (err) => console.error('Erro ao criar role:', err),
+      error: (err) => this.toastService.error('Erro ao criar role'),
     });
   }
 
@@ -564,7 +566,7 @@ export class Admin implements OnInit {
 
     this.adminService.deletarStage(id).subscribe({
       next: () => this.carregarStages(),
-      error: (err) => console.error('Erro ao deletar stage:', err),
+      error: (err) => this.toastService.error('Erro ao deletar stage'),
     });
   }
 }

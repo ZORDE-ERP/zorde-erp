@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ToastService } from '../../services/toast.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -174,6 +175,7 @@ export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
 
   form: FormGroup;
   loading = false;

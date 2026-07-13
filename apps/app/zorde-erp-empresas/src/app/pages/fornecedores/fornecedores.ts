@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 import { FornecedoresService, Fornecedor, PaginatedResponse, FornecedoresFilters } from '../../services/fornecedores.service';
 import { AuthService } from '../../services/auth.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
@@ -373,6 +374,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class Fornecedores implements OnInit {
   private fornecedoresService = inject(FornecedoresService);
+  private toastService = inject(ToastService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
@@ -431,7 +433,7 @@ export class Fornecedores implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar fornecedores:', err);
+        this.toastService.error('Erro ao carregar fornecedores');
         this.loading = false;
       },
     });
@@ -488,7 +490,7 @@ export class Fornecedores implements OnInit {
           this.carregarFornecedores();
           this.fecharModal();
         },
-        error: (err) => console.error('Erro ao atualizar fornecedor:', err),
+        error: (err) => this.toastService.error('Erro ao atualizar fornecedor'),
       });
     } else {
       this.fornecedoresService.criar(data).subscribe({
@@ -496,7 +498,7 @@ export class Fornecedores implements OnInit {
           this.carregarFornecedores();
           this.fecharModal();
         },
-        error: (err) => console.error('Erro ao criar fornecedor:', err),
+        error: (err) => this.toastService.error('Erro ao criar fornecedor'),
       });
     }
   }
@@ -506,7 +508,7 @@ export class Fornecedores implements OnInit {
 
     this.fornecedoresService.deletar(id).subscribe({
       next: () => this.carregarFornecedores(),
-      error: (err) => console.error('Erro ao deletar fornecedor:', err),
+      error: (err) => this.toastService.error('Erro ao deletar fornecedor'),
     });
   }
 }

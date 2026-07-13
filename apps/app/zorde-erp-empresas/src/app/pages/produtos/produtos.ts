@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 import { ProdutosService, Produto, PaginatedResponse, ProdutosFilters } from '../../services/produtos.service';
 import { AuthService } from '../../services/auth.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
@@ -362,6 +363,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class Produtos implements OnInit {
   private produtosService = inject(ProdutosService);
+  private toastService = inject(ToastService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
@@ -418,7 +420,7 @@ export class Produtos implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Erro ao carregar produtos:', err);
+        this.toastService.error('Erro ao carregar produtos');
         this.loading = false;
       },
     });
@@ -473,7 +475,7 @@ export class Produtos implements OnInit {
           this.carregarProdutos();
           this.fecharModal();
         },
-        error: (err) => console.error('Erro ao atualizar produto:', err),
+        error: (err) => this.toastService.error('Erro ao atualizar produto'),
       });
     } else {
       this.produtosService.criar(data).subscribe({
@@ -481,7 +483,7 @@ export class Produtos implements OnInit {
           this.carregarProdutos();
           this.fecharModal();
         },
-        error: (err) => console.error('Erro ao criar produto:', err),
+        error: (err) => this.toastService.error('Erro ao criar produto'),
       });
     }
   }
@@ -491,7 +493,7 @@ export class Produtos implements OnInit {
 
     this.produtosService.deletar(id).subscribe({
       next: () => this.carregarProdutos(),
-      error: (err) => console.error('Erro ao deletar produto:', err),
+      error: (err) => this.toastService.error('Erro ao deletar produto'),
     });
   }
 }
