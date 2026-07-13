@@ -1,40 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { CriarClienteUseCase } from '../use-cases/criar-cliente.use-case';
-import { BuscarClienteUseCase } from '../use-cases/buscar-cliente.use-case';
-import { ListarClientesUseCase } from '../use-cases/listar-clientes.use-case';
-import { AtualizarClienteUseCase } from '../use-cases/atualizar-cliente.use-case';
-import { DeletarClienteUseCase } from '../use-cases/deletar-cliente.use-case';
-import { CriarClienteDto } from '../dtos/criar-cliente.dto';
-import { AtualizarClienteDto } from '../dtos/atualizar-cliente.dto';
-import { ClienteResponseDto } from '../dtos/cliente-response.dto';
+import { AtualizarClienteDto, CriarClienteDto } from '../dtos/cliente.dto';
+import type { ClienteResponseDto } from '../dtos/clienteResponse.dto';
+import { AtualizarClienteUseCase } from '../use-cases/atualizarCliente.useCase';
+import { BuscarClienteUseCase } from '../use-cases/buscarCliente.useCase';
+import { CriarClienteUseCase } from '../use-cases/criarCliente.useCase';
+import { DeletarClienteUseCase } from '../use-cases/deletarCliente.useCase';
+import { ListarClientesUseCase } from '../use-cases/listarClientes.useCase';
 
 @Injectable()
 export class ClienteService {
-  constructor(
-    private readonly criarClienteUseCase: CriarClienteUseCase,
-    private readonly buscarClienteUseCase: BuscarClienteUseCase,
-    private readonly listarClientesUseCase: ListarClientesUseCase,
-    private readonly atualizarClienteUseCase: AtualizarClienteUseCase,
-    private readonly deletarClienteUseCase: DeletarClienteUseCase,
-  ) {}
+	public constructor(
+		private readonly createClienteUseCase: CriarClienteUseCase,
+		private readonly findByIdClienteUseCase: BuscarClienteUseCase,
+		private readonly findByUsuarioIdClienteUseCase: ListarClientesUseCase,
+		private readonly updateClienteUseCase: AtualizarClienteUseCase,
+		private readonly deleteClienteUseCase: DeletarClienteUseCase,
+	) {}
 
-  async criar(dto: CriarClienteDto, usuarioId: number): Promise<ClienteResponseDto> {
-    return this.criarClienteUseCase.execute(dto, usuarioId);
-  }
+	public async create(dto: CriarClienteDto, usuarioId: number): Promise<ClienteResponseDto> {
+		return this.createClienteUseCase.execute(dto, usuarioId);
+	}
 
-  async buscarPorId(id: number, usuarioId: number): Promise<ClienteResponseDto> {
-    return this.buscarClienteUseCase.execute(id, usuarioId);
-  }
+	public async findById(id: number, usuarioId: number): Promise<ClienteResponseDto> {
+		return this.findByIdClienteUseCase.execute(id, usuarioId);
+	}
 
-  async listarPorUsuario(usuarioId: number): Promise<ClienteResponseDto[]> {
-    return this.listarClientesUseCase.execute(usuarioId);
-  }
+	public async findByUsuarioId(usuarioId: number): Promise<ClienteResponseDto[]> {
+		return this.findByUsuarioIdClienteUseCase.execute(usuarioId);
+	}
 
-  async atualizar(id: number, dto: AtualizarClienteDto, usuarioId: number): Promise<ClienteResponseDto> {
-    return this.atualizarClienteUseCase.execute(id, dto, usuarioId);
-  }
+	public async update(clienteDto: AtualizarClienteDto, usuarioId: number): Promise<ClienteResponseDto> {
+		return this.updateClienteUseCase.execute(clienteDto, usuarioId);
+	}
 
-  async deletar(id: number, usuarioId: number): Promise<void> {
-    return this.deletarClienteUseCase.execute(id, usuarioId);
-  }
+	public async delete(id: number, usuarioId: number): Promise<void> {
+		return this.deleteClienteUseCase.execute(id, usuarioId);
+	}
 }

@@ -1,5 +1,5 @@
-describe('OrdemDeServicoUnit', () => {
-  it('placeholder', () => {
-    expect(true).toBe(true);
-  });
+describe('ServiceOrderUnit', () => {
+	it('placeholder', () => {
+		expect(true).toBe(true);
+	});
 });

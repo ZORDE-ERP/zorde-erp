@@ -1,60 +1,49 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  UsePipes,
-  ParseIntPipe,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { FornecedorService } from '../../application/services/fornecedor.service';
-import { criarFornecedorSchema } from '../../application/dtos/criar-fornecedor.dto';
-import type { CriarFornecedorDto } from '../../application/dtos/criar-fornecedor.dto';
-import { atualizarFornecedorSchema } from '../../application/dtos/atualizar-fornecedor.dto';
-import type { AtualizarFornecedorDto } from '../../application/dtos/atualizar-fornecedor.dto';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import type { UserInfo } from 'src/shared/interfaces/user.interface';
+import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
-import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
-import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
+import {
+	type CreateFornecedorDto,
+	createFornecedorSchema,
+	type UpdateFornecedorDto,
+	updateFornecedorSchema,
+} from '../../application/dtos/fornecedor.dto';
+import type { FornecedorResponseDto } from '../../application/dtos/fornecedorResponse.dto';
+import { FornecedorService } from '../../application/services/fornecedor.service';
 
 @Controller('api/fornecedores')
-@UseGuards(JwtAuthGuard)
 export class FornecedorController {
-  constructor(private readonly fornecedorService: FornecedorService) {}
+	public constructor(private readonly fornecedorService: FornecedorService) {}
 
-  @Post()
-  @UsePipes(new ZodValidationPipe(criarFornecedorSchema))
-  async criar(@Body() dto: CriarFornecedorDto, @CurrentUser() user: any) {
-    return this.fornecedorService.criar(dto, user.sub);
-  }
+	@Post()
+	public async create(
+		@Body(new ZodValidationPipe(createFornecedorSchema)) body: CreateFornecedorDto,
+		@User() user: UserInfo,
+	): Promise<FornecedorResponseDto | null> {
+		return this.fornecedorService.create(body, user.userId);
+	}
 
-  @Get()
-  async listar(@CurrentUser() user: any) {
-    return this.fornecedorService.listarPorUsuario(user.sub);
-  }
+	@Get()
+	public async listar(@User() user: UserInfo): Promise<FornecedorResponseDto[]> {
+		return this.fornecedorService.findByUsuarioId(user.userId);
+	}
 
-  @Get(':id')
-  async buscarPorId(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
-    return this.fornecedorService.buscarPorId(id, user.sub);
-  }
+	@Get(':id')
+	public async buscarPorId(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<FornecedorResponseDto> {
+		return this.fornecedorService.findById(id, user.userId);
+	}
 
-  @Put(':id')
-  @UsePipes(new ZodValidationPipe(atualizarFornecedorSchema))
-  async atualizar(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AtualizarFornecedorDto,
-    @CurrentUser() user: any,
-  ) {
-    return this.fornecedorService.atualizar(id, dto, user.sub);
-  }
+	@Put()
+	public async update(
+		@Body(new ZodValidationPipe(updateFornecedorSchema)) body: UpdateFornecedorDto,
+		@User() user: UserInfo,
+	): Promise<FornecedorResponseDto> {
+		return this.fornecedorService.update(body, user.userId);
+	}
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deletar(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
-    await this.fornecedorService.deletar(id, user.sub);
-  }
+	@Delete(':id')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	public async delete(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<void> {
+		await this.fornecedorService.delete(id, user.userId);
+	}
 }

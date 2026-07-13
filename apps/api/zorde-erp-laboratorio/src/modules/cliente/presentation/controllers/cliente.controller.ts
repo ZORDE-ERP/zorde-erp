@@ -1,60 +1,49 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  UsePipes,
-  ParseIntPipe,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { ClienteService } from '../../application/services/cliente.service';
-import { criarClienteSchema } from '../../application/dtos/criar-cliente.dto';
-import type { CriarClienteDto } from '../../application/dtos/criar-cliente.dto';
-import { atualizarClienteSchema } from '../../application/dtos/atualizar-cliente.dto';
-import type { AtualizarClienteDto } from '../../application/dtos/atualizar-cliente.dto';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import type { UserInfo } from 'src/shared/interfaces/user.interface';
+import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
-import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
-import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
+import {
+	type AtualizarClienteDto,
+	atualizarClienteSchema,
+	type CriarClienteDto,
+	criarClienteSchema,
+} from '../../application/dtos/cliente.dto';
+import type { ClienteResponseDto } from '../../application/dtos/clienteResponse.dto';
+import { ClienteService } from '../../application/services/cliente.service';
 
 @Controller('api/clientes')
-@UseGuards(JwtAuthGuard)
 export class ClienteController {
-  constructor(private readonly clienteService: ClienteService) {}
+	public constructor(private readonly clientService: ClienteService) {}
 
-  @Post()
-  @UsePipes(new ZodValidationPipe(criarClienteSchema))
-  async criar(@Body() dto: CriarClienteDto, @CurrentUser() user: any) {
-    return this.clienteService.criar(dto, user.sub);
-  }
+	@Post()
+	public async criar(
+		@Body(new ZodValidationPipe(criarClienteSchema)) body: CriarClienteDto,
+		@User() user: UserInfo,
+	): Promise<ClienteResponseDto | null> {
+		return this.clientService.create(body, user.userId);
+	}
 
-  @Get()
-  async listar(@CurrentUser() user: any) {
-    return this.clienteService.listarPorUsuario(user.sub);
-  }
+	@Get()
+	public async listar(@User() user: UserInfo): Promise<ClienteResponseDto[]> {
+		return this.clientService.findByUsuarioId(user.userId);
+	}
 
-  @Get(':id')
-  async buscarPorId(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
-    return this.clienteService.buscarPorId(id, user.sub);
-  }
+	@Get(':id')
+	public async buscarPorId(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<ClienteResponseDto> {
+		return this.clientService.findById(id, user.userId);
+	}
 
-  @Put(':id')
-  @UsePipes(new ZodValidationPipe(atualizarClienteSchema))
-  async atualizar(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AtualizarClienteDto,
-    @CurrentUser() user: any,
-  ) {
-    return this.clienteService.atualizar(id, dto, user.sub);
-  }
+	@Put()
+	public async atualizar(
+		@Body(new ZodValidationPipe(atualizarClienteSchema)) body: AtualizarClienteDto,
+		@User() user: UserInfo,
+	): Promise<ClienteResponseDto> {
+		return this.clientService.update(body, user.userId);
+	}
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deletar(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
-    await this.clienteService.deletar(id, user.sub);
-  }
+	@Delete(':id')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	public async delete(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<void> {
+		await this.clientService.delete(id, user.userId);
+	}
 }

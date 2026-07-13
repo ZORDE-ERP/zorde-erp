@@ -1,34 +1,32 @@
 import { Module } from '@nestjs/common';
+import { EnderecoAdapterRepository } from 'src/shared/infra/persistence/enderecoAdapter.repository';
 import { DatabaseModule } from '../../infra/database/database.module';
-import { AuthModule } from '../auth/auth.module';
-import { FornecedorController } from './presentation/controllers/fornecedor.controller';
 import { FornecedorService } from './application/services/fornecedor.service';
-import { CriarFornecedorUseCase } from './application/use-cases/criar-fornecedor.use-case';
-import { BuscarFornecedorUseCase } from './application/use-cases/buscar-fornecedor.use-case';
-import { ListarFornecedoresUseCase } from './application/use-cases/listar-fornecedores.use-case';
-import { AtualizarFornecedorUseCase } from './application/use-cases/atualizar-fornecedor.use-case';
-import { DeletarFornecedorUseCase } from './application/use-cases/deletar-fornecedor.use-case';
-import { I_FORNECEDOR_REPOSITORY } from './domain/repositories/i-fornecedor.repository';
-import { PrismaFornecedorRepository } from './infrastructure/repositories/prisma-fornecedor.repository';
+import { UpdateFornecedorUseCase } from './application/use-cases/atualizarFornecedor.useCase';
+import { FindByIdFornecedorUseCase } from './application/use-cases/buscarFornecedor.useCase';
+import { CreateFornecedorUseCase } from './application/use-cases/criarFornecedor.useCase';
+import { DeleteFornecedorUseCase } from './application/use-cases/deletarFornecedor.useCase';
+import { FindAllFornecedoresUseCase } from './application/use-cases/listarFornecedores.useCase';
+import { IFORNECEDOR_REPOSITORY } from './domain/repositories/fornecedor.repository';
+import { PrismaFornecedorRepository } from './infrastructure/repositories/fornecedorAdapter.repository';
+import { FornecedorController } from './presentation/controllers/fornecedor.controller';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
-  controllers: [FornecedorController],
-  providers: [
-    CriarFornecedorUseCase,
-    BuscarFornecedorUseCase,
-    ListarFornecedoresUseCase,
-    AtualizarFornecedorUseCase,
-    DeletarFornecedorUseCase,
-    FornecedorService,
-    {
-      provide: I_FORNECEDOR_REPOSITORY,
-      useClass: PrismaFornecedorRepository,
-    },
-  ],
-  exports: [
-    FornecedorService,
-    I_FORNECEDOR_REPOSITORY,
-  ],
+	imports: [DatabaseModule],
+	controllers: [FornecedorController],
+	providers: [
+		EnderecoAdapterRepository,
+		CreateFornecedorUseCase,
+		FindByIdFornecedorUseCase,
+		FindAllFornecedoresUseCase,
+		UpdateFornecedorUseCase,
+		DeleteFornecedorUseCase,
+		FornecedorService,
+		{
+			provide: IFORNECEDOR_REPOSITORY,
+			useClass: PrismaFornecedorRepository,
+		},
+	],
+	exports: [FornecedorService, IFORNECEDOR_REPOSITORY],
 })
 export class FornecedorModule {}

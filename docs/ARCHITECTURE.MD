@@ -180,7 +180,7 @@ presentation  →  application  →  domain  ←  (nenhum)
 |-----------------------|-------------------------------------|---------------------------------|
 | Entity                | `<Nome>Entity`                      | `ClienteEntity`                 |
 | Interface repositório | `I<Nome>Repository`                 | `IClienteRepository`            |
-| Token DI              | `I_<NOME>_REPOSITORY`               | `I_CLIENTE_REPOSITORY`          |
+| Token DI              | `I_<NOME>_REPOSITORY`               | `ICLIENTE_REPOSITORY`          |
 | Use-case              | `<Verbo><Nome>UseCase`              | `CriarClienteUseCase`           |
 | DTO entrada           | `Criar<Nome>Dto` / `Atualizar...`   | `CriarClienteDto`               |
 | DTO saída             | `<Nome>ResponseDto`                 | `ClienteResponseDto`            |

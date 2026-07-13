@@ -1,24 +1,24 @@
 export abstract class AppException extends Error {
-  abstract readonly statusCode: number;
+	public abstract readonly statusCode: number;
 
-  constructor(message: string) {
-    super(message);
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
+	public constructor(message: string) {
+		super(message);
+		Object.setPrototypeOf(this, new.target.prototype);
+	}
 }
 
 export class EntityNotFoundException extends AppException {
-  readonly statusCode = 404;
+	public readonly statusCode = 404;
 }
 
 export class ConflictException extends AppException {
-  readonly statusCode = 409;
+	public readonly statusCode = 409;
 }
 
 export class BusinessRuleException extends AppException {
-  readonly statusCode = 400;
+	public readonly statusCode = 400;
 }
 
 export class UnauthorizedException extends AppException {
-  readonly statusCode = 401;
+	public readonly statusCode = 401;
 }

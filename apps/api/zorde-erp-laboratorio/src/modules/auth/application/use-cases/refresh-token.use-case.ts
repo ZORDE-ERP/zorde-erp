@@ -1,118 +1,110 @@
+import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
-import { I_AUTENTICACAO_REPOSITORY } from '../../domain/repositories/i-autenticacao.repository';
-import type { IAutenticacaoRepository } from '../../domain/repositories/i-autenticacao.repository';
-import { AuthResponseDto } from '../dtos/auth-response.dto';
-import { AutenticacaoEntity } from '../../domain/entities/autenticacao.entity';
-import { UnauthorizedException } from '../../../../shared/errors/app.exception';
+import { globalEnvironment } from '../../../../config/env.validation';
 import { StatusSessao } from '../../../../shared/enums/status-sessao.enum';
-import { I_USUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { UnauthorizedException } from '../../../../shared/errors/app.exception';
 import type { IUsuarioRepository } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { AutenticacaoEntity } from '../../domain/entities/autenticacao.entity';
+import type { IAutenticacaoRepository } from '../../domain/repositories/i-autenticacao.repository';
+import { IAUTENTICACAO_REPOSITORY } from '../../domain/repositories/i-autenticacao.repository';
+import { PasswordHashingService } from '../../infra/services/password-hashing.service';
+import type { AuthResponseDto } from '../dtos/auth-response.dto';
 
 @Injectable()
 export class RefreshTokenUseCase {
-  constructor(
-    @Inject(I_AUTENTICACAO_REPOSITORY)
-    private readonly autenticacaoRepository: IAutenticacaoRepository,
-    @Inject(I_USUARIO_REPOSITORY)
-    private readonly usuarioRepository: IUsuarioRepository,
-    private readonly jwtService: JwtService,
-  ) {}
+	public constructor(
+		@Inject(IAUTENTICACAO_REPOSITORY)
+		private readonly autenticacaoRepository: IAutenticacaoRepository,
+		@Inject(IUSUARIO_REPOSITORY)
+		private readonly usuarioRepository: IUsuarioRepository,
+		private readonly jwtService: JwtService,
+		private readonly passwordHashingService: PasswordHashingService,
+	) {}
 
-  async execute(refreshToken: string, clientIp: string, clientUserAgent: string): Promise<AuthResponseDto> {
-    const sessao = await this.autenticacaoRepository.buscarPorRefreshToken(refreshToken);
-    if (!sessao || sessao.status !== StatusSessao.LOGADO) {
-      throw new UnauthorizedException('Sessão inativa ou inválida');
-    }
+	public async execute(refreshToken: string): Promise<AuthResponseDto> {
+		const payload = await this.jwtService.verifyAsync(refreshToken, {
+			secret: globalEnvironment.JWT_SECRET,
+		});
 
-    let payload: any;
-    try {
-      payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_SECRET,
-      });
-    } catch (err) {
-      // Se expirar ou falhar, revoga a sessão no banco
-      await this.autenticacaoRepository.atualizarStatus(sessao.id, StatusSessao.OFFLINE);
-      throw new UnauthorizedException('Token de atualização expirado ou inválido');
-    }
+		if (!payload) {
+			throw new UnauthorizedException('Token de atualização expirado ou inválido');
+		}
 
-    // Validar Fingerprint do IP/UA atual em relação ao gravado no Token
-    const cleanIp = clientIp.split(',')[0].trim();
-    const expectedFgpHash = crypto
-      .createHash('sha256')
-      .update(`${cleanIp}|${clientUserAgent}`)
-      .digest('hex');
+		const user = await this.usuarioRepository.buscarPorId(payload.sub);
+		if (!user) {
+			throw new UnauthorizedException('Usuário não encontrado');
+		}
 
-    if (payload.fingerprint !== expectedFgpHash) {
-      await this.autenticacaoRepository.atualizarStatus(sessao.id, StatusSessao.OFFLINE);
-      throw new UnauthorizedException('Sessão revogada devido a alteração de fingerprint');
-    }
+		const userId = user.getId();
+		if (!userId) {
+			throw new UnauthorizedException('Usuário não encontrado');
+		}
 
-    const usuario = await this.usuarioRepository.buscarPorId(payload.sub);
-    if (!usuario) {
-      throw new UnauthorizedException('Usuário não encontrado');
-    }
+		const autentication = await this.autenticacaoRepository.buscarPorJti(payload.jti);
+		if (!autentication) {
+			throw new UnauthorizedException('Sessão não encontrada');
+		}
 
-    // Invalida a sessão antiga
-    await this.autenticacaoRepository.atualizarStatus(sessao.id, StatusSessao.OFFLINE);
+		const verifyRefreshToken = await this.passwordHashingService.comparar(
+			refreshToken,
+			autentication.getRefreshToken() as string,
+		);
+		if (!verifyRefreshToken) {
+			await this.autenticacaoRepository.revogarRefreshToken(userId);
+			throw new UnauthorizedException('Possível token roubado, todos os tokens foram revogados');
+		}
 
-    // Gerar nova sessão e novos tokens
-    const newPayload = {
-      sub: usuario.id,
-      email: usuario.email,
-      fingerprint: expectedFgpHash,
-    };
+		const newPayload = {
+			sub: userId,
+			role: user.getTipoUsuario(),
+			email: user.getEmail(),
+			nome: user.getNome(),
+		};
 
-    const newAccessToken = await this.jwtService.signAsync(newPayload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '12h',
-    });
+		const jti = randomUUID();
 
-    const newRefreshToken = await this.jwtService.signAsync(newPayload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '24h',
-    });
+		const [newAccessToken, newRefreshToken] = await Promise.all([
+			this.jwtService.signAsync(newPayload, {
+				secret: globalEnvironment.JWT_SECRET,
+				expiresIn: globalEnvironment.JWT_SECRET_EXPIRES_IN,
+			}),
 
-    // Parse básico do User Agent para dispositivo/navegador
-    const { dispositivo, navegador } = this.parseUserAgent(clientUserAgent);
+			this.jwtService.signAsync(
+				{ ...newPayload, jti },
+				{
+					secret: globalEnvironment.JWT_SECRET,
+					expiresIn: globalEnvironment.REFRESH_TOKEN_EXPIRES_IN,
+				},
+			),
+		]);
 
-    const novaSessao = AutenticacaoEntity.create({
-      idUsuario: usuario.id,
-      refreshToken: newRefreshToken,
-      status: StatusSessao.LOGADO,
-      ip: cleanIp,
-      dispositivo,
-      navegador,
-    });
+		const refreshTokenHashed = await this.passwordHashingService.hash(newRefreshToken);
 
-    await this.autenticacaoRepository.criar(novaSessao);
+		const novaSessao = new AutenticacaoEntity({
+			idUsuario: userId,
+			refreshToken: refreshTokenHashed,
+			status: StatusSessao.LOGADO,
+			jti,
+			updatedAt: new Date(),
+		});
 
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-      usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-      },
-    };
-  }
+		const autenticationId = autentication.getId();
+		if (!autenticationId) {
+			throw new UnauthorizedException('ID da sessão não encontrado');
+		}
+		await this.autenticacaoRepository.atualizar(autenticationId, novaSessao);
 
-  private parseUserAgent(ua: string) {
-    const isMobile = /mobile/i.test(ua);
-    const isTablet = /tablet/i.test(ua);
-
-    let dispositivo = 'Desktop';
-    if (isMobile) dispositivo = 'Mobile';
-    if (isTablet) dispositivo = 'Tablet';
-
-    let navegador = 'Desconhecido';
-    if (/chrome/i.test(ua)) navegador = 'Chrome';
-    else if (/safari/i.test(ua)) navegador = 'Safari';
-    else if (/firefox/i.test(ua)) navegador = 'Firefox';
-    else if (/edge/i.test(ua)) navegador = 'Edge';
-
-    return { dispositivo, navegador };
-  }
+		return {
+			accessToken: newAccessToken,
+			refreshToken: newRefreshToken,
+			usuario: {
+				id: userId,
+				nome: user.getNome(),
+				email: user.getEmail(),
+				role: user.getTipoUsuario(),
+			},
+		};
+	}
 }

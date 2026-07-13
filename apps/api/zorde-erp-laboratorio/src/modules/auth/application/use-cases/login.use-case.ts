@@ -1,108 +1,96 @@
+import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
-import { I_USUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
-import type { IUsuarioRepository } from '../../../usuario/domain/repositories/i-usuario.repository';
-import { I_AUTENTICACAO_REPOSITORY } from '../../domain/repositories/i-autenticacao.repository';
-import type { IAutenticacaoRepository } from '../../domain/repositories/i-autenticacao.repository';
-import { PasswordHashingService } from '../../infra/services/password-hashing.service';
-import { LoginDto } from '../dtos/login.dto';
-import { AuthResponseDto } from '../dtos/auth-response.dto';
-import { AutenticacaoEntity } from '../../domain/entities/autenticacao.entity';
-import { UnauthorizedException } from '../../../../shared/errors/app.exception';
+import { globalEnvironment } from '../../../../config/env.validation';
 import { StatusSessao } from '../../../../shared/enums/status-sessao.enum';
+import { UnauthorizedException } from '../../../../shared/errors/app.exception';
+import type { IUsuarioRepository } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { IUSUARIO_REPOSITORY } from '../../../usuario/domain/repositories/i-usuario.repository';
+import { AutenticacaoEntity } from '../../domain/entities/autenticacao.entity';
+import type { IAutenticacaoRepository } from '../../domain/repositories/i-autenticacao.repository';
+import { IAUTENTICACAO_REPOSITORY } from '../../domain/repositories/i-autenticacao.repository';
+import { PasswordHashingService } from '../../infra/services/password-hashing.service';
+import type { LoginDto } from '../../presentation/dto/loginDto';
+import type { AuthResponseDto } from '../dtos/auth-response.dto';
 
 @Injectable()
 export class LoginUseCase {
-  constructor(
-    @Inject(I_USUARIO_REPOSITORY)
-    private readonly usuarioRepository: IUsuarioRepository,
-    @Inject(I_AUTENTICACAO_REPOSITORY)
-    private readonly autenticacaoRepository: IAutenticacaoRepository,
-    private readonly passwordHashingService: PasswordHashingService,
-    private readonly jwtService: JwtService,
-  ) {}
+	public constructor(
+		@Inject(IUSUARIO_REPOSITORY)
+		private readonly usuarioRepository: IUsuarioRepository,
+		@Inject(IAUTENTICACAO_REPOSITORY)
+		private readonly autenticacaoRepository: IAutenticacaoRepository,
+		private readonly passwordHashingService: PasswordHashingService,
+		private readonly jwtService: JwtService,
+	) {}
 
-  async execute(dto: LoginDto, clientIp: string, clientUserAgent: string): Promise<AuthResponseDto> {
-    const usuario = await this.usuarioRepository.buscarPorEmail(dto.email);
-    if (!usuario || !usuario.senha) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
+	public async execute(dto: LoginDto, clientIp: string, clientUserAgent: string): Promise<AuthResponseDto> {
+		const usuario = await this.usuarioRepository.buscarPorEmail(dto.email);
 
-    const isSenhaValida = await this.passwordHashingService.comparar(dto.senha, usuario.senha);
-    if (!isSenhaValida) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
+		if (!usuario) {
+			throw new UnauthorizedException('Credenciais inválidas');
+		}
 
-    // Gerar o fingerprint hash (SHA-256 de IP|UserAgent)
-    const cleanIp = clientIp.split(',')[0].trim();
-    const fingerprintHash = crypto
-      .createHash('sha256')
-      .update(`${cleanIp}|${clientUserAgent}`)
-      .digest('hex');
+		const userId = usuario.getId();
+		if (!userId) {
+			throw new UnauthorizedException('Credenciais inválidas');
+		}
 
-    // Gerar payloads e assinar os tokens JWT
-    const payload = {
-      sub: usuario.id,
-      email: usuario.email,
-      fingerprint: fingerprintHash,
-    };
+		const payload = {
+			sub: userId,
+			role: usuario.getTipoUsuario(),
+			nome: usuario.getNome(),
+		};
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '12h',
-    });
+		const jti = randomUUID();
+		const [accessToken, refreshToken] = await Promise.all([
+			this.jwtService.signAsync(payload, {
+				secret: globalEnvironment.JWT_SECRET,
+				expiresIn: globalEnvironment.JWT_SECRET_EXPIRES_IN,
+				issuer: globalEnvironment.SERVER_URL,
+				notBefore: '0s',
+			}),
 
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '24h',
-    });
+			this.jwtService.signAsync(
+				{ ...payload, jti },
+				{
+					secret: globalEnvironment.JWT_SECRET,
+					expiresIn: globalEnvironment.REFRESH_TOKEN_EXPIRES_IN,
+					notBefore: '0s',
+				},
+			),
+		]);
 
-    // Parse básico do User Agent para dispositivo/navegador
-    const { dispositivo, navegador } = this.parseUserAgent(clientUserAgent);
+		const refreshTokenHashed = await this.passwordHashingService.hash(refreshToken);
 
-    // Criar e salvar sessão de autenticação ativa
-    const autenticacao = AutenticacaoEntity.create({
-      idUsuario: usuario.id,
-      refreshToken,
-      status: StatusSessao.LOGADO,
-      ip: cleanIp,
-      dispositivo,
-      navegador,
-    });
+		// Criar e salvar sessão de autenticação ativa
+		const autenticacao = new AutenticacaoEntity({
+			idUsuario: userId,
+			refreshToken: refreshTokenHashed,
+			status: StatusSessao.LOGADO,
+			ip: clientIp,
+			dispositivo: clientUserAgent,
+			navegador: clientUserAgent,
+			createdAt: new Date(),
+			jti,
+		});
 
-    await this.autenticacaoRepository.criar(autenticacao);
+		await this.autenticacaoRepository.criar(autenticacao);
 
-    // Atualizar último acesso do usuário
-    await this.usuarioRepository.atualizar(usuario.id, {
-      ultimoAcesso: new Date(),
-    });
+		// // Atualizar último acesso do usuário
+		await this.usuarioRepository.atualizar(userId, {
+			ultimoAcesso: new Date(),
+		});
 
-    return {
-      accessToken,
-      refreshToken,
-      usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-      },
-    };
-  }
-
-  private parseUserAgent(ua: string) {
-    const isMobile = /mobile/i.test(ua);
-    const isTablet = /tablet/i.test(ua);
-
-    let dispositivo = 'Desktop';
-    if (isMobile) dispositivo = 'Mobile';
-    if (isTablet) dispositivo = 'Tablet';
-
-    let navegador = 'Desconhecido';
-    if (/chrome/i.test(ua)) navegador = 'Chrome';
-    else if (/safari/i.test(ua)) navegador = 'Safari';
-    else if (/firefox/i.test(ua)) navegador = 'Firefox';
-    else if (/edge/i.test(ua)) navegador = 'Edge';
-
-    return { dispositivo, navegador };
-  }
+		return {
+			accessToken,
+			refreshToken,
+			usuario: {
+				id: userId,
+				nome: usuario.getNome(),
+				email: usuario.getEmail(),
+				role: usuario.getTipoUsuario(),
+			},
+		};
+	}
 }

@@ -1,4 +1,4 @@
 export enum StatusSessao {
-  LOGADO = 'logado',
-  OFFLINE = 'offline',
+	LOGADO = 'logado',
+	OFFLINE = 'offline',
 }

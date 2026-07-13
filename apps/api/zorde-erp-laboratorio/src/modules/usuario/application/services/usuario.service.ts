@@ -1,34 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { CriarUsuarioUseCase } from '../use-cases/criar-usuario.use-case';
-import { ListarUsuariosUseCase } from '../use-cases/listar-usuarios.use-case';
-import { AtualizarUsuarioUseCase } from '../use-cases/atualizar-usuario.use-case';
-import { DeletarUsuarioUseCase } from '../use-cases/deletar-usuario.use-case';
-import { CriarUsuarioDto } from '../dtos/criar-usuario.dto';
-import { AtualizarUsuarioDto } from '../dtos/atualizar-usuario.dto';
-import { UsuarioResponseDto } from '../dtos/usuario-response.dto';
+import type { AtualizarUsuarioDto, CriarUsuarioDto } from '../dtos/usuario.dto';
+import type { UsuarioResponseDto } from '../dtos/usuarioResponse.dto';
+import { AtualizarUsuarioUseCase } from '../use-cases/atualizarUsuario.useCase';
+import { BuscarUsuarioPorEmailUseCase } from '../use-cases/buscarUsuarioPorEmail.useCase';
+import { CriarUsuarioUseCase } from '../use-cases/criarUsuario.useCase';
+import { DeletarUsuarioUseCase } from '../use-cases/deletarUsuario.useCase';
 
 @Injectable()
 export class UsuarioService {
-  constructor(
-    private readonly criarUsuarioUseCase: CriarUsuarioUseCase,
-    private readonly listarUsuariosUseCase: ListarUsuariosUseCase,
-    private readonly atualizarUsuarioUseCase: AtualizarUsuarioUseCase,
-    private readonly deletarUsuarioUseCase: DeletarUsuarioUseCase,
-  ) {}
+	public constructor(
+		private readonly createUserUseCase: CriarUsuarioUseCase,
+		private readonly findUserByEmailUseCase: BuscarUsuarioPorEmailUseCase,
+		private readonly updateUserUseCase: AtualizarUsuarioUseCase,
+		private readonly deleteUserUseCase: DeletarUsuarioUseCase,
+	) {}
 
-  async criar(dto: CriarUsuarioDto): Promise<UsuarioResponseDto> {
-    return this.criarUsuarioUseCase.execute(dto);
-  }
+	public async criar(dto: CriarUsuarioDto): Promise<UsuarioResponseDto> {
+		return this.createUserUseCase.execute(dto);
+	}
 
-  async listar(): Promise<UsuarioResponseDto[]> {
-    return this.listarUsuariosUseCase.execute();
-  }
+	public async findByEmail(email: string): Promise<UsuarioResponseDto | null> {
+		return this.findUserByEmailUseCase.execute(email);
+	}
 
-  async atualizar(id: number, dto: AtualizarUsuarioDto): Promise<UsuarioResponseDto> {
-    return this.atualizarUsuarioUseCase.execute(id, dto);
-  }
+	public async atualizar(id: number, dto: AtualizarUsuarioDto): Promise<UsuarioResponseDto> {
+		return this.updateUserUseCase.execute(id, dto);
+	}
 
-  async deletar(id: number): Promise<void> {
-    return this.deletarUsuarioUseCase.execute(id);
-  }
+	public async deletar(id: number): Promise<void> {
+		return this.deleteUserUseCase.execute(id);
+	}
 }

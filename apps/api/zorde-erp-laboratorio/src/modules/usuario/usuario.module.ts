@@ -1,35 +1,32 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { PrismaService } from 'src/infra/database/prisma/prisma.service';
 import { DatabaseModule } from '../../infra/database/database.module';
+import { PasswordHashingService } from '../auth/infra/services/password-hashing.service';
 import { UsuarioService } from './application/services/usuario.service';
-import { CriarUsuarioUseCase } from './application/use-cases/criar-usuario.use-case';
-import { ListarUsuariosUseCase } from './application/use-cases/listar-usuarios.use-case';
-import { AtualizarUsuarioUseCase } from './application/use-cases/atualizar-usuario.use-case';
-import { DeletarUsuarioUseCase } from './application/use-cases/deletar-usuario.use-case';
-import { I_USUARIO_REPOSITORY } from './domain/repositories/i-usuario.repository';
-import { PrismaUsuarioRepository } from './infrastructure/repositories/prisma-usuario.repository';
+import { AtualizarUsuarioUseCase } from './application/use-cases/atualizarUsuario.useCase';
+import { BuscarUsuarioPorEmailUseCase } from './application/use-cases/buscarUsuarioPorEmail.useCase';
+import { CriarUsuarioUseCase } from './application/use-cases/criarUsuario.useCase';
+import { DeletarUsuarioUseCase } from './application/use-cases/deletarUsuario.useCase';
+import { IUSUARIO_REPOSITORY } from './domain/repositories/i-usuario.repository';
+import { PrismaUsuarioRepository } from './infrastructure/repositories/usuarioAdapter.repository';
 import { UsuarioController } from './presentation/controllers/usuario.controller';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    forwardRef(() => AuthModule),
-  ],
-  controllers: [UsuarioController],
-  providers: [
-    CriarUsuarioUseCase,
-    ListarUsuariosUseCase,
-    AtualizarUsuarioUseCase,
-    DeletarUsuarioUseCase,
-    UsuarioService,
-    {
-      provide: I_USUARIO_REPOSITORY,
-      useClass: PrismaUsuarioRepository,
-    },
-  ],
-  exports: [
-    UsuarioService,
-    I_USUARIO_REPOSITORY,
-  ],
+	imports: [DatabaseModule],
+	controllers: [UsuarioController],
+	providers: [
+		{
+			provide: IUSUARIO_REPOSITORY,
+			useFactory: (prisma: PrismaService) => new PrismaUsuarioRepository(prisma),
+			inject: [PrismaService],
+		},
+		PasswordHashingService,
+		CriarUsuarioUseCase,
+		BuscarUsuarioPorEmailUseCase,
+		AtualizarUsuarioUseCase,
+		DeletarUsuarioUseCase,
+		UsuarioService,
+	],
+	exports: [UsuarioService, IUSUARIO_REPOSITORY],
 })
 export class UsuarioModule {}
