@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../infra/database/prisma/prisma.service';
 import { EntityNotFoundException } from '../shared/exceptions/app.exception';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
+import { PedidoStatusChangedEvent } from '../events/pedido.events';
 
 @Injectable()
 export class PedidosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   create(createPedidoDto: CreatePedidoDto) {
     return this.prisma.pedido.create({
@@ -44,9 +49,9 @@ export class PedidosService {
   }
 
   async update(id: string, updatePedidoDto: UpdatePedidoDto) {
-    await this.findOne(id);
+    const oldPedido = await this.findOne(id);
 
-    return this.prisma.pedido.update({
+    const updatedPedido = await this.prisma.pedido.update({
       where: { id },
       data: updatePedidoDto as any,
       include: {
@@ -54,6 +59,20 @@ export class PedidosService {
         currentStage: true,
       },
     });
+
+    // Emit event if stage changed
+    if (updatePedidoDto.currentStageId && updatePedidoDto.currentStageId !== oldPedido.currentStageId) {
+      const event = new PedidoStatusChangedEvent(
+        id,
+        oldPedido.currentStageId,
+        updatePedidoDto.currentStageId,
+        oldPedido.organizationId,
+        'system', // TODO: Get from request context
+      );
+      this.eventEmitter.emit('pedido.status-changed', event);
+    }
+
+    return updatedPedido;
   }
 
   async remove(id: string) {

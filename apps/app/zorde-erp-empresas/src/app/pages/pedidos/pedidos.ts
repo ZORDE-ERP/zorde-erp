@@ -1,11 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PedidosService, Pedido, PaginatedResponse, PedidosFilters } from '../../services/pedidos.service';
 import { AdminService, PipelineStage } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
+import { RealtimeService } from '../../services/realtime.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-pedidos',
@@ -409,11 +412,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
     `,
   ],
 })
-export class Pedidos implements OnInit {
+export class Pedidos implements OnInit, OnDestroy {
   private pedidosService = inject(PedidosService);
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
+  private realtimeService = inject(RealtimeService);
   private fb = inject(FormBuilder);
+  private destroy$ = new Subject<void>();
 
   pedidos: Pedido[] = [];
   stages: PipelineStage[] = [];
@@ -460,8 +465,27 @@ export class Pedidos implements OnInit {
     this.podecriar = user?.permissions.some(p => p.resource === 'pedidos' && p.action === 'create') ?? false;
     this.podeAtualizarStage = user?.permissions.some(p => p.resource === 'pedidos' && p.action === 'update_stage') ?? false;
 
+    // Connect to WebSocket for real-time updates
+    if (user?.organizationId) {
+      this.realtimeService.connect(user.organizationId);
+      this.realtimeService.onPedidoStatusChanged()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(event => {
+          const index = this.pedidos.findIndex(p => p.id === event.pedidoId);
+          if (index >= 0) {
+            this.pedidos[index].currentStageId = event.toStageId;
+          }
+        });
+    }
+
     this.carregarPedidos();
     this.carregarStages();
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeService.disconnect();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   carregarPedidos(): void {

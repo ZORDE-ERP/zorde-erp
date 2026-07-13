@@ -12,6 +12,8 @@ import { ProdutosModule } from './produtos/produtos.module';
 import { FornecedoresModule } from './fornecedores/fornecedores.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { WebsocketModule } from './websocket/websocket.module';
+import { PedidoListener } from './listeners/pedido.listener';
 
 @Module({
   imports: [
@@ -28,9 +30,10 @@ import { AdminModule } from './admin/admin.module';
     EstoqueModule,
     PedidosModule,
     FornecedoresModule,
+    WebsocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PedidoListener],
 })
 export class AppModule {}
 
