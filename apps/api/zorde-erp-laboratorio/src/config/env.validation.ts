@@ -18,6 +18,10 @@ export const envSchema = z.object({
 	RESEND_API_KEY: z.string(),
 	SALT_ROUNDS_BCRYPT: z.coerce.number(),
 	SERVER_URL: z.string(),
+	FRONTEND_APP_URL: z.url(),
+	CLOUDINARY_CLOUD_NAME: z.string().min(1),
+	CLOUDINARY_API_KEY: z.string().min(1),
+	CLOUDINARY_API_SECRET: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;
