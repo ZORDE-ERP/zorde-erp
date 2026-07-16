@@ -7,6 +7,8 @@ import { UpdateServiceOrderUseCase } from './application/use-cases/atualizarOrde
 import { FindByIdServiceOrderUseCase } from './application/use-cases/buscarOrdem.useCase';
 import { CreateServiceOrderUseCase } from './application/use-cases/criarOrdem.useCase';
 import { DeleteServiceOrderUseCase } from './application/use-cases/deletarOrdem.useCase';
+import { FaturarOrdensUseCase } from './application/use-cases/faturarOrdens.useCase';
+import { FechamentoOrdensUseCase } from './application/use-cases/fechamentoOrdens.useCase';
 import { FindAllServiceOrdersUseCase } from './application/use-cases/listarOrdem.useCase';
 import { ISERVICE_ORDER_REPOSITORY } from './domain/repositories/ordemDeServico.repository';
 import { PrismaServiceOrderRepository } from './infrastructure/repositories/ordemDeServicoAdapter.repository';
@@ -22,6 +24,8 @@ import { ServiceOrderController } from './presentation/controllers/ordemDeServic
 		FindAllServiceOrdersUseCase,
 		UpdateServiceOrderUseCase,
 		DeleteServiceOrderUseCase,
+		FechamentoOrdensUseCase,
+		FaturarOrdensUseCase,
 		{
 			provide: ISERVICE_ORDER_REPOSITORY,
 			useClass: PrismaServiceOrderRepository,

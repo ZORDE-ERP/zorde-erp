@@ -3,15 +3,16 @@ import type { ServiceOrderResponseDto } from '../dtos/ordemDeServicoResponse.dto
 
 export function serviceOrderToResponse(entity: ServiceOrderEntity): ServiceOrderResponseDto {
 	const cliente = entity.getCliente();
-	const tabelaMontagem = entity.getTabelaMontagem();
 
 	return {
 		id: entity.getId() as number,
 		codigoOs: entity.getCodigoOs(),
 		clienteId: entity.getClienteId(),
-		valor: entity.getValor(),
-		tabelaMontagemId: entity.getTabelaMontagemId(),
 		usuarioId: entity.getUsuarioId(),
+		valorTotal: entity.getValorTotal(),
+		status: entity.getStatus(),
+		origem: entity.getOrigem(),
+		observacao: entity.getObservacao(),
 		createdAt: entity.getCreatedAt(),
 		updatedAt: entity.getUpdatedAt() ?? null,
 		deletedAt: entity.getDeletedAt() ?? null,
@@ -21,14 +22,16 @@ export function serviceOrderToResponse(entity: ServiceOrderEntity): ServiceOrder
 					nome: cliente.getNome(),
 				}
 			: null,
-		tabelaMontagem: tabelaMontagem
-			? {
-					id: tabelaMontagem.getId() as number,
-					servicoId: tabelaMontagem.getServicoId(),
-					nomeServico: tabelaMontagem.getNomeServico(),
-					valor: tabelaMontagem.getValor().toString(),
-				}
-			: null,
+		itens: entity.getItens().map((item) => ({
+			id: item.getId() as number,
+			tabelaMontagemId: item.getTabelaMontagemId(),
+			descricaoManual: item.getDescricaoManual(),
+			quantidade: item.getQuantidade(),
+			valorUnitario: item.getValorUnitario(),
+			valorTotal: item.getValorTotal(),
+			origemValor: item.getOrigemValor(),
+			nomeServico: item.getNomeServico(),
+		})),
 	};
 }
 
