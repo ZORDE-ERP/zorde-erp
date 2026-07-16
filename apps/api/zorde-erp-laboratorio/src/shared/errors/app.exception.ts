@@ -22,3 +22,7 @@ export class BusinessRuleException extends AppException {
 export class UnauthorizedException extends AppException {
 	public readonly statusCode = 401;
 }
+
+export class ForbiddenException extends AppException {
+	public readonly statusCode = 403;
+}
