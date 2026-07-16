@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseIntPipe,
+	Post,
+	Put,
+	Query,
+} from '@nestjs/common';
 import type { UserInfo } from 'src/shared/interfaces/user.interface';
 import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
@@ -8,8 +20,14 @@ import {
 	type CriarClienteDto,
 	criarClienteSchema,
 } from '../../application/dtos/cliente.dto';
+import type { ClienteQrCodeResponseDto } from '../../application/dtos/clienteQrCodeResponse.dto';
 import type { ClienteResponseDto } from '../../application/dtos/clienteResponse.dto';
+import {
+	type TabelaMontagemPorQrQueryDto,
+	tabelaMontagemPorQrQuerySchema,
+} from '../../application/dtos/tabelaMontagemPorQr.dto';
 import { ClienteService } from '../../application/services/cliente.service';
+import type { TabelaMontagemPorQrItemDto } from '../../application/use-cases/listarTabelaMontagemPorQr.useCase';
 
 @Controller('api/clientes')
 export class ClienteController {
@@ -26,6 +44,23 @@ export class ClienteController {
 	@Get()
 	public async listar(@User() user: UserInfo): Promise<ClienteResponseDto[]> {
 		return this.clientService.findByUsuarioId(user.userId);
+	}
+
+	@Post(':id/qrcode')
+	public async gerarQrCode(
+		@Param('id', ParseIntPipe) id: number,
+		@User() user: UserInfo,
+	): Promise<ClienteQrCodeResponseDto> {
+		return this.clientService.gerarQrCode(id, user.userId);
+	}
+
+	@Get(':id/tabela-montagem')
+	public async listarTabelaMontagemPorQr(
+		@Param('id', ParseIntPipe) id: number,
+		@Query(new ZodValidationPipe(tabelaMontagemPorQrQuerySchema)) query: TabelaMontagemPorQrQueryDto,
+		@User() user: UserInfo,
+	): Promise<{ clienteId: number; itens: TabelaMontagemPorQrItemDto[] }> {
+		return this.clientService.listarTabelaMontagemPorQr(id, query.token, user.userId);
 	}
 
 	@Get(':id')

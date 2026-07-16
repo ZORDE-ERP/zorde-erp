@@ -4,7 +4,7 @@ import { TipoPessoa } from '../../../../shared/enums/tipo-pessoa.enum';
 import { ClienteEntity } from '../../domain/entities/cliente.entity';
 
 export class ClienteInfraMapper {
-	public static toDomain(raw: Cliente & { Endereco: Endereco }): ClienteEntity {
+	public static toDomain(raw: Cliente & { Endereco?: Endereco | null }): ClienteEntity {
 		return new ClienteEntity({
 			id: raw.id,
 			nome: raw.nome,
@@ -21,13 +21,17 @@ export class ClienteInfraMapper {
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt || null,
 			deletedAt: raw.deletedAt || null,
-			bairro: raw.Endereco.bairro || null,
-			cidade: raw.Endereco.cidade || null,
-			uf: raw.Endereco.uf || null,
-			ibge: raw.Endereco.ibge || null,
-			logradouro: raw.Endereco.logradouro || null,
-			complemento: raw.Endereco.complemento || null,
+			bairro: raw.Endereco?.bairro || null,
+			cidade: raw.Endereco?.cidade || null,
+			uf: raw.Endereco?.uf || null,
+			ibge: raw.Endereco?.ibge || null,
+			logradouro: raw.Endereco?.logradouro || null,
+			complemento: raw.Endereco?.complemento || null,
 			numeroEndereco: raw.numeroEndereco || null,
+			qrToken: raw.qrToken || null,
+			qrGeradoEm: raw.qrGeradoEm || null,
+			qrCodeUrl: raw.qrCodeUrl || null,
+			qrCodePublicId: raw.qrCodePublicId || null,
 		});
 	}
 	public static toPersistence(entity: ClienteEntity): {

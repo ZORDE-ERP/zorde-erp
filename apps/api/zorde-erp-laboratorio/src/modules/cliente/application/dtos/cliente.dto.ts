@@ -46,6 +46,7 @@ export const criarClienteSchema = z
 		ibge: z.string().optional(),
 		observacao: z.string().optional(),
 		numeroEndereco: z.string().optional(),
+		qrCodeInfo: z.string().optional(),
 	})
 	.refine(
 		(data) => {

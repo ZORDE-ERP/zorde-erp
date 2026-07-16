@@ -21,6 +21,10 @@ interface ClienteProps {
 	uf?: string | null;
 	ibge?: string | null;
 	numeroEndereco?: string | null;
+	qrToken?: string | null;
+	qrGeradoEm?: Date | null;
+	qrCodeUrl?: string | null;
+	qrCodePublicId?: string | null;
 	createdAt?: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;
@@ -45,6 +49,10 @@ export class ClienteEntity {
 	private uf?: string | null;
 	private ibge?: string | null;
 	private numeroEndereco?: string | null;
+	private qrToken?: string | null;
+	private qrGeradoEm?: Date | null;
+	private qrCodeUrl?: string | null;
+	private qrCodePublicId?: string | null;
 	private createdAt?: Date | null;
 	private updatedAt?: Date | null;
 	private deletedAt?: Date | null;
@@ -69,6 +77,10 @@ export class ClienteEntity {
 		this.uf = props.uf ?? null;
 		this.ibge = props.ibge ?? null;
 		this.numeroEndereco = props.numeroEndereco ?? null;
+		this.qrToken = props.qrToken ?? null;
+		this.qrGeradoEm = props.qrGeradoEm ?? null;
+		this.qrCodeUrl = props.qrCodeUrl ?? null;
+		this.qrCodePublicId = props.qrCodePublicId ?? null;
 		this.createdAt = props.createdAt ?? null;
 		this.updatedAt = props.updatedAt ?? null;
 		this.deletedAt = props.deletedAt ?? null;
@@ -160,5 +172,21 @@ export class ClienteEntity {
 
 	public getIbge(): string | null {
 		return this.ibge ?? null;
+	}
+
+	public getQrToken(): string | null {
+		return this.qrToken ?? null;
+	}
+
+	public getQrGeradoEm(): Date | null {
+		return this.qrGeradoEm ?? null;
+	}
+
+	public getQrCodeUrl(): string | null {
+		return this.qrCodeUrl ?? null;
+	}
+
+	public getQrCodePublicId(): string | null {
+		return this.qrCodePublicId ?? null;
 	}
 }
