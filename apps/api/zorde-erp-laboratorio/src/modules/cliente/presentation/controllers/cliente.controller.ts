@@ -3,6 +3,7 @@ import {
 	Controller,
 	Delete,
 	Get,
+	Header,
 	HttpCode,
 	HttpStatus,
 	Param,
@@ -10,7 +11,10 @@ import {
 	Post,
 	Put,
 	Query,
+	Res,
+	StreamableFile,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import type { UserInfo } from 'src/shared/interfaces/user.interface';
 import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
@@ -22,6 +26,10 @@ import {
 } from '../../application/dtos/cliente.dto';
 import type { ClienteQrCodeResponseDto } from '../../application/dtos/clienteQrCodeResponse.dto';
 import type { ClienteResponseDto } from '../../application/dtos/clienteResponse.dto';
+import {
+	type ImpressaoOsDto,
+	impressaoOsSchema,
+} from '../../application/dtos/impressaoOs.dto';
 import {
 	type TabelaMontagemPorQrQueryDto,
 	tabelaMontagemPorQrQuerySchema,
@@ -52,6 +60,25 @@ export class ClienteController {
 		@User() user: UserInfo,
 	): Promise<ClienteQrCodeResponseDto> {
 		return this.clientService.gerarQrCode(id, user.userId);
+	}
+
+	@Post(':id/impressao-os')
+	@Header('Content-Type', 'application/pdf')
+	public async imprimirFolhasOs(
+		@Param('id', ParseIntPipe) id: number,
+		@Body(new ZodValidationPipe(impressaoOsSchema)) body: ImpressaoOsDto,
+		@User() user: UserInfo,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<StreamableFile> {
+		const result = await this.clientService.imprimirFolhasOs(id, user.userId, body);
+		res.setHeader('X-Lote-Id', String(result.loteId));
+		res.setHeader('X-Quantidade-Folhas', String(result.quantidade));
+		res.setHeader('X-Codigo-Folha', result.codigosFolha[0] ?? '');
+		res.setHeader('Access-Control-Expose-Headers', 'X-Lote-Id, X-Quantidade-Folhas, X-Codigo-Folha');
+		return new StreamableFile(result.buffer, {
+			type: 'application/pdf',
+			disposition: `attachment; filename="${result.filename}"`,
+		});
 	}
 
 	@Get(':id/tabela-montagem')

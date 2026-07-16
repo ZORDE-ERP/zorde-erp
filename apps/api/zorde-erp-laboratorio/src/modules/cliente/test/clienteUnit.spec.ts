@@ -1,15 +1,30 @@
+jest.mock('puppeteer', () => ({
+	__esModule: true,
+	default: {
+		launch: jest.fn(),
+	},
+}));
+
+import { StatusFolhaOs } from '../../../shared/enums/folha-os.enum';
 import { StatusPessoa } from '../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../shared/enums/tipo-pessoa.enum';
-import { EntityNotFoundException } from '../../../shared/errors/app.exception';
+import { BusinessRuleException, EntityNotFoundException } from '../../../shared/errors/app.exception';
+import { impressaoOsSchema } from '../application/dtos/impressaoOs.dto';
 import { CriarClienteUseCase } from '../application/use-cases/criarCliente.useCase';
 import { GerarQrCodeClienteUseCase } from '../application/use-cases/gerarQrCodeCliente.useCase';
+import { ImprimirFolhasOsUseCase } from '../application/use-cases/imprimirFolhasOs.useCase';
 import { ClienteEntity } from '../domain/entities/cliente.entity';
+import { FolhaOsImpressaEntity } from '../domain/entities/folhaOsImpressa.entity';
 import type { IClienteRepository } from '../domain/repositories/cliente.repository';
+import type { IFolhaOsRepository } from '../domain/repositories/folhaOs.repository';
+import type { OsFolhaPdfService } from '../infrastructure/services/osFolhaPdf.service';
 import type { QrCodeImageService } from '../infrastructure/services/qrCodeImage.service';
 
-describe('Cliente QR Unit Tests', () => {
+describe('Cliente QR + Impressão Unit Tests', () => {
 	let clienteRepository: jest.Mocked<IClienteRepository>;
+	let folhaOsRepository: jest.Mocked<IFolhaOsRepository>;
 	let qrCodeImageService: jest.Mocked<Pick<QrCodeImageService, 'generateAndUpload' | 'destroy'>>;
+	let osFolhaPdfService: jest.Mocked<Pick<OsFolhaPdfService, 'generatePdf'>>;
 	let enderecoAdapterRepository: { create: jest.Mock };
 
 	beforeEach(() => {
@@ -23,6 +38,13 @@ describe('Cliente QR Unit Tests', () => {
 			softDelete: jest.fn(),
 		};
 
+		folhaOsRepository = {
+			createLoteComFolhas: jest.fn(),
+			findById: jest.fn(),
+			findByCodigoFolha: jest.fn(),
+			vincularOrdem: jest.fn(),
+		};
+
 		qrCodeImageService = {
 			generateAndUpload: jest.fn().mockResolvedValue({
 				secureUrl: 'https://res.cloudinary.com/demo/image/upload/v1/zorde/qr-codes/cliente-1.svg',
@@ -31,9 +53,23 @@ describe('Cliente QR Unit Tests', () => {
 			destroy: jest.fn(),
 		};
 
+		osFolhaPdfService = {
+			generatePdf: jest.fn().mockResolvedValue(Buffer.from('%PDF-1.4 mock')),
+		};
+
 		enderecoAdapterRepository = {
 			create: jest.fn(),
 		};
+	});
+
+	describe('impressaoOsSchema', () => {
+		it('accepts quantidade between 1 and 1000', () => {
+			expect(impressaoOsSchema.safeParse({ quantidade: 400 }).success).toBe(true);
+		});
+
+		it('rejects quantidade above 1000', () => {
+			expect(impressaoOsSchema.safeParse({ quantidade: 1001 }).success).toBe(false);
+		});
 	});
 
 	describe('CriarClienteUseCase', () => {
@@ -147,6 +183,107 @@ describe('Cliente QR Unit Tests', () => {
 				qrCodeImageService as unknown as QrCodeImageService,
 			);
 			await expect(useCase.execute(1, 5)).rejects.toBeInstanceOf(EntityNotFoundException);
+		});
+	});
+
+	describe('ImprimirFolhasOsUseCase', () => {
+		it('creates N folhas with unique codes and returns PDF buffer', async () => {
+			clienteRepository.findById.mockResolvedValue(
+				new ClienteEntity({
+					id: 10,
+					nome: 'Mercadão dos Óculos',
+					nomeFantasia: 'Mercadão',
+					email: 'm@x.com',
+					tipoPessoa: TipoPessoa.JURIDICA,
+					documento: '1',
+					status: StatusPessoa.ATIVO,
+					usuarioId: 5,
+					qrToken: 't'.repeat(64),
+					qrCodeUrl: 'https://res.cloudinary.com/demo/qr.svg',
+				}),
+			);
+
+			const folhas = [
+				new FolhaOsImpressaEntity({
+					id: 1,
+					loteId: 9,
+					clienteId: 10,
+					usuarioId: 5,
+					codigoFolha: 'OS-10-000001',
+					status: StatusFolhaOs.IMPRESSA,
+				}),
+				new FolhaOsImpressaEntity({
+					id: 2,
+					loteId: 9,
+					clienteId: 10,
+					usuarioId: 5,
+					codigoFolha: 'OS-10-000002',
+					status: StatusFolhaOs.IMPRESSA,
+				}),
+				new FolhaOsImpressaEntity({
+					id: 3,
+					loteId: 9,
+					clienteId: 10,
+					usuarioId: 5,
+					codigoFolha: 'OS-10-000003',
+					status: StatusFolhaOs.IMPRESSA,
+				}),
+			];
+
+			folhaOsRepository.createLoteComFolhas.mockResolvedValue({
+				loteId: 9,
+				quantidade: 3,
+				folhas,
+			});
+
+			const useCase = new ImprimirFolhasOsUseCase(
+				clienteRepository,
+				folhaOsRepository,
+				osFolhaPdfService as unknown as OsFolhaPdfService,
+			);
+
+			const result = await useCase.execute(10, 5, { quantidade: 3 });
+
+			expect(folhaOsRepository.createLoteComFolhas).toHaveBeenCalledWith({
+				clienteId: 10,
+				usuarioId: 5,
+				quantidade: 3,
+			});
+			expect(result.codigosFolha).toEqual(['OS-10-000001', 'OS-10-000002', 'OS-10-000003']);
+			expect(new Set(result.codigosFolha).size).toBe(3);
+			expect(result.buffer.toString()).toContain('%PDF');
+			expect(osFolhaPdfService.generatePdf).toHaveBeenCalledWith(
+				expect.arrayContaining([
+					expect.objectContaining({
+						nomeOtica: 'Mercadão',
+						codigoFolha: 'OS-10-000001',
+					}),
+				]),
+			);
+		});
+
+		it('rejects print when cliente has no QR image', async () => {
+			clienteRepository.findById.mockResolvedValue(
+				new ClienteEntity({
+					id: 10,
+					nome: 'Sem QR',
+					email: 's@x.com',
+					tipoPessoa: TipoPessoa.FISICA,
+					documento: '1',
+					status: StatusPessoa.ATIVO,
+					usuarioId: 5,
+				}),
+			);
+
+			const useCase = new ImprimirFolhasOsUseCase(
+				clienteRepository,
+				folhaOsRepository,
+				osFolhaPdfService as unknown as OsFolhaPdfService,
+			);
+
+			await expect(useCase.execute(10, 5, { quantidade: 1 })).rejects.toBeInstanceOf(
+				BusinessRuleException,
+			);
 		});
 	});
 });
