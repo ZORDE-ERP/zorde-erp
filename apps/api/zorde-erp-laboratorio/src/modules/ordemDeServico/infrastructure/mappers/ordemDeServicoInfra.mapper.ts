@@ -1,24 +1,30 @@
-import type { Cliente, OrdemDeServico, Servico, TabelaMontagem } from '@prisma/client';
+import type { Cliente, ItemOrdemDeServico, OrdemDeServico, Servico, TabelaMontagem } from '@prisma/client';
+import { OrigemOrdemServico, OrigemValorItem, StatusOrdemServico } from '../../../../shared/enums/ordem-de-servico.enum';
 import { StatusPessoa } from '../../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../../shared/enums/tipo-pessoa.enum';
 import { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';
-import { TabelaMontagemEntity } from '../../../tabelaMontagem/domain/entities/tabelaMontagem.entity';
-import { ServiceOrderEntity } from '../../domain/entities/ordemDeServico.entity';
+import { ServiceOrderEntity, ServiceOrderItemEntity } from '../../domain/entities/ordemDeServico.entity';
+
+type ItemWithTabela = ItemOrdemDeServico & {
+	TabelaMontagem?: (TabelaMontagem & { Servico?: Servico | null }) | null;
+};
+
+type OrdemWithRelations = OrdemDeServico & {
+	Cliente?: Cliente | null;
+	Itens?: ItemWithTabela[];
+};
 
 export class ServiceOrderInfraMapper {
-	public static toDomain(
-		raw: OrdemDeServico & {
-			Cliente?: Cliente | null;
-			TabelaMontagem?: (TabelaMontagem & { Servico?: Servico | null }) | null;
-		},
-	): ServiceOrderEntity {
+	public static toDomain(raw: OrdemWithRelations): ServiceOrderEntity {
 		return new ServiceOrderEntity({
 			id: raw.id,
 			codigoOs: raw.codigoOS,
 			clienteId: raw.clienteId,
-			valor: raw.valor?.toString(),
-			tabelaMontagemId: raw.tabelaMontagemId,
 			usuarioId: raw.usuarioId,
+			valorTotal: raw.valorTotal,
+			status: raw.status as StatusOrdemServico,
+			origem: raw.origem as OrigemOrdemServico,
+			observacao: raw.observacao,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 			deletedAt: raw.deletedAt,
@@ -37,47 +43,26 @@ export class ServiceOrderInfraMapper {
 						observacao: raw.Cliente.observacao,
 						numeroEndereco: raw.Cliente.numeroEndereco,
 						usuarioId: raw.Cliente.usuarioId,
+						qrToken: raw.Cliente.qrToken,
+						qrGeradoEm: raw.Cliente.qrGeradoEm,
 						createdAt: raw.Cliente.createdAt,
 						updatedAt: raw.Cliente.updatedAt,
 						deletedAt: raw.Cliente.deletedAt,
 					})
 				: undefined,
-			tabelaMontagem: raw.TabelaMontagem
-				? new TabelaMontagemEntity({
-						id: raw.TabelaMontagem.id,
-						clienteId: raw.TabelaMontagem.clienteId,
-						servicoId: raw.TabelaMontagem.servicoId,
-						valor: raw.TabelaMontagem.valor,
-						createdAt: raw.TabelaMontagem.createdAt,
-						updatedAt: raw.TabelaMontagem.updatedAt || null,
-						deletedAt: raw.TabelaMontagem.deletedAt || null,
-						nomeServico: raw.TabelaMontagem.Servico?.nome || null,
-					})
-				: undefined,
+			itens: (raw.Itens ?? []).map(
+				(item) =>
+					new ServiceOrderItemEntity({
+						id: item.id,
+						tabelaMontagemId: item.tabelaMontagemId,
+						descricaoManual: item.descricaoManual,
+						quantidade: item.quantidade,
+						valorUnitario: item.valorUnitario,
+						valorTotal: item.valorTotal,
+						origemValor: item.origemValor as OrigemValorItem,
+						nomeServico: item.TabelaMontagem?.Servico?.nome ?? null,
+					}),
+			),
 		});
-	}
-
-	public static toPersistence(entity: ServiceOrderEntity): {
-		id?: number;
-		codigoOS: string;
-		clienteId: number;
-		valor?: number;
-		tabelaMontagemId?: number | null;
-		usuarioId?: number;
-		createdAt?: Date | null;
-		updatedAt?: Date | null;
-		deletedAt?: Date | null;
-	} {
-		return {
-			id: entity.getId() || undefined,
-			codigoOS: entity.getCodigoOs(),
-			clienteId: entity.getClienteId(),
-			...(entity.getValor() && { valor: +Number(entity.getValor()).toFixed(2) }),
-			...(entity.getTabelaMontagemId() && { tabelaMontagemId: entity.getTabelaMontagemId() }),
-			...(entity.getUsuarioId() && { usuarioId: entity.getUsuarioId() }),
-			...(entity.getCreatedAt() && { createdAt: entity.getCreatedAt() }),
-			...(entity.getUpdatedAt() && { updatedAt: entity.getUpdatedAt() }),
-			...(entity.getDeletedAt() && { deletedAt: entity.getDeletedAt() }),
-		};
 	}
 }

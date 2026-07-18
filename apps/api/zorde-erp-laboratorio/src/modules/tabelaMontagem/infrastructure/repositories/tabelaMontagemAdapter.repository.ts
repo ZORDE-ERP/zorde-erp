@@ -37,6 +37,41 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		return TabelaMontagemInfraMapper.toDomain(raw);
 	}
 
+	public async findByClienteId(clienteId: number, usuarioId: number): Promise<TabelaMontagemEntity[]> {
+		const items = await this.prisma.tabelaMontagem.findMany({
+			where: {
+				clienteId,
+				deletedAt: null,
+				Cliente: {
+					usuarioId,
+					deletedAt: null,
+				},
+			},
+			include: includeRelations,
+			orderBy: { id: 'asc' },
+		});
+
+		return items.map(TabelaMontagemInfraMapper.toDomain);
+	}
+
+	public async findByIds(ids: number[], usuarioId: number): Promise<TabelaMontagemEntity[]> {
+		if (ids.length === 0) return [];
+
+		const items = await this.prisma.tabelaMontagem.findMany({
+			where: {
+				id: { in: ids },
+				deletedAt: null,
+				Cliente: {
+					usuarioId,
+					deletedAt: null,
+				},
+			},
+			include: includeRelations,
+		});
+
+		return items.map(TabelaMontagemInfraMapper.toDomain);
+	}
+
 	public async findAllPaginated(params: {
 		page: number;
 		limit: number;

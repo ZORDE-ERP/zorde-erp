@@ -22,6 +22,8 @@ export interface ClienteResponseDto {
 	observacao?: string | null;
 	numeroEndereco?: string | null;
 	usuarioId: number;
+	qrCodeUrl?: string | null;
+	qrGeradoEm?: Date | null;
 	createdAt: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;

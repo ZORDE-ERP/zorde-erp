@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { EntityNotFoundException } from '../../../../shared/errors/app.exception';
 import { ServiceOrderEntity } from '../../domain/entities/ordemDeServico.entity';
 import type { IServiceOrderRepository } from '../../domain/repositories/ordemDeServico.repository';
 import { ISERVICE_ORDER_REPOSITORY } from '../../domain/repositories/ordemDeServico.repository';
@@ -14,17 +15,26 @@ export class UpdateServiceOrderUseCase {
 	) {}
 
 	public async execute(data: UpdateOrderDto, usuarioId: number): Promise<ServiceOrderResponseDto> {
+		const existing = await this.serviceOrderRepository.findById(data.id, usuarioId);
+		if (!existing) {
+			throw new EntityNotFoundException('Ordem de serviço não encontrada');
+		}
+
 		const updatedEntity = new ServiceOrderEntity({
-			id: data.id,
-			codigoOs: data.codigoOs,
-			clienteId: data.clienteId,
-			valor: data.valor.toFixed(2),
-			tabelaMontagemId: data.tabelaMontagemId,
+			id: existing.getId(),
+			codigoOs: data.codigoOS ?? existing.getCodigoOs(),
+			clienteId: existing.getClienteId(),
 			usuarioId,
+			valorTotal: existing.getValorTotal(),
+			status: data.status ?? existing.getStatus(),
+			origem: existing.getOrigem(),
+			observacao: data.observacao === undefined ? existing.getObservacao() : data.observacao,
+			createdAt: existing.getCreatedAt(),
+			itens: existing.getItens(),
+			cliente: existing.getCliente() ?? undefined,
 		});
 
 		const updatedServiceOrder = await this.serviceOrderRepository.update(updatedEntity);
-
 		return serviceOrderToResponse(updatedServiceOrder);
 	}
 }

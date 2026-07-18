@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClienteModule } from '../cliente/cliente.module';
 import { ServicoModule } from '../servico/servico.module';
 import { TabelaMontagemService } from './application/services/tabelaMontagem.service';
@@ -12,7 +12,7 @@ import { PrismaTabelaMontagemRepository } from './infrastructure/repositories/ta
 import { TabelaMontagemController } from './presentation/controllers/tabelaMontagem.controller';
 
 @Module({
-	imports: [ClienteModule, ServicoModule],
+	imports: [forwardRef(() => ClienteModule), ServicoModule],
 	controllers: [TabelaMontagemController],
 	providers: [
 		CreateTabelaMontagemUseCase,

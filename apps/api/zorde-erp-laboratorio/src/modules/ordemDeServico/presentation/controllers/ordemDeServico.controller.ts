@@ -1,14 +1,38 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseIntPipe,
+	Patch,
+	Post,
+	Put,
+	Query,
+} from '@nestjs/common';
 import type { UserInfo } from 'src/shared/interfaces/user.interface';
 import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
 import {
 	type CreateOrderDto,
 	createOrderSchema,
+	type FaturarOrdensDto,
+	type FechamentoQueryDto,
+	faturarOrdensSchema,
+	fechamentoQuerySchema,
+	type ListOrdersQueryDto,
+	listOrdersQuerySchema,
 	type UpdateOrderDto,
 	updateOrderSchema,
 } from '../../application/dtos/ordemDeServico.dto';
-import type { ServiceOrderResponseDto } from '../../application/dtos/ordemDeServicoResponse.dto';
+
+import type {
+	FaturarOrdensResponseDto,
+	FechamentoResponseDto,
+	ServiceOrderResponseDto,
+} from '../../application/dtos/ordemDeServicoResponse.dto';
 import { ServiceOrderService } from '../../application/services/ordemDeServico.service';
 
 @Controller('api/ordens-de-servico')
@@ -24,8 +48,27 @@ export class ServiceOrderController {
 	}
 
 	@Get()
-	public async findAll(@User() user: UserInfo): Promise<ServiceOrderResponseDto[]> {
-		return this.serviceOrderService.findByUsuarioId(user.userId);
+	public async findAll(
+		@Query(new ZodValidationPipe(listOrdersQuerySchema)) query: ListOrdersQueryDto,
+		@User() user: UserInfo,
+	): Promise<{ items: ServiceOrderResponseDto[]; total: number }> {
+		return this.serviceOrderService.findAll(query, user.userId);
+	}
+
+	@Get('fechamento')
+	public async fechamento(
+		@Query(new ZodValidationPipe(fechamentoQuerySchema)) query: FechamentoQueryDto,
+		@User() user: UserInfo,
+	): Promise<FechamentoResponseDto> {
+		return this.serviceOrderService.fechamento(query, user.userId);
+	}
+
+	@Patch('faturar')
+	public async faturar(
+		@Body(new ZodValidationPipe(faturarOrdensSchema)) body: FaturarOrdensDto,
+		@User() user: UserInfo,
+	): Promise<FaturarOrdensResponseDto> {
+		return this.serviceOrderService.faturar(body, user.userId);
 	}
 
 	@Get(':id')

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Cliente, Endereco } from '@prisma/client';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import { ClienteEntity } from '../../domain/entities/cliente.entity';
-import { IClienteRepository } from '../../domain/repositories/cliente.repository';
+import type { IClienteRepository, UpdateQrCodeData } from '../../domain/repositories/cliente.repository';
 import { ClienteInfraMapper } from '../mappers/clienteInfra.mapper';
 
 @Injectable()
@@ -77,6 +77,48 @@ export class PrismaClienteRepository implements IClienteRepository {
 				razaoSocial: client.getRazaoSocial(),
 				nomeFantasia: client.getNomeFantasia(),
 				numeroEndereco: client.getNumeroEndereco(),
+				updatedAt: new Date(),
+			},
+			include: {
+				Endereco: true,
+			},
+		});
+		return ClienteInfraMapper.toDomain(updated as Cliente & { Endereco: Endereco });
+	}
+
+	public async updateQrToken(id: number, usuarioId: number, qrToken: string, qrGeradoEm: Date): Promise<ClienteEntity> {
+		const existing = await this.findById(id, usuarioId);
+		if (!existing) {
+			throw new Error('Cliente não encontrado');
+		}
+
+		const updated = await this.prisma.cliente.update({
+			where: { id },
+			data: {
+				qrToken,
+				qrGeradoEm,
+				updatedAt: new Date(),
+			},
+			include: {
+				Endereco: true,
+			},
+		});
+		return ClienteInfraMapper.toDomain(updated as Cliente & { Endereco: Endereco });
+	}
+
+	public async updateQrCode(id: number, usuarioId: number, data: UpdateQrCodeData): Promise<ClienteEntity> {
+		const existing = await this.findById(id, usuarioId);
+		if (!existing) {
+			throw new Error('Cliente não encontrado');
+		}
+
+		const updated = await this.prisma.cliente.update({
+			where: { id },
+			data: {
+				qrToken: data.qrToken,
+				qrGeradoEm: data.qrGeradoEm,
+				qrCodeUrl: data.qrCodeUrl,
+				qrCodePublicId: data.qrCodePublicId,
 				updatedAt: new Date(),
 			},
 			include: {

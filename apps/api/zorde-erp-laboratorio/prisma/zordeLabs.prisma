@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  schemas = ["entidades", "enderecos", "autenticacao", "financeiro"]
+  schemas  = ["entidades", "enderecos", "autenticacao", "financeiro"]
 }
 
 generator client {
@@ -10,6 +10,32 @@ generator client {
 enum TipoUsuario {
   ADMIN
   USUARIO
+  @@schema("entidades")
+}
+
+enum StatusOrdemServico {
+  LANCADA
+  FATURADA
+  CANCELADA
+  @@schema("entidades")
+}
+
+enum OrigemOrdemServico {
+  MANUAL
+  QR_SCAN
+  @@schema("entidades")
+}
+
+enum OrigemValorItem {
+  TABELA
+  MANUAL
+  @@schema("entidades")
+}
+
+enum StatusFolhaOs {
+  IMPRESSA
+  LANCADA
+  CANCELADA
   @@schema("entidades")
 }
 
@@ -27,11 +53,13 @@ model Usuario {
   deletedAt    DateTime?
   tipoUsuario  TipoUsuario @default(ADMIN)
 
-  Autenticacoes Autenticacao[]
-  Clientes      Cliente[]
-  Fornecedores  Fornecedor[]
-  Ordens        OrdemDeServico[]
-  Servicos      Servico[]
+  Autenticacoes   Autenticacao[]
+  Clientes        Cliente[]
+  Fornecedores    Fornecedor[]
+  Ordens          OrdemDeServico[]
+  Servicos        Servico[]
+  LotesImpressao  LoteImpressaoOs[]
+  FolhasImpressas FolhaOsImpressa[]
   @@unique([email, documento, ativo], name: "uni_usuario_email_documento_ativo")
   @@schema("entidades")
 }
@@ -39,7 +67,7 @@ model Usuario {
 model Autenticacao {
   id           Int       @id @default(autoincrement())
   idUsuario    Int
-  refreshToken String?    @unique
+  refreshToken String?   @unique
   jti          String?
   ip           String?
   dispositivo  String?
@@ -56,26 +84,32 @@ model Autenticacao {
 }
 
 model Cliente {
-  id         Int       @id @default(autoincrement())
-  nome       String
-  email      String
-  contato    String?
-  tipoPessoa String
-  documento  String
-  status     String    @default("ATIVO")
-  cep String?
-  razaoSocial String?
-  nomeFantasia String?
-  observacao String?
+  id             Int       @id @default(autoincrement())
+  nome           String
+  email          String
+  contato        String?
+  tipoPessoa     String
+  documento      String
+  status         String    @default("ATIVO")
+  cep            String?
+  razaoSocial    String?
+  nomeFantasia   String?
+  observacao     String?
   numeroEndereco String?
-  usuarioId  Int
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @updatedAt
-  deletedAt  DateTime?
+  usuarioId      Int
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+  deletedAt      DateTime?
+  qrToken         String?   @unique @db.VarChar(64)
+  qrGeradoEm      DateTime?
+  qrCodeUrl       String?
+  qrCodePublicId  String?
 
-  Usuario         Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Usuario         Usuario           @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   TabelasMontagem TabelaMontagem[]
   Ordens          OrdemDeServico[]
+  LotesImpressao  LoteImpressaoOs[]
+  FolhasImpressas FolhaOsImpressa[]
   Endereco        Endereco?         @relation(fields: [cep], references: [cep], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([usuarioId])
@@ -89,24 +123,24 @@ model Cliente {
 }
 
 model Fornecedor {
-  id         Int       @id @default(autoincrement())
-  usuarioId  Int
-  nome       String
-  email      String
-  contato    String?
-  tipoPessoa String
-  documento  String
-  status     String    @default("ATIVO")
-  cep String?
-  observacao String?
-  razaoSocial String?
-  nomeFantasia String?
+  id             Int       @id @default(autoincrement())
+  usuarioId      Int
+  nome           String
+  email          String
+  contato        String?
+  tipoPessoa     String
+  documento      String
+  status         String    @default("ATIVO")
+  cep            String?
+  observacao     String?
+  razaoSocial    String?
+  nomeFantasia   String?
   numeroEndereco String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @updatedAt
-  deletedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+  deletedAt      DateTime?
 
-  Usuario Usuario @relation(fields: [usuarioId], references: [id])
+  Usuario  Usuario   @relation(fields: [usuarioId], references: [id])
   Endereco Endereco? @relation(fields: [cep], references: [cep])
 
   @@index([usuarioId])
@@ -128,9 +162,9 @@ model TabelaMontagem {
   updatedAt DateTime? @updatedAt
   deletedAt DateTime?
 
-  Cliente Cliente          @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  Servico Servico          @relation(fields: [servicoId], references: [id], onDelete: NoAction)
-  Ordens  OrdemDeServico[]
+  Cliente Cliente              @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Servico Servico              @relation(fields: [servicoId], references: [id], onDelete: NoAction)
+  Itens   ItemOrdemDeServico[]
 
   @@index([clienteId])
   @@index([clienteId, deletedAt])
@@ -139,27 +173,88 @@ model TabelaMontagem {
 }
 
 model OrdemDeServico {
-  id               Int       @id @default(autoincrement())
-  codigoOS         String
-  clienteId        Int
-  valor            Float?
-  tabelaMontagemId Int?
-  usuarioId        Int
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime? @updatedAt
-  deletedAt        DateTime?
+  id         Int                 @id @default(autoincrement())
+  codigoOS   String
+  clienteId  Int
+  usuarioId  Int
+  valorTotal Float               @default(0)
+  status     StatusOrdemServico  @default(LANCADA)
+  origem     OrigemOrdemServico  @default(MANUAL)
+  observacao String?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime?           @updatedAt
+  deletedAt  DateTime?
 
-  Cliente        Cliente         @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  TabelaMontagem TabelaMontagem? @relation(fields: [tabelaMontagemId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  Usuario        Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Cliente         Cliente              @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Usuario         Usuario              @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Itens           ItemOrdemDeServico[]
+  FolhaOsImpressa FolhaOsImpressa?
 
   @@index([usuarioId, clienteId])
   @@index([usuarioId])
-  @@index([tabelaMontagemId])
   @@index([codigoOS])
   @@index([clienteId, deletedAt])
   @@index([usuarioId, createdAt])
+  @@index([usuarioId, status])
   @@unique([usuarioId, codigoOS, clienteId], name: "uni_ordem_de_servico_usuario_codigo_os_cliente_id")
+  @@schema("entidades")
+}
+
+model LoteImpressaoOs {
+  id         Int      @id @default(autoincrement())
+  clienteId  Int
+  usuarioId  Int
+  quantidade Int
+  createdAt  DateTime @default(now())
+
+  Cliente Cliente           @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Usuario Usuario           @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Folhas  FolhaOsImpressa[]
+
+  @@index([clienteId])
+  @@index([usuarioId])
+  @@index([usuarioId, clienteId])
+  @@schema("entidades")
+}
+
+model FolhaOsImpressa {
+  id               Int           @id @default(autoincrement())
+  loteId           Int
+  clienteId        Int
+  usuarioId        Int
+  codigoFolha      String
+  status           StatusFolhaOs @default(IMPRESSA)
+  ordemDeServicoId Int?          @unique
+  createdAt        DateTime      @default(now())
+
+  Lote           LoteImpressaoOs @relation(fields: [loteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Cliente        Cliente         @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Usuario        Usuario         @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  OrdemDeServico OrdemDeServico? @relation(fields: [ordemDeServicoId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@unique([usuarioId, codigoFolha], name: "uni_folha_os_usuario_codigo")
+  @@index([loteId])
+  @@index([clienteId])
+  @@index([usuarioId])
+  @@index([usuarioId, clienteId, status])
+  @@schema("entidades")
+}
+
+model ItemOrdemDeServico {
+  id               Int             @id @default(autoincrement())
+  ordemDeServicoId Int
+  tabelaMontagemId Int?
+  descricaoManual  String?
+  quantidade       Int             @default(1)
+  valorUnitario    Float
+  valorTotal       Float
+  origemValor      OrigemValorItem @default(TABELA)
+
+  OrdemDeServico OrdemDeServico  @relation(fields: [ordemDeServicoId], references: [id], onDelete: Cascade)
+  TabelaMontagem TabelaMontagem? @relation(fields: [tabelaMontagemId], references: [id], onDelete: SetNull)
+
+  @@index([ordemDeServicoId])
+  @@index([tabelaMontagemId])
   @@schema("entidades")
 }
 
@@ -176,25 +271,24 @@ model SolicitacaoCadastro {
 }
 
 model Endereco {
-  id        Int       @id @default(autoincrement())
-  cep       String? @unique
-  uf        String?
-  cidade    String?
-  logradouro String?
-  bairro    String?
-  ibge      String?
+  id          Int       @id @default(autoincrement())
+  cep         String?   @unique
+  uf          String?
+  cidade      String?
+  logradouro  String?
+  bairro      String?
+  ibge        String?
   complemento String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime? @updatedAt
-  
-  Cliente Cliente[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  Cliente    Cliente[]
   Fornecedor Fornecedor[]
 
   @@index([uf, cidade])
   @@index([ibge])
   @@schema("enderecos")
 }
-
 
 model Servico {
   id        Int       @id @default(autoincrement())

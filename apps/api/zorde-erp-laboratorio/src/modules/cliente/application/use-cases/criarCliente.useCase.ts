@@ -1,8 +1,10 @@
+import { randomBytes } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { EnderecoAdapterRepository } from 'src/shared/infra/persistence/enderecoAdapter.repository';
 import { ClienteEntity } from '../../domain/entities/cliente.entity';
 import type { IClienteRepository } from '../../domain/repositories/cliente.repository';
 import { ICLIENTE_REPOSITORY } from '../../domain/repositories/cliente.repository';
+import { QrCodeImageService } from '../../infrastructure/services/qrCodeImage.service';
 import { CriarClienteDto } from '../dtos/cliente.dto';
 import type { ClienteResponseDto } from '../dtos/clienteResponse.dto';
 import { clienteToResponse } from '../mappers/clienteResponse.mapper';
@@ -13,6 +15,7 @@ export class CriarClienteUseCase {
 		@Inject(ICLIENTE_REPOSITORY)
 		private readonly clienteRepository: IClienteRepository,
 		private readonly enderecoAdapterRepository: EnderecoAdapterRepository,
+		private readonly qrCodeImageService: QrCodeImageService,
 	) {}
 
 	public async execute(dto: CriarClienteDto, usuarioId: number): Promise<ClienteResponseDto> {
@@ -52,7 +55,19 @@ export class CriarClienteUseCase {
 		}
 
 		const newClient = await this.clienteRepository.create(client);
+		const clienteId = newClient.getId() as number;
 
-		return clienteToResponse(newClient);
+		const token = randomBytes(32).toString('hex');
+		const qrGeradoEm = new Date();
+		const image = await this.qrCodeImageService.generateAndUpload(clienteId, token);
+
+		const withQr = await this.clienteRepository.updateQrCode(clienteId, usuarioId, {
+			qrToken: token,
+			qrGeradoEm,
+			qrCodeUrl: image.secureUrl,
+			qrCodePublicId: image.publicId,
+		});
+
+		return clienteToResponse(withQr);
 	}
 }
