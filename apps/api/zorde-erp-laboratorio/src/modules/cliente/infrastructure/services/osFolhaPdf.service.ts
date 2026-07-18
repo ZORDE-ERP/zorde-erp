@@ -23,7 +23,7 @@ export class OsFolhaPdfService implements OnModuleDestroy {
 	}
 
 	private async getBrowser(): Promise<Browser> {
-		if (!this.browser?.connectedS) {
+		if (!this.browser?.connected) {
 			this.browser = await puppeteer.launch({
 				headless: true,
 				args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
