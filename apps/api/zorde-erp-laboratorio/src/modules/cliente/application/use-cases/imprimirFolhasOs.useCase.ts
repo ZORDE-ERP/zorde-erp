@@ -1,8 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-	BusinessRuleException,
-	EntityNotFoundException,
-} from '../../../../shared/errors/app.exception';
+import { BusinessRuleException, EntityNotFoundException } from '../../../../shared/errors/app.exception';
 import type { IClienteRepository } from '../../domain/repositories/cliente.repository';
 import { ICLIENTE_REPOSITORY } from '../../domain/repositories/cliente.repository';
 import type { IFolhaOsRepository } from '../../domain/repositories/folhaOs.repository';
@@ -28,11 +25,7 @@ export class ImprimirFolhasOsUseCase {
 		private readonly osFolhaPdfService: OsFolhaPdfService,
 	) {}
 
-	public async execute(
-		clienteId: number,
-		usuarioId: number,
-		dto: ImpressaoOsDto,
-	): Promise<ImprimirFolhasOsResult> {
+	public async execute(clienteId: number, usuarioId: number, dto: ImpressaoOsDto): Promise<ImprimirFolhasOsResult> {
 		const cliente = await this.clienteRepository.findById(clienteId, usuarioId);
 		if (!cliente) {
 			throw new EntityNotFoundException('Cliente não encontrado');
@@ -40,9 +33,7 @@ export class ImprimirFolhasOsUseCase {
 
 		const qrCodeUrl = cliente.getQrCodeUrl();
 		if (!cliente.getQrToken() || !qrCodeUrl) {
-			throw new BusinessRuleException(
-				'Cliente sem QR Code. Gere o QR antes de imprimir as folhas.',
-			);
+			throw new BusinessRuleException('Cliente sem QR Code. Gere o QR antes de imprimir as folhas.');
 		}
 
 		const lote = await this.folhaOsRepository.createLoteComFolhas({

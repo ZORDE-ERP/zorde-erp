@@ -26,10 +26,7 @@ import {
 } from '../../application/dtos/cliente.dto';
 import type { ClienteQrCodeResponseDto } from '../../application/dtos/clienteQrCodeResponse.dto';
 import type { ClienteResponseDto } from '../../application/dtos/clienteResponse.dto';
-import {
-	type ImpressaoOsDto,
-	impressaoOsSchema,
-} from '../../application/dtos/impressaoOs.dto';
+import { type ImpressaoOsDto, impressaoOsSchema } from '../../application/dtos/impressaoOs.dto';
 import {
 	type TabelaMontagemPorQrQueryDto,
 	tabelaMontagemPorQrQuerySchema,

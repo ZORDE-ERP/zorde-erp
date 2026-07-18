@@ -1,15 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { StatusFolhaOs } from '../../../../shared/enums/folha-os.enum';
-import {
-	OrigemValorItem,
-	StatusOrdemServico,
-} from '../../../../shared/enums/ordem-de-servico.enum';
-import {
-	BusinessRuleException,
-	ConflictException,
-	EntityNotFoundException,
-} from '../../../../shared/errors/app.exception';
+import { OrigemValorItem, StatusOrdemServico } from '../../../../shared/enums/ordem-de-servico.enum';
+import { BusinessRuleException, ConflictException, EntityNotFoundException } from '../../../../shared/errors/app.exception';
 import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
 import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
 import type { IFolhaOsRepository } from '../../../cliente/domain/repositories/folhaOs.repository';
@@ -60,13 +53,7 @@ export class CreateServiceOrderUseCase {
 			folhaId = folha.getId() as number;
 		}
 
-		const tabelaIds = [
-			...new Set(
-				data.itens
-					.map((item) => item.tabelaMontagemId)
-					.filter((id): id is number => id != null),
-			),
-		];
+		const tabelaIds = [...new Set(data.itens.map((item) => item.tabelaMontagemId).filter((id): id is number => id != null))];
 
 		const tabelas = await this.tabelaMontagemRepository.findByIds(tabelaIds, usuarioId);
 		const tabelaById = new Map(tabelas.map((t) => [t.getId() as number, t]));
@@ -77,9 +64,7 @@ export class CreateServiceOrderUseCase {
 				throw new BusinessRuleException(`Tabela de montagem ${tabelaId} não encontrada`);
 			}
 			if (tabela.getClienteId() !== data.clienteId) {
-				throw new BusinessRuleException(
-					`Tabela de montagem ${tabelaId} não pertence ao cliente da OS`,
-				);
+				throw new BusinessRuleException(`Tabela de montagem ${tabelaId} não pertence ao cliente da OS`);
 			}
 		}
 
@@ -94,15 +79,11 @@ export class CreateServiceOrderUseCase {
 			 */
 			if (item.origemValor === OrigemValorItem.TABELA) {
 				if (item.tabelaMontagemId == null) {
-					throw new BusinessRuleException(
-						'origemValor TABELA exige tabelaMontagemId',
-					);
+					throw new BusinessRuleException('origemValor TABELA exige tabelaMontagemId');
 				}
 				const tabela = tabelaById.get(item.tabelaMontagemId);
 				if (!tabela) {
-					throw new BusinessRuleException(
-						`Tabela de montagem ${item.tabelaMontagemId} não encontrada`,
-					);
+					throw new BusinessRuleException(`Tabela de montagem ${item.tabelaMontagemId} não encontrada`);
 				}
 				valorUnitario = tabela.getValor();
 			}
@@ -120,9 +101,7 @@ export class CreateServiceOrderUseCase {
 			};
 		});
 
-		const valorTotalOs = Number(
-			itensResolvidos.reduce((acc, item) => acc + item.valorTotal, 0).toFixed(2),
-		);
+		const valorTotalOs = Number(itensResolvidos.reduce((acc, item) => acc + item.valorTotal, 0).toFixed(2));
 
 		let codigoOs = data.codigoOS;
 		if (!codigoOs) {

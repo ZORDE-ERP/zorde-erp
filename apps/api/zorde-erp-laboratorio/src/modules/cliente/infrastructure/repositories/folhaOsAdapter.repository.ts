@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import { StatusFolhaOs } from '../../../../shared/enums/folha-os.enum';
 import { FolhaOsImpressaEntity } from '../../domain/entities/folhaOsImpressa.entity';
-import type {
-	CreateLoteComFolhasResult,
-	IFolhaOsRepository,
-} from '../../domain/repositories/folhaOs.repository';
+import type { CreateLoteComFolhasResult, IFolhaOsRepository } from '../../domain/repositories/folhaOs.repository';
 
 @Injectable()
 export class PrismaFolhaOsRepository implements IFolhaOsRepository {
@@ -65,10 +62,7 @@ export class PrismaFolhaOsRepository implements IFolhaOsRepository {
 		return raw ? this.toDomain(raw) : null;
 	}
 
-	public async findByCodigoFolha(
-		codigoFolha: string,
-		usuarioId: number,
-	): Promise<FolhaOsImpressaEntity | null> {
+	public async findByCodigoFolha(codigoFolha: string, usuarioId: number): Promise<FolhaOsImpressaEntity | null> {
 		const raw = await this.prisma.folhaOsImpressa.findFirst({
 			where: { codigoFolha, usuarioId },
 		});

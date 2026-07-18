@@ -86,12 +86,7 @@ export class PrismaClienteRepository implements IClienteRepository {
 		return ClienteInfraMapper.toDomain(updated as Cliente & { Endereco: Endereco });
 	}
 
-	public async updateQrToken(
-		id: number,
-		usuarioId: number,
-		qrToken: string,
-		qrGeradoEm: Date,
-	): Promise<ClienteEntity> {
+	public async updateQrToken(id: number, usuarioId: number, qrToken: string, qrGeradoEm: Date): Promise<ClienteEntity> {
 		const existing = await this.findById(id, usuarioId);
 		if (!existing) {
 			throw new Error('Cliente não encontrado');

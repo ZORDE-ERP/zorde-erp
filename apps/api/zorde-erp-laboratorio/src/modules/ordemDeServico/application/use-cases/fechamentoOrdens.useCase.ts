@@ -31,9 +31,7 @@ export class FechamentoOrdensUseCase {
 			dataFim: query.dataFim,
 		});
 
-		const valorTotalGeral = Number(
-			clientes.reduce((acc, row) => acc + row.valorTotal, 0).toFixed(2),
-		);
+		const valorTotalGeral = Number(clientes.reduce((acc, row) => acc + row.valorTotal, 0).toFixed(2));
 
 		return {
 			dataInicio: query.dataInicio,

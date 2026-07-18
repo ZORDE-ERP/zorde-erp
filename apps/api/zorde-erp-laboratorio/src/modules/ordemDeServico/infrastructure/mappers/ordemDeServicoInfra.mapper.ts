@@ -1,9 +1,5 @@
 import type { Cliente, ItemOrdemDeServico, OrdemDeServico, Servico, TabelaMontagem } from '@prisma/client';
-import {
-	OrigemOrdemServico,
-	OrigemValorItem,
-	StatusOrdemServico,
-} from '../../../../shared/enums/ordem-de-servico.enum';
+import { OrigemOrdemServico, OrigemValorItem, StatusOrdemServico } from '../../../../shared/enums/ordem-de-servico.enum';
 import { StatusPessoa } from '../../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../../shared/enums/tipo-pessoa.enum';
 import { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';

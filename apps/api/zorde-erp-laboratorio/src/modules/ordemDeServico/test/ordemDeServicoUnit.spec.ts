@@ -1,9 +1,5 @@
 import { StatusFolhaOs } from '../../../shared/enums/folha-os.enum';
-import {
-	OrigemOrdemServico,
-	OrigemValorItem,
-	StatusOrdemServico,
-} from '../../../shared/enums/ordem-de-servico.enum';
+import { OrigemOrdemServico, OrigemValorItem, StatusOrdemServico } from '../../../shared/enums/ordem-de-servico.enum';
 import { StatusPessoa } from '../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../shared/enums/tipo-pessoa.enum';
 import {
@@ -132,13 +128,8 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 		};
 	});
 
-	const createUseCase = () =>
-		new CreateServiceOrderUseCase(
-			orderRepository,
-			clienteRepository,
-			tabelaRepository,
-			folhaOsRepository,
-		);
+	const createUseCase = (): CreateServiceOrderUseCase =>
+		new CreateServiceOrderUseCase(orderRepository, clienteRepository, tabelaRepository, folhaOsRepository);
 
 	describe('createOrderSchema', () => {
 		it('rejects item without tabelaMontagemId and without descricaoManual', () => {
@@ -504,10 +495,7 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 				});
 			});
 
-			const gerar = new GerarQrCodeClienteUseCase(
-				clienteRepository,
-				qrCodeImageService as unknown as QrCodeImageService,
-			);
+			const gerar = new GerarQrCodeClienteUseCase(clienteRepository, qrCodeImageService as unknown as QrCodeImageService);
 			const novo = await gerar.execute(10, 5);
 			expect(novo.token).not.toBe('token-atual');
 			expect(novo.token).toHaveLength(64);

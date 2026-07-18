@@ -1,4 +1,8 @@
-import type { StatusOrdemServico, OrigemOrdemServico, OrigemValorItem } from '../../../../shared/enums/ordem-de-servico.enum';
+import type {
+	OrigemOrdemServico,
+	OrigemValorItem,
+	StatusOrdemServico,
+} from '../../../../shared/enums/ordem-de-servico.enum';
 
 export interface ServiceOrderItemResponseDto {
 	id: number;

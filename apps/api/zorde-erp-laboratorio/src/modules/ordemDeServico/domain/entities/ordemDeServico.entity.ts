@@ -1,5 +1,9 @@
+import type {
+	OrigemOrdemServico,
+	OrigemValorItem,
+	StatusOrdemServico,
+} from '../../../../shared/enums/ordem-de-servico.enum';
 import type { ClienteEntity } from '../../../cliente/domain/entities/cliente.entity';
-import type { OrigemOrdemServico, OrigemValorItem, StatusOrdemServico } from '../../../../shared/enums/ordem-de-servico.enum';
 
 export interface ServiceOrderItemProps {
 	id?: number | null;

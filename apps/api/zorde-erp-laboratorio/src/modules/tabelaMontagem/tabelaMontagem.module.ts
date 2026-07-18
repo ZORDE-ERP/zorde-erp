@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClienteModule } from '../cliente/cliente.module';
 import { ServicoModule } from '../servico/servico.module';
 import { TabelaMontagemService } from './application/services/tabelaMontagem.service';

@@ -59,11 +59,7 @@ export class ClienteService {
 		return this.listarTabelaMontagemPorQrUseCase.execute(clienteId, token, usuarioId);
 	}
 
-	public async imprimirFolhasOs(
-		clienteId: number,
-		usuarioId: number,
-		dto: ImpressaoOsDto,
-	): Promise<ImprimirFolhasOsResult> {
+	public async imprimirFolhasOs(clienteId: number, usuarioId: number, dto: ImpressaoOsDto): Promise<ImprimirFolhasOsResult> {
 		return this.imprimirFolhasOsUseCase.execute(clienteId, usuarioId, dto);
 	}
 }

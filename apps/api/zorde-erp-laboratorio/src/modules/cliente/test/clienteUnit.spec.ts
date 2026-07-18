@@ -164,10 +164,7 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 				});
 			});
 
-			const useCase = new GerarQrCodeClienteUseCase(
-				clienteRepository,
-				qrCodeImageService as unknown as QrCodeImageService,
-			);
+			const useCase = new GerarQrCodeClienteUseCase(clienteRepository, qrCodeImageService as unknown as QrCodeImageService);
 			const result = await useCase.execute(1, 5);
 
 			expect(result.token).toHaveLength(64);
@@ -178,10 +175,7 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 
 		it('throws when cliente does not exist', async () => {
 			clienteRepository.findById.mockResolvedValue(null);
-			const useCase = new GerarQrCodeClienteUseCase(
-				clienteRepository,
-				qrCodeImageService as unknown as QrCodeImageService,
-			);
+			const useCase = new GerarQrCodeClienteUseCase(clienteRepository, qrCodeImageService as unknown as QrCodeImageService);
 			await expect(useCase.execute(1, 5)).rejects.toBeInstanceOf(EntityNotFoundException);
 		});
 	});
@@ -281,9 +275,7 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 				osFolhaPdfService as unknown as OsFolhaPdfService,
 			);
 
-			await expect(useCase.execute(10, 5, { quantidade: 1 })).rejects.toBeInstanceOf(
-				BusinessRuleException,
-			);
+			await expect(useCase.execute(10, 5, { quantidade: 1 })).rejects.toBeInstanceOf(BusinessRuleException);
 		});
 	});
 });
