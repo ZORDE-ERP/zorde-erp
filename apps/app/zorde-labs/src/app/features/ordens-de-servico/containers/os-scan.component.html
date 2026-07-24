@@ -1,0 +1,37 @@
+<section class="flex w-full max-w-lg flex-col gap-6 px-4 py-6 sm:py-8">
+  <header class="space-y-1">
+    <h1 class="font-heading text-2xl font-semibold text-text-primary">Lançamento de OS</h1>
+    <p class="text-sm text-text-muted">
+      Selecione o cliente e o serviço para lançar a ordem de serviço.
+    </p>
+  </header>
+
+  @if (errorMessage()) {
+    <app-alert variant="error">{{ errorMessage() }}</app-alert>
+  }
+
+  @if (hasSession()) {
+    <article app-card class="rounded-sm">
+      <div app-card-body class="space-y-4 grid grid-cols-1 gap-4">
+        <p class="text-md text-error font-semibold">
+          Não foi possível encontrar a sessão. Por favor, tente novamente.
+        </p>
+        <button app-button type="button" variant="primary" size="sm" (click)="onTrocarCliente()">
+          Voltar para câmera
+        </button>
+      </div>
+    </article>
+  } @else {
+    <div class="flex items-center justify-between gap-3 border">
+      <form class="w-full p-2 grid grid-cols-1 gap-4">
+        <app-field label="Cliente" htmlFor="cliente-select">
+          <app-cliente-select
+            class="w-full"
+            [(value)]="clienteId"
+            placeholder="Buscar cliente..."
+          />
+        </app-field>
+      </form>
+    </div>
+  }
+</section>

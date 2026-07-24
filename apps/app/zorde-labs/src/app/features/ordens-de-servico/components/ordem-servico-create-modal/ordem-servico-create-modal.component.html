@@ -1,0 +1,130 @@
+<app-modal
+  [open]="open()"
+  title="Nova Ordem de Serviço"
+  description="Lance uma OS manual com serviços da tabela do cliente."
+  size="lg"
+  (closed)="onClose()"
+>
+  <div class="grid grid-cols-12 gap-4">
+    <app-field label="Cliente" htmlFor="os-create-cliente" [required]="true" class="col-span-12">
+      <app-cliente-select [(value)]="clienteId" placeholder="Buscar cliente..." />
+    </app-field>
+
+    <app-field label="Código OS (opcional)" htmlFor="os-create-codigo" class="col-span-12 sm:col-span-4">
+      <input
+        app-input
+        id="os-create-codigo"
+        type="text"
+        placeholder="Gerado automaticamente se vazio"
+        [ngModel]="codigoOS()"
+        (ngModelChange)="codigoOS.set($event)"
+      />
+    </app-field>
+
+    <app-field label="Observação" htmlFor="os-create-obs" class="col-span-12 sm:col-span-8">
+      <textarea
+        app-textarea
+        id="os-create-obs"
+        rows="2"
+        [ngModel]="observacao()"
+        (ngModelChange)="observacao.set($event)"
+      ></textarea>
+    </app-field>
+
+    @if (clienteId() !== null) {
+      <div class="col-span-12 rounded-sm border border-border p-4">
+        <h3 class="mb-3 text-sm font-semibold text-text-primary">Itens</h3>
+
+        @if (loadingTabela()) {
+          <div class="flex items-center gap-2 text-sm text-text-muted">
+            <app-spinner size="sm" />
+            Carregando tabela do cliente...
+          </div>
+        } @else if (tabelaItens().length === 0) {
+          <p class="text-sm text-text-muted">Este cliente não possui serviços na tabela de montagem.</p>
+        } @else {
+          <div class="grid grid-cols-12 gap-3">
+            <app-field label="Serviço" htmlFor="os-item-servico" class="col-span-12 sm:col-span-6">
+              <select
+                app-select
+                id="os-item-servico"
+                [ngModel]="selectedTabelaId()"
+                (ngModelChange)="selectedTabelaId.set($event === '' || $event === null ? null : +$event)"
+              >
+                <option [ngValue]="null">Selecione</option>
+                @for (item of tabelaItens(); track item.id) {
+                  <option [ngValue]="item.id">{{ item.nomeServico || ('Serviço #' + item.servicoId) }}</option>
+                }
+              </select>
+            </app-field>
+
+            <app-field label="Quantidade" htmlFor="os-item-qtd" class="col-span-12 sm:col-span-3">
+              <input
+                app-input
+                id="os-item-qtd"
+                type="number"
+                min="1"
+                [ngModel]="draftQuantidade()"
+                (ngModelChange)="draftQuantidade.set(+$event || 1)"
+              />
+            </app-field>
+
+            <app-field label="Valor unitário" htmlFor="os-item-valor" class="col-span-12 sm:col-span-3">
+              <input
+                app-input
+                appBrlCurrencyMask
+                id="os-item-valor"
+                [ngModel]="draftValor()"
+                (ngModelChange)="draftValor.set($event)"
+              />
+            </app-field>
+          </div>
+
+          <div class="mt-3 flex justify-end">
+            <button app-button type="button" variant="secondary" size="sm" [isDisabled]="!canAddItem()" (click)="onAddItem()">
+              Adicionar item
+            </button>
+          </div>
+        }
+
+        @if (itens().length > 0) {
+          <ul class="mt-4 divide-y divide-border border-t border-border">
+            @for (item of itens(); track item.key) {
+              <li class="flex items-center justify-between gap-3 py-2 text-sm">
+                <div>
+                  <p class="font-medium text-text-primary">{{ item.nomeServico }}</p>
+                  <p class="text-text-muted">
+                    {{ item.quantidade }} × {{ item.valorUnitario | appBrlCurrency }}
+                    @if (item.valorUnitario !== item.valorTabela) {
+                      <span class="text-warning-foreground"> (valor manual)</span>
+                    }
+                  </p>
+                </div>
+                <button app-button type="button" variant="ghost" size="sm" (click)="onRemoveItem(item.key)">
+                  Remover
+                </button>
+              </li>
+            }
+          </ul>
+
+          <p class="mt-3 text-right text-sm font-semibold text-text-primary">
+            Total: {{ total() | appBrlCurrency }}
+          </p>
+        }
+      </div>
+    }
+  </div>
+
+  <div modal-actions class="flex gap-2">
+    <button app-button type="button" variant="ghost" (click)="onClose()">Cancelar</button>
+    <button
+      app-button
+      type="button"
+      [loading]="saving()"
+      [isDisabled]="!canSubmit() || saving()"
+      (click)="onSubmit()"
+    >
+      Salvar OS
+    </button>
+  </div>
+</app-modal>
