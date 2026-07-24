@@ -2,7 +2,10 @@
   [open]="open()"
   [title]="editing() ? 'Editar Serviço' : 'Novo Serviço'"
   size="sm"
+  [confirmLabel]="editing() ? 'Editar' : 'Salvar'"
+  [confirmLoading]="saving()"
   (closed)="onClose()"
+  (confirmed)="onSubmit()"
 >
   <form class="flex flex-col gap-stack-lg" (ngSubmit)="onSubmit()">
     <app-field
@@ -35,26 +38,4 @@
       ></textarea>
     </app-field>
   </form>
-
-  <div modal-actions class="flex justify-end gap-2 w-full">
-    <button
-      app-button
-      variant="outline"
-      type="button"
-      class="w-full sm:w-auto py-2 px-6"
-      (click)="onClose()"
-    >
-      Cancelar
-    </button>
-    <button
-      app-button
-      type="button"
-      [isDisabled]="saving()"
-      [loading]="saving()"
-      (click)="onSubmit()"
-      class="w-full sm:w-auto py-2 px-6"
-    >
-      {{ editing() ? 'Editar' : 'Salvar' }}
-    </button>
-  </div>
 </app-modal>

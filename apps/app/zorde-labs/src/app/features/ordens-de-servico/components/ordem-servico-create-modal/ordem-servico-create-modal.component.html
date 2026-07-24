@@ -3,7 +3,11 @@
   title="Nova Ordem de Serviço"
   description="Lance uma OS manual com serviços da tabela do cliente."
   size="lg"
+  confirmLabel="Salvar OS"
+  [confirmLoading]="saving()"
+  [confirmDisabled]="!canSubmit()"
   (closed)="onClose()"
+  (confirmed)="onSubmit()"
 >
   <div class="grid grid-cols-12 gap-4">
     <app-field label="Cliente" htmlFor="os-create-cliente" [required]="true" class="col-span-12">
@@ -115,16 +119,4 @@
     }
   </div>
 
-  <div modal-actions class="flex gap-2">
-    <button app-button type="button" variant="ghost" (click)="onClose()">Cancelar</button>
-    <button
-      app-button
-      type="button"
-      [loading]="saving()"
-      [isDisabled]="!canSubmit() || saving()"
-      (click)="onSubmit()"
-    >
-      Salvar OS
-    </button>
-  </div>
 </app-modal>

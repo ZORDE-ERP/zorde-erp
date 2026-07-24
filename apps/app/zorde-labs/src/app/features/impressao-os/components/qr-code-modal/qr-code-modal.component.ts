@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import {
 	AppBadgeComponent,
-	AppButtonDirective,
 	AppDateBrPipe,
 	AppModalComponent,
 	AppToastService,
@@ -14,7 +13,7 @@ import type { Cliente } from '../../../clientes/models/cliente.model';
 	selector: 'app-qr-code-modal',
 	templateUrl: './qr-code-modal.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [AppModalComponent, AppButtonDirective, AppBadgeComponent, AppDateBrPipe],
+	imports: [AppModalComponent, AppBadgeComponent, AppDateBrPipe],
 })
 export class QrCodeModalComponent {
 	private readonly clienteFacade = inject(ClienteFacade);

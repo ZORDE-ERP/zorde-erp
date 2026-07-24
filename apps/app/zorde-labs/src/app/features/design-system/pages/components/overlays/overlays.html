@@ -14,16 +14,13 @@
 			[size]="modalSize()"
 			[title]="modalTitle()"
 			description="Essa ação enviará o resultado ao paciente."
+			confirmLabel="Confirmar"
 			(closed)="closeModal()"
+			(confirmed)="closeModal()"
 		>
 			<p class="text-sm text-text-secondary">
 				Revise os dados antes de confirmar. O corpo do modal rola quando o conteúdo passa da altura máxima.
 			</p>
-
-			<div modal-actions>
-				<button app-button variant="outline" type="button" (click)="closeModal()">Cancelar</button>
-				<button app-button type="button" (click)="closeModal()">Confirmar</button>
-			</div>
 		</app-modal>
 	</app-preview-block>
 

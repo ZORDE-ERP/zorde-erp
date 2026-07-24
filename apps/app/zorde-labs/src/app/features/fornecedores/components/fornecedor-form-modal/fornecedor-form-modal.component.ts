@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AppButtonDirective, AppModalComponent, AppTabItem, AppTabsComponent } from '@repo/angular-ui';
+import { AppModalComponent, AppTabItem, AppTabsComponent } from '@repo/angular-ui';
 import { PessoaFormComponent } from '../../../../shared/components/pessoa-form/pessoa-form.component';
 import { EMPTY_PESSOA_FORM_VALUE, PessoaFormValue } from '../../../../shared/components/pessoa-form/pessoa-form.model';
 
@@ -13,7 +13,7 @@ const DADOS_ENDERECO_TABS: readonly AppTabItem[] = [
 	selector: 'app-fornecedor-form-modal',
 	templateUrl: './fornecedor-form-modal.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [FormsModule, AppModalComponent, AppTabsComponent, AppButtonDirective, PessoaFormComponent],
+	imports: [FormsModule, AppModalComponent, AppTabsComponent, PessoaFormComponent],
 })
 export class FornecedorFormModalComponent {
 	public readonly open = input(false);

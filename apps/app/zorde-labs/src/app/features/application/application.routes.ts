@@ -20,7 +20,7 @@ export const APPLICATION_ROUTES: Routes = [
 		path: 'tabela-de-servicos',
 		loadComponent: () =>
 			import('../tabela-montagem/containers/tabela-montagem.component').then((module) => module.TabelaMontagemComponent),
-		data: { title: 'Tabela de Serviços', subtitle: 'Catálogo e valores por cliente' },
+		data: { title: 'Tabela de Montagem', subtitle: 'Catálogo e valores por cliente' },
 	},
 	{
 		path: 'clientes',

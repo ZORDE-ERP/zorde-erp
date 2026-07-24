@@ -8,7 +8,6 @@ import { finalize } from 'rxjs';
 import type {
 	DataTableActionEvent,
 	DataTablePaginationChange,
-	DataTableToolbarActionEvent,
 } from '../../../shared/components/data-table/data-table.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import type { SummaryCardItem } from '../../../shared/components/summary-cards/summary-card-item.model';
@@ -142,10 +141,6 @@ export class ServicoComponent {
 				this.loadList();
 			},
 		});
-	}
-
-	public onListAction(_event: DataTableToolbarActionEvent<Servico>): void {
-		// Mock visual: as ações globais serão conectadas a e-mail/exportação/impressão na API.
 	}
 
 	public onClearFilter(): void {

@@ -3,7 +3,12 @@
   title="Novo vínculo"
   description="Selecione um cliente e um serviço para cadastrar o valor de montagem."
   size="md"
+  confirmLabel="Salvar"
+  [confirmLoading]="saving()"
+  [confirmDisabled]="!canSubmit() || isDuplicate()"
+  [cancelDisabled]="saving()"
   (closed)="onClose()"
+  (confirmed)="onSubmit()"
 >
   <div class="grid grid-cols-12 gap-4">
     <app-field label="Cliente" htmlFor="criar-vinculo-cliente" class="col-span-12">
@@ -57,26 +62,4 @@
     </app-field>
   </div>
 
-  <div modal-actions class="flex justify-end gap-2 w-full">
-    <button
-      app-button
-      variant="outline"
-      type="button"
-      [isDisabled]="saving()"
-      (click)="onClose()"
-      class="w-full sm:w-auto py-2 px-6"
-    >
-      Cancelar
-    </button>
-    <button
-      app-button
-      type="button"
-      [isDisabled]="!canSubmit() || isDuplicate() || saving()"
-      [loading]="saving()"
-      (click)="onSubmit()"
-      class="w-full sm:w-auto py-2 px-6"
-    >
-      Salvar
-    </button>
-  </div>
 </app-modal>

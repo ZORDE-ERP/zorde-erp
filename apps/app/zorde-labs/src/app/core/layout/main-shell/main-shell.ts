@@ -40,16 +40,25 @@ export class MainShell {
 
 	protected readonly groups: readonly AppNavGroup[] = [
 		{
-			title: 'Operação',
+			title: 'Cadastros',
 			items: [
 				{ label: 'Serviços', path: '/servicos', icon: 'store' },
-				{ label: 'Tabela de Serviços', path: '/tabela-de-servicos', icon: 'files' },
 				{ label: 'Clientes', path: '/clientes', icon: 'team' },
 				{ label: 'Fornecedores', path: '/fornecedores', icon: 'shared' },
-				{ label: 'Ordem de Serviço', path: '/ordens-de-servico', icon: 'scheduled' },
-				{ label: 'Central de Impressão', path: '/impressao-os', icon: 'qr-code' },
-				{ label: 'Faturamento', path: '/faturamento', icon: 'folder' },
+				{ label: 'Tabela de Montagem', path: '/tabela-de-servicos', icon: 'files' },
 			],
+		},
+		{
+			title: 'Ordens de Serviço',
+			items: [{ label: 'Ordens de Serviço', path: '/ordens-de-servico', icon: 'scheduled' }],
+		},
+		{
+			title: 'Impressão',
+			items: [{ label: 'Central de Impressão', path: '/impressao-os', icon: 'qr-code' }],
+		},
+		{
+			title: 'Financeiro',
+			items: [{ label: 'Faturamento', path: '/faturamento', icon: 'folder' }],
 		},
 	];
 

@@ -7,7 +7,12 @@
       : 'Serviços vinculados a este cliente.'
   "
   size="md"
+  [cancelLabel]="isEditMode() ? 'Cancelar' : 'Fechar'"
+  [confirmLabel]="isEditMode() ? 'Salvar' : null"
+  [confirmLoading]="saving()"
+  [cancelDisabled]="saving()"
   (closed)="onClose()"
+  (confirmed)="onSave()"
 >
   <div class="flex flex-col gap-stack-lg">
     @if (!isEditMode()) {
@@ -87,14 +92,4 @@
     }
   </div>
 
-  <div modal-actions>
-    <button app-button variant="outline" type="button" [isDisabled]="saving()" (click)="onClose()">
-      {{ isEditMode() ? 'Cancelar' : 'Fechar' }}
-    </button>
-    @if (isEditMode()) {
-      <button app-button type="button" [isDisabled]="saving()" [loading]="saving()" (click)="onSave()">
-        Salvar
-      </button>
-    }
-  </div>
 </app-modal>

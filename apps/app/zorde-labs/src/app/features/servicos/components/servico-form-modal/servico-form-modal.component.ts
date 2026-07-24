@@ -2,7 +2,6 @@ import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FieldTree, FormField } from '@angular/forms/signals';
 import {
-	AppButtonDirective,
 	AppFieldComponent,
 	AppInputDirective,
 	AppModalComponent,
@@ -20,7 +19,6 @@ import { ServicoFormModel } from '../../model/servico';
 		AppFieldComponent,
 		AppInputDirective,
 		AppTextareaDirective,
-		AppButtonDirective,
 	],
 })
 export class ServicoFormModalComponent {

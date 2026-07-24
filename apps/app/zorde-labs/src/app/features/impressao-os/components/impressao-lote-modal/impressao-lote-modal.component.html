@@ -3,7 +3,12 @@
   title="Imprimir em lote"
   description="Selecione os clientes e a quantidade de folhas de OS para cada um."
   size="md"
+  [cancelLabel]="resultados() ? 'Fechar' : 'Cancelar'"
+  [confirmLabel]="resultados() ? null : 'Imprimir'"
+  [confirmLoading]="printing()"
+  [cancelDisabled]="printing()"
   (closed)="onClose()"
+  (confirmed)="onConfirm()"
 >
   <div class="flex flex-col gap-stack-lg">
     @if (resultados(); as items) {
@@ -74,12 +79,4 @@
     }
   </div>
 
-  <div modal-actions>
-    <button app-button type="button" variant="outline" [isDisabled]="printing()" (click)="onClose()">
-      {{ resultados() ? 'Fechar' : 'Cancelar' }}
-    </button>
-    @if (!resultados()) {
-      <button app-button type="button" [loading]="printing()" (click)="onConfirm()">Imprimir</button>
-    }
-  </div>
 </app-modal>

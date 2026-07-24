@@ -1,5 +1,6 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { AppButtonDirective } from '../../primitives/button/app-button';
 import { joinClasses } from '../../utils/join-classes';
 
 export type AppModalSize = 'sm' | 'md' | 'lg';
@@ -12,7 +13,7 @@ const MODAL_SIZE_CLASS: Record<AppModalSize, string> = {
 
 @Component({
 	selector: 'app-modal',
-	imports: [A11yModule],
+	imports: [A11yModule, AppButtonDirective],
 	templateUrl: './app-modal.html',
 })
 export class AppModalComponent {
@@ -23,13 +24,45 @@ export class AppModalComponent {
 	/** Largura do dialog: `sm` (~32rem), `md` (~42rem), `lg` (~64rem). */
 	public readonly size = input<AppModalSize>('md');
 
+	/**
+	 * Rótulo do botão secundário.
+	 * - `undefined` (padrão): exibe "Cancelar" quando `confirmLabel` está definido.
+	 * - `string`: força o rótulo (ex.: "Fechar").
+	 * - `null`: oculta o botão secundário.
+	 */
+	public readonly cancelLabel = input<string | null | undefined>(undefined);
+	/**
+	 * Rótulo do botão primário. Quando informado, o footer padrão (Cancelar + Confirmar) é exibido
+	 * com gap e layout responsivo. Para footer totalmente customizado, omita e use `[modal-actions]`.
+	 */
+	public readonly confirmLabel = input<string | null>(null);
+	public readonly confirmLoading = input(false);
+	public readonly confirmDisabled = input(false);
+	public readonly cancelDisabled = input(false);
+
 	public readonly closed = output<void>();
+	public readonly confirmed = output<void>();
 
 	private static nextId = 0;
 
 	protected readonly titleId = `app-modal-title-${AppModalComponent.nextId++}`;
 	protected readonly descriptionId = `app-modal-desc-${AppModalComponent.nextId}`;
 	protected readonly previouslyFocused = signal<HTMLElement | null>(null);
+
+	protected readonly resolvedCancelLabel = computed((): string | null => {
+		const explicit = this.cancelLabel();
+		if (explicit === null) {
+			return null;
+		}
+		if (explicit !== undefined) {
+			return explicit;
+		}
+		return this.confirmLabel() !== null ? 'Cancelar' : null;
+	});
+
+	protected readonly hasBuiltInActions = computed(
+		(): boolean => this.resolvedCancelLabel() !== null || this.confirmLabel() !== null,
+	);
 
 	protected readonly dialogClasses = computed((): string =>
 		joinClasses(
@@ -66,5 +99,19 @@ export class AppModalComponent {
 			event.preventDefault();
 			this.closed.emit();
 		}
+	}
+
+	protected onCancelClick(): void {
+		if (this.cancelDisabled() || this.confirmLoading()) {
+			return;
+		}
+		this.closed.emit();
+	}
+
+	protected onConfirmClick(): void {
+		if (this.confirmDisabled() || this.confirmLoading()) {
+			return;
+		}
+		this.confirmed.emit();
 	}
 }

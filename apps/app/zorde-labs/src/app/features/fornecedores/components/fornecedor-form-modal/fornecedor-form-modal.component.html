@@ -1,4 +1,12 @@
-<app-modal [open]="open()" [title]="title()" size="lg" (closed)="onClose()">
+<app-modal
+  [open]="open()"
+  [title]="title()"
+  size="lg"
+  confirmLabel="Salvar"
+  [confirmLoading]="saving()"
+  (closed)="onClose()"
+  (confirmed)="onSubmit()"
+>
   <div class="flex flex-col gap-stack-lg">
     <app-tabs [tabs]="tabs()" [(activeTab)]="activeTab" />
 
@@ -9,9 +17,4 @@
       />
     }
   </div>
-
-  <ng-container modal-actions>
-    <button app-button type="button" variant="outline" (click)="onClose()">Cancelar</button>
-    <button app-button type="button" [loading]="saving()" (click)="onSubmit()">Salvar</button>
-  </ng-container>
 </app-modal>

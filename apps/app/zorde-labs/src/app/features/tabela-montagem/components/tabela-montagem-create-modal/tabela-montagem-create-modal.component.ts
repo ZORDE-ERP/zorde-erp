@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import {
 	AppBrlCurrencyMaskDirective,
 	AppBrlCurrencyPipe,
-	AppButtonDirective,
 	AppFieldComponent,
 	AppInputDirective,
 	AppModalComponent,
@@ -27,7 +26,6 @@ const DUPLICATE_VINCULO_MESSAGE = 'Este cliente já possui esse serviço vincula
 		AppInputDirective,
 		AppBrlCurrencyMaskDirective,
 		AppBrlCurrencyPipe,
-		AppButtonDirective,
 		ClienteSelectComponent,
 		ServicoSelectComponent,
 	],
