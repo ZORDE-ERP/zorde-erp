@@ -1,0 +1,31 @@
+<section class="flex w-full flex-col gap-stack-xl">
+  <app-page-header title="Clientes" description="Gerencie os clientes cadastrados no laboratório.">
+    <button app-button type="button" class="w-full sm:w-auto" (click)="onCreate()">
+      <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
+      Novo Cliente
+    </button>
+  </app-page-header>
+
+  <app-summary-cards [items]="summaryItems()" (cardClick)="onSummaryClick($event)" />
+
+  <app-cliente-filtro [filterExpanded]="false" (onClearFilter)="onClearFilter()" [filtroForm]="filtroForm" />
+
+  <section aria-labelledby="clientes-lista-heading" class="min-w-0">
+    <h2 id="clientes-lista-heading" class="sr-only">Clientes cadastrados</h2>
+    <article app-card class="min-h-80">
+      <div app-card-body class="min-w-0">
+        <app-clientes-table [rows]="filteredClientes()" [loading]="loading()" (actionTriggered)="onRowAction($event)" />
+      </div>
+    </article>
+  </section>
+</section>
+
+<app-cliente-form-modal
+  [open]="modalOpen()"
+  [title]="modalTitle()"
+  [saving]="saving()"
+  [clienteId]="editingCliente()?.id ?? null"
+  [(value)]="formValue"
+  (closed)="onModalClosed()"
+  (submitted)="onModalSubmit()"
+/>

@@ -1,0 +1,110 @@
+<app-modal [open]="open()" [title]="title()" size="lg" (closed)="onClose()">
+  <div class="flex flex-col gap-stack-lg">
+    <app-tabs [tabs]="tabs()" [(activeTab)]="activeTab" />
+
+    @if (activeTab() === 'dados' || activeTab() === 'endereco') {
+      <app-pessoa-form
+        [(value)]="value"
+        [section]="activeTab() === 'endereco' ? 'endereco' : 'dados'"
+      />
+    }
+
+    @if (activeTab() === 'tabela') {
+      <div class="flex flex-col gap-stack-md">
+        <div class="grid grid-cols-12 gap-3 sm:items-end">
+          <app-field label="Serviço" htmlFor="vinculo-servico" class="col-span-12 sm:col-span-7">
+            <select
+              app-select
+              id="vinculo-servico"
+              name="vinculo-servico"
+              [ngModel]="novoServicoId()"
+              (ngModelChange)="novoServicoId.set($event)"
+            >
+              <option [ngValue]="null" disabled>Selecione um serviço</option>
+              @for (servico of servicos(); track servico.id) {
+                <option [ngValue]="servico.id">{{ servico.nome }}</option>
+              }
+            </select>
+          </app-field>
+
+          <app-field label="Valor" htmlFor="vinculo-valor" class="col-span-12 sm:col-span-3">
+            <input
+              app-input
+              appBrlCurrencyMask
+              id="vinculo-valor"
+              name="vinculo-valor"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="R$ 0,00"
+              [ngModel]="novoValor()"
+              (ngModelChange)="novoValor.set($event)"
+            />
+          </app-field>
+
+          <div class="col-span-12 sm:col-span-2">
+            <button app-button type="button" size="md" class="w-full" (click)="addVinculo()">Adicionar</button>
+          </div>
+        </div>
+
+        @if (vinculosLoading()) {
+          <div class="flex items-center gap-2 text-sm text-text-muted">
+            <app-spinner size="sm" label="Carregando vínculos" />
+            Carregando vínculos…
+          </div>
+        } @else if (vinculos().length === 0) {
+          <p class="text-sm text-text-muted">Nenhum vínculo cadastrado para este cliente.</p>
+        } @else {
+          <ul class="flex flex-col gap-2">
+            @for (vinculo of vinculos(); track vinculo.id) {
+              <li
+                class="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-surface-elevated px-3 py-2"
+              >
+                <span class="min-w-0 flex-1 truncate text-sm text-text-primary">
+                  {{ vinculo.nomeServico ?? nomeServico(vinculo.servicoId) }}
+                </span>
+
+                @if (editingVinculoId() === vinculo.id) {
+                  <div class="flex items-center gap-2">
+                    <input
+                      app-input
+                      appBrlCurrencyMask
+                      class="w-32"
+                      name="editing-valor"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="off"
+                      [ngModel]="editingValor()"
+                      (ngModelChange)="editingValor.set($event)"
+                    />
+                    <button app-icon-button type="button" label="Salvar valor" (click)="saveEdit()">
+                      <svg lucideIcon="circle-check" class="h-4 w-4" aria-hidden="true"></svg>
+                    </button>
+                    <button app-icon-button type="button" label="Cancelar edição" (click)="cancelEdit()">
+                      <svg lucideIcon="x" class="h-4 w-4" aria-hidden="true"></svg>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium text-text-primary">{{ vinculo.valor | appBrlCurrency }}</span>
+                    <button app-icon-button type="button" label="Editar valor" (click)="startEdit(vinculo)">
+                      <svg lucideIcon="pencil" class="h-4 w-4" aria-hidden="true"></svg>
+                    </button>
+                    <button app-icon-button type="button" label="Remover vínculo" (click)="removeVinculo(vinculo.id)">
+                      <svg lucideIcon="trash-2" class="h-4 w-4" aria-hidden="true"></svg>
+                    </button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+
+  <ng-container modal-actions>
+    <button app-button type="button" variant="outline" (click)="onClose()">Cancelar</button>
+    <button app-button type="button" [loading]="saving()" (click)="onSubmit()">Salvar</button>
+  </ng-container>
+</app-modal>
