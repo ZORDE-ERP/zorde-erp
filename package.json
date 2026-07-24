@@ -4,6 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:labs": "npm run dev --prefix apps/app/zorde-labs",
+    "ng:labs": "npm run ng --prefix apps/app/zorde-labs --",
     "lint": "biome check . --write",
     "lint:check": "biome check .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -23,8 +25,9 @@
     "node": ">=18"
   },
   "packageManager": "npm@10.9.3",
-  "workspaces": [
-    "apps/**",
-    "packages/**"
-  ]
+	"workspaces": [
+		"apps/api/*",
+		"apps/app/laboratorio",
+		"packages/**"
+	]
 }
