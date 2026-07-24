@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "./src/index.css";
+
+@theme {
+	--font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+	--font-heading: "Poppins", "Roboto", sans-serif;
+	--font-mono: ui-monospace, "Courier New", monospace;
+
+	--font-primary: var(--font-sans);
+	--font-secondary: var(--font-heading);
+}

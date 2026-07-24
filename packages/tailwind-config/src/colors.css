@@ -1,0 +1,60 @@
+@theme {
+	/* ── Superfícies ─────────────────────────────────────────────────── */
+	--color-surface: #ffffff;
+	--color-surface-muted: #f4f4f4; /* gray-50 */
+	--color-surface-elevated: #ffffff;
+	--color-surface-inverse: #061f43; /* blue-700 — antes era slate genérico */
+
+	/* ── Texto ───────────────────────────────────────────────────────── */
+	--color-text-primary: #0f0f0f; /* gray-900 · contraste 19.2:1 */
+	--color-text-secondary: #414141; /* gray-700 · contraste 10.2:1 */
+	--color-text-muted: #656565; /* gray-600 · contraste 5.83:1 (mín. seguro p/ texto) */
+	--color-text-inverse: #f4f4f4; /* gray-50 · usado sobre surface-inverse */
+	--color-text-link: #1d4279; /* blue-400 · contraste 9.97:1 */
+
+	/* ── Bordas ──────────────────────────────────────────────────────── */
+	--color-border: #d0d0d0; /* gray-200 */
+	--color-border-strong: #b8b8b8; /* gray-300 */
+	--color-border-focus: #1d4279; /* blue-400 */
+
+	/* ── Ações ───────────────────────────────────────────────────────── */
+	--color-primary: #1d4279; /* blue-400 · contraste 9.97:1 c/ branco */
+	--color-primary-hover: #163a6f; /* blue-500 */
+	--color-primary-foreground: #ffffff;
+
+	--color-secondary: #f4f4f4; /* gray-50 */
+	--color-secondary-hover: #e6e6e6; /* gray-100 */
+	--color-secondary-foreground: #0f0f0f; /* gray-900 */
+
+	--color-accent: #98472a; /* orange-700 · contraste 6.42:1 c/ branco */
+	--color-accent-hover: #86371c; /* orange-800 */
+	--color-accent-foreground: #ffffff;
+
+	/* ── Feedback ────────────────────────────────────────────────────── */
+	/* Mantidos os valores originais — me envie os hex de verde/vermelho/
+	   amarelo da sua marca (se tiver) que eu recalculo o contraste igual
+	   fiz com o azul e o laranja. */
+	--color-success: #16a34a;
+	--color-success-muted: #dcfce7;
+	--color-success-foreground: #14532d;
+
+	--color-warning: #d97706;
+	--color-warning-muted: #fef3c7;
+	--color-warning-foreground: #78350f;
+
+	--color-error: #dc2626;
+	--color-error-muted: #fee2e2;
+	--color-error-foreground: #7f1d1d;
+
+	--color-info: #0284c7;
+	--color-info-muted: #e0f2fe;
+	--color-info-foreground: #0c4a6e;
+
+	/* ── Sidebar / Navbar ────────────────────────────────────────────── */
+	--color-sidebar-bg: #061f43; /* blue-700 */
+	--color-sidebar-text: #f4f4f4; /* gray-50 */
+	--color-sidebar-text-active: #ffffff;
+	--color-sidebar-hover: #e39d84; /* orange-300 · contraste 7.33:1 sobre sidebar-bg */
+	--color-sidebar-active-bg: #0d2e5e; /* blue-600 */
+	--color-sidebar-active-border: #ae5b3e; /* orange-600 */
+}
