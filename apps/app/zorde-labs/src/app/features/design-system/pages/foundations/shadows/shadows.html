@@ -1,0 +1,16 @@
+<app-page-layout
+	title="Sombras"
+	description="Elevação visual para cards, menus e modais. Ajuste em packages/tailwind-config/src/shadows.css."
+>
+	<app-preview-block title="Escala de sombras">
+		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			@for (token of shadowTokens; track token.variable) {
+				<div class="space-y-2">
+					<div class="h-28 rounded-lg border border-border bg-surface-elevated" [class]="token.className"></div>
+					<p class="text-sm font-medium text-text-primary">shadow-{{ token.label }}</p>
+					<p class="font-mono text-xs text-text-muted">{{ token.variable }}</p>
+				</div>
+			}
+		</div>
+	</app-preview-block>
+</app-page-layout>

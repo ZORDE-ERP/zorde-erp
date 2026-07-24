@@ -1,0 +1,23 @@
+<app-page-layout
+	title="Searchable Select"
+	description="Campo de busca com filtragem em tempo real para seleção de uma opção entre muitas."
+>
+	<app-preview-block title="Selecionar cliente">
+		<div class="max-w-sm">
+			<app-field label="Cliente" htmlFor="client" hint="Digite para filtrar pelo nome.">
+				<app-searchable-select
+					[options]="clients"
+					[(value)]="selectedClient"
+					placeholder="Buscar cliente..."
+				/>
+			</app-field>
+		</div>
+
+		@if (selectedClient() !== null) {
+			<p class="mt-4 text-sm text-text-secondary">
+				Cliente selecionado:
+				<span class="font-medium text-text-primary">{{ selectedClient() }}</span>
+			</p>
+		}
+	</app-preview-block>
+</app-page-layout>

@@ -1,0 +1,52 @@
+<app-page-layout
+	title="Overlays"
+	description="Modais, tooltips e popovers para confirmações, dicas e conteúdo contextual."
+>
+	<app-preview-block title="Modal — tamanhos">
+		<div class="flex flex-wrap gap-3">
+			<button app-button type="button" variant="outline" (click)="openModal('sm')">Pequeno (sm)</button>
+			<button app-button type="button" variant="outline" (click)="openModal('md')">Médio (md)</button>
+			<button app-button type="button" (click)="openModal('lg')">Grande (lg)</button>
+		</div>
+
+		<app-modal
+			[open]="modalOpen()"
+			[size]="modalSize()"
+			[title]="modalTitle()"
+			description="Essa ação enviará o resultado ao paciente."
+			(closed)="closeModal()"
+		>
+			<p class="text-sm text-text-secondary">
+				Revise os dados antes de confirmar. O corpo do modal rola quando o conteúdo passa da altura máxima.
+			</p>
+
+			<div modal-actions>
+				<button app-button variant="outline" type="button" (click)="closeModal()">Cancelar</button>
+				<button app-button type="button" (click)="closeModal()">Confirmar</button>
+			</div>
+		</app-modal>
+	</app-preview-block>
+
+	<app-preview-block title="Tooltip">
+		<div class="flex flex-wrap gap-4">
+			<app-tooltip text="Informação adicional sobre este item.">
+				<button app-button variant="outline" type="button">Hover ou focus</button>
+			</app-tooltip>
+
+			<app-tooltip text="Tooltip abaixo do elemento." placement="bottom">
+				<button app-button variant="ghost" type="button">Placement bottom</button>
+			</app-tooltip>
+		</div>
+	</app-preview-block>
+
+	<app-preview-block title="Popover">
+		<app-popover label="Abrir popover">
+			<p class="text-sm text-text-secondary">
+				Conteúdo contextual com ações rápidas ou detalhes sem sair da página.
+			</p>
+			<div class="mt-3 flex justify-end">
+				<button app-button size="sm" type="button">Entendi</button>
+			</div>
+		</app-popover>
+	</app-preview-block>
+</app-page-layout>
