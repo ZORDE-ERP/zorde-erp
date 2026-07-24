@@ -1,0 +1,11 @@
+<app-data-table
+  [rows]="rows()"
+  [columns]="columns"
+  [actions]="actions"
+  [loading]="loading()"
+  [totalItems]="rows().length"
+  [maxHeight]="'32rem'"
+  emptyTitle="Nenhum fornecedor encontrado"
+  emptyDescription="Ajuste os filtros ou cadastre um novo fornecedor."
+  (actionTriggered)="onAction($event)"
+/>

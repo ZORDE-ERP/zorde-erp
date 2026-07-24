@@ -1,0 +1,17 @@
+<app-modal [open]="open()" [title]="title()" size="lg" (closed)="onClose()">
+  <div class="flex flex-col gap-stack-lg">
+    <app-tabs [tabs]="tabs()" [(activeTab)]="activeTab" />
+
+    @if (activeTab() === 'dados' || activeTab() === 'endereco') {
+      <app-pessoa-form
+        [(value)]="value"
+        [section]="activeTab() === 'endereco' ? 'endereco' : 'dados'"
+      />
+    }
+  </div>
+
+  <ng-container modal-actions>
+    <button app-button type="button" variant="outline" (click)="onClose()">Cancelar</button>
+    <button app-button type="button" [loading]="saving()" (click)="onSubmit()">Salvar</button>
+  </ng-container>
+</app-modal>
