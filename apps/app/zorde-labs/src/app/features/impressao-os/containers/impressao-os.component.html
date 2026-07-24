@@ -1,0 +1,40 @@
+<section class="flex w-full flex-col gap-stack-xl">
+  <app-page-header
+    title="Central de Impressão de OS"
+    description="Gerencie os QR Codes dos clientes e imprima folhas de ordem de serviço."
+  >
+    <button app-button type="button" variant="outline" class="w-full sm:w-auto" (click)="onOpenLote()">
+      <svg lucidePrinter class="h-4 w-4" aria-hidden="true"></svg>
+      Imprimir em lote
+    </button>
+  </app-page-header>
+
+  <app-impressao-os-filtro [filterExpanded]="false" (onClearFilter)="onClearFilter()" [filtroForm]="filtroForm" />
+
+  <section aria-labelledby="impressao-os-lista-heading" class="min-w-0">
+    <h2 id="impressao-os-lista-heading" class="sr-only">Clientes para impressão de OS</h2>
+    <article app-card class="min-h-80">
+      <div app-card-body class="min-w-0">
+        <app-impressao-os-table
+          [rows]="filteredClientes()"
+          [loading]="loading()"
+          (actionTriggered)="onRowAction($event)"
+        />
+      </div>
+    </article>
+  </section>
+</section>
+
+<app-qr-code-modal
+  [open]="qrModalOpen()"
+  [cliente]="selectedCliente()"
+  (closed)="onQrModalClosed()"
+  (regenerated)="onQrRegenerated($event)"
+/>
+
+<app-impressao-lote-modal
+  [open]="loteModalOpen()"
+  [clientes]="clientes()"
+  (closed)="onLoteModalClosed()"
+  (completed)="onLoteCompleted()"
+/>

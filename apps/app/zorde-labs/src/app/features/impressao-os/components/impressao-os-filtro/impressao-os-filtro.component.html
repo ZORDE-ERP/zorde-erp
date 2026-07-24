@@ -1,0 +1,18 @@
+<app-filter-card
+  description="Busque e refine a listagem de clientes para impressão de OS."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form>
+    <app-field label="Cliente" htmlFor="impressao-os-nome">
+      <input
+        app-input
+        id="impressao-os-nome"
+        type="search"
+        autocomplete="off"
+        placeholder="Digite o nome do cliente"
+        [formField]="filtroForm().nome"
+      />
+    </app-field>
+  </form>
+</app-filter-card>
