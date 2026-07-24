@@ -1,0 +1,33 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "tailwindcss";
+@import "@repo/tailwind-config";
+@import "@angular/cdk/overlay-prebuilt.css";
+
+@source "./app/**/*.html";
+@source "./app/**/*.ts";
+@source "./ui-lib/**/*.html";
+@source "./ui-lib/**/*.ts";
+
+@layer base {
+	body {
+		@apply bg-surface-muted font-sans text-text-primary antialiased;
+	}
+
+	.sr-only {
+		@apply absolute h-px w-px overflow-hidden whitespace-nowrap border-0 p-0;
+		clip: rect(0, 0, 0, 0);
+	}
+}
+
+/* Overlay CDK: alinha ao token de camada popover da aplicação */
+.cdk-overlay-container {
+	z-index: var(--z-index-popover);
+}
+
+.app-dropdown-overlay,
+.app-searchable-select-overlay,
+.app-popover-overlay {
+	z-index: var(--z-index-popover);
+}
+

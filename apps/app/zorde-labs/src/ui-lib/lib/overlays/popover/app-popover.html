@@ -1,0 +1,30 @@
+<button
+  class="inline-flex h-11 items-center rounded-sm border border-border-strong bg-surface px-3 text-sm font-medium text-text-primary hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+  type="button"
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  [attr.aria-expanded]="open()"
+  aria-haspopup="dialog"
+  (click)="toggle()"
+>
+  {{ label() }}
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayViewportMargin]="8"
+  cdkConnectedOverlayPanelClass="app-popover-overlay"
+  (overlayOutsideClick)="onOutsideClick($event)"
+  (detach)="close()"
+>
+  <div
+    class="w-72 rounded-lg border border-border bg-surface-elevated p-4 shadow-lg"
+    role="dialog"
+  >
+    <ng-content />
+  </div>
+</ng-template>

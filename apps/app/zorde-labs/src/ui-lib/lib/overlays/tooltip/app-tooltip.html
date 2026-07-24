@@ -1,0 +1,15 @@
+<span class="group relative inline-flex">
+  <span class="inline-flex" tabindex="0">
+    <ng-content />
+  </span>
+  <span
+    class="pointer-events-none absolute left-1/2 z-popover -translate-x-1/2 whitespace-nowrap rounded-sm bg-surface-inverse px-2 py-1 text-xs text-text-inverse opacity-0 shadow-md motion-safe:transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+    [class.bottom-full]="placement() === 'top'"
+    [class.mb-2]="placement() === 'top'"
+    [class.top-full]="placement() === 'bottom'"
+    [class.mt-2]="placement() === 'bottom'"
+    role="tooltip"
+  >
+    {{ text() }}
+  </span>
+</span>

@@ -1,0 +1,23 @@
+<div role="tablist" class="flex gap-1 border-b border-border">
+	@for (tab of tabs(); track tab.id) {
+		<button
+			type="button"
+			role="tab"
+			[id]="'tab-' + tab.id"
+			[attr.aria-selected]="activeTab() === tab.id"
+			[attr.aria-controls]="'tabpanel-' + tab.id"
+			[tabindex]="activeTab() === tab.id ? 0 : -1"
+			class="-mb-px border-b-2 px-4 py-2 text-sm font-medium hover:text-text-primary motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+			[class.border-primary]="activeTab() === tab.id"
+			[class.text-text-primary]="activeTab() === tab.id"
+			[class.border-transparent]="activeTab() !== tab.id"
+			[class.text-text-muted]="activeTab() !== tab.id"
+			(click)="selectTab(tab)"
+		>
+			{{ tab.label }}
+		</button>
+	}
+</div>
+<div role="tabpanel" [attr.id]="'tabpanel-' + activeTab()" [attr.aria-labelledby]="'tab-' + activeTab()">
+	<ng-content />
+</div>

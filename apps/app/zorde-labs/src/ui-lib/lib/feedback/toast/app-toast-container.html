@@ -1,0 +1,36 @@
+<div
+  class="pointer-events-none fixed top-4 right-4 left-4 z-toast flex max-h-[calc(100vh-2rem)] flex-col gap-2 sm:left-auto sm:w-full sm:max-w-sm"
+  aria-live="polite"
+  aria-relevant="additions"
+>
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="toast-item pointer-events-auto rounded-sm border px-4 py-3 text-sm shadow-lg"
+      [class.border-info]="toast.variant === 'info'"
+      [class.bg-info-muted]="toast.variant === 'info'"
+      [class.text-info-foreground]="toast.variant === 'info'"
+      [class.border-success]="toast.variant === 'success'"
+      [class.bg-success-muted]="toast.variant === 'success'"
+      [class.text-success-foreground]="toast.variant === 'success'"
+      [class.border-warning]="toast.variant === 'warning'"
+      [class.bg-warning-muted]="toast.variant === 'warning'"
+      [class.text-warning-foreground]="toast.variant === 'warning'"
+      [class.border-error]="toast.variant === 'error'"
+      [class.bg-error-muted]="toast.variant === 'error'"
+      [class.text-error-foreground]="toast.variant === 'error'"
+      role="status"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <p>{{ toast.message }}</p>
+        <button
+          class="rounded-sm text-current opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+          type="button"
+          aria-label="Fechar notificação"
+          (click)="toastService.dismiss(toast.id)"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  }
+</div>

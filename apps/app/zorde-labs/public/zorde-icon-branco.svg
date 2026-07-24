@@ -1,0 +1,13 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- pure white icon, transparent background - for placing over Zorde Blue / Zorde Ink or photos -->
+  <circle cx="100" cy="100" r="92" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+  <circle cx="100" cy="100" r="68" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.9"/>
+
+  <g fill="none" stroke="#FFFFFF" stroke-width="4.5" opacity="0.9">
+    <ellipse cx="100" cy="100" rx="30" ry="68"/>
+    <ellipse cx="100" cy="100" rx="68" ry="30" transform="rotate(35 100 100)"/>
+    <ellipse cx="100" cy="100" rx="68" ry="20" transform="rotate(-25 100 100)"/>
+  </g>
+
+  <ellipse cx="78" cy="72" rx="16" ry="10" fill="#FFFFFF" opacity="0.95" transform="rotate(-30 78 72)"/>
+</svg>
