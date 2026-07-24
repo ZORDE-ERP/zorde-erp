@@ -1,0 +1,288 @@
+@if (toolbarActions().length > 0) {
+  <div
+    class="mb-4 flex flex-wrap items-center gap-2 rounded-sm justify-end border border-border bg-surface-elevated p-2"
+    role="toolbar"
+    aria-label="Ações da lista"
+  >
+    @for (action of toolbarActions(); track action.value) {
+      <button
+        type="button"
+        class="inline-flex min-h-10 items-center gap-2 rounded-sm px-3 text-sm font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus disabled:pointer-events-none disabled:opacity-50"
+        [class]="actionColor(action)"
+        [disabled]="isToolbarActionDisabled(action)"
+        (click)="runToolbarAction(action)"
+      >
+        @if (actionIcon(action); as icon) {
+          <svg [lucideIcon]="icon" class="h-4 w-4" aria-hidden="true"></svg>
+        }
+        {{ action.label }}
+      </button>
+    }
+  </div>
+}
+
+@if (pagination() && !loading() && visibleRows().length > 0) {
+  <ng-container [ngTemplateOutlet]="paginationControls" />
+}
+
+<div
+  class="overflow-auto rounded-lg border border-border bg-surface-elevated"
+  [style.max-height]="maxHeight()"
+>
+  @if (loading()) {
+    <div
+      class="flex min-h-80 flex-col items-center justify-center gap-3 p-8"
+      role="status"
+      aria-live="polite"
+    >
+      <app-spinner size="lg" label="Carregando dados da tabela" />
+      <span class="text-sm text-text-muted">Carregando dados…</span>
+    </div>
+  } @else if (visibleRows().length === 0) {
+    <div class="p-8">
+      <app-empty-state [title]="emptyTitle()" [description]="emptyDescription()" />
+    </div>
+  } @else {
+    <table
+      class="w-full min-w-max border-collapse text-left text-sm"
+      [attr.aria-label]="ariaLabel()"
+    >
+      <thead class="bg-surface-muted text-xs uppercase tracking-caps text-text-secondary">
+        <tr>
+          @if (selectable()) {
+            <th class="w-12 px-4 py-3" scope="col">
+              <input
+                app-checkbox
+                type="checkbox"
+                aria-label="Selecionar todos os itens visíveis"
+                [checked]="allVisibleSelected()"
+                [indeterminate]="someVisibleSelected()"
+                (change)="toggleVisibleSelection($any($event.target).checked)"
+              />
+            </th>
+          }
+          @for (column of columns(); track column.key) {
+            <th
+              class="align-middle whitespace-nowrap px-4 py-3 font-semibold"
+              [class.text-center]="column.align === 'center'"
+              [class.text-right]="column.align === 'right'"
+              [style.width]="column.width"
+              [style.min-width]="column.minWidth"
+              scope="col"
+              [attr.aria-sort]="
+                isSorted(column, 'asc')
+                  ? 'ascending'
+                  : isSorted(column, 'desc')
+                    ? 'descending'
+                    : null
+              "
+            >
+              @if (column.sortable) {
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded-sm text-left hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                  [attr.aria-label]="sortLabel(column)"
+                  (click)="sortColumn(column)"
+                >
+                  {{ column.header }}
+                  @if (isSorted(column, 'asc')) {
+                    <svg
+                      lucideIcon="chevron-down"
+                      class="h-4 w-4 rotate-180"
+                      aria-hidden="true"
+                    ></svg>
+                  } @else if (isSorted(column, 'desc')) {
+                    <svg lucideIcon="chevron-down" class="h-4 w-4" aria-hidden="true"></svg>
+                  } @else {
+                    <svg
+                      lucideIcon="chevrons-up-down"
+                      class="h-4 w-4 text-text-muted"
+                      aria-hidden="true"
+                    ></svg>
+                  }
+                </button>
+              } @else {
+                {{ column.header }}
+              }
+            </th>
+          }
+          @if (actions().length > 0) {
+            <th
+              class="sticky right-0 z-10 w-20 min-w-20 whitespace-nowrap bg-surface-muted px-4 py-3 text-right font-semibold shadow-[-1px_0_0_var(--color-border)]"
+              scope="col"
+            >
+              Ações
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        @for (row of visibleRows(); track idOf(row); let index = $index) {
+          <tr class="bg-surface-elevated transition-colors hover:bg-surface-muted/70">
+            @if (selectable()) {
+              <td class="px-4 py-3">
+                <input
+                  app-checkbox
+                  type="checkbox"
+                  [attr.aria-label]="'Selecionar item ' + (rowIndex(index) + 1)"
+                  [checked]="isSelected(row)"
+                  (change)="toggleRowSelection(row, $any($event.target).checked)"
+                />
+              </td>
+            }
+            @for (column of columns(); track column.key) {
+              <td
+                class="align-middle border-0 px-4 py-3 text-text-primary"
+                [class.text-center]="column.align === 'center'"
+                [class.text-right]="column.align === 'right'"
+                [class]="cellClasses(column, row)"
+              >
+                @if (column.template) {
+                  <ng-container
+                    [ngTemplateOutlet]="column.template"
+                    [ngTemplateOutletContext]="cellContext(column, row, rowIndex(index))"
+                  />
+                } @else if (column.type === 'badge') {
+                  <app-badge [variant]="badgeVariant(column, row)">{{
+                    textValue(column, row)
+                  }}</app-badge>
+                } @else if (column.type === 'image') {
+                  <img
+                    class="h-9 w-9 rounded-md object-cover"
+                    [src]="textValue(column, row)"
+                    [alt]="column.imageAlt?.(row) ?? ''"
+                  />
+                } @else if (column.type === 'avatar') {
+                  <app-avatar
+                    size="sm"
+                    [name]="avatarName(column, row)"
+                    [src]="textValue(column, row)"
+                  />
+                } @else if (column.type === 'icon') {
+                  <svg
+                    [lucideIcon]="iconName(column, row)"
+                    class="h-5 w-5"
+                    aria-hidden="true"
+                  ></svg>
+                } @else {
+                  {{ textValue(column, row) }}
+                }
+              </td>
+            }
+            @if (actions().length > 0) {
+              <td
+                class="sticky right-0 z-10 w-20 min-w-20 bg-surface-elevated px-3 py-2 text-right shadow-[-1px_0_0_var(--color-border)]"
+                [class.z-30]="isActionMenuOpen(row)"
+              >
+                @if (useActionMenu(row)) {
+                  <div class="relative inline-block text-left">
+                    <button
+                      app-icon-button
+                      type="button"
+                      label="Mais ações"
+                      [attr.aria-expanded]="isActionMenuOpen(row)"
+                      aria-haspopup="menu"
+                      (click)="toggleActionMenu(row)"
+                    >
+                      <svg lucideIcon="ellipsis-vertical" class="h-5 w-5" aria-hidden="true"></svg>
+                    </button>
+                    @if (isActionMenuOpen(row)) {
+                      <ul
+                        class="absolute right-0 z-50 w-48 overflow-hidden rounded-lg border border-border bg-surface-elevated py-1 text-left shadow-lg"
+                        [class.bottom-full]="isMenuNearBottom(index)"
+                        [class.mb-1]="isMenuNearBottom(index)"
+                        [class.mt-1]="!isMenuNearBottom(index)"
+                        role="menu"
+                      >
+                        @for (action of visibleActions(row); track action.value) {
+                          <li role="none">
+                            <button
+                              type="button"
+                              class="flex w-[calc(100%-0.5rem)] items-center gap-2 px-3 py-2 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                              [class]="actionMenuClasses(action)"
+                              role="menuitem"
+                              [disabled]="isActionDisabled(action, row)"
+                              (click)="selectAction(action, row, rowIndex(index))"
+                            >
+                              @if (actionIcon(action); as icon) {
+                                <svg [lucideIcon]="icon" class="h-4 w-4" aria-hidden="true"></svg>
+                              }
+                              {{ action.label }}
+                            </button>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                } @else {
+                  <div class="inline-flex items-center justify-end gap-1">
+                    @for (action of visibleActions(row); track action.value) {
+                      <button
+                        type="button"
+                        class="inline-flex min-h-10 items-center gap-1 rounded-md px-2 text-xs font-medium hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus disabled:pointer-events-none disabled:opacity-50"
+                        [class]="actionColor(action)"
+                        [disabled]="isActionDisabled(action, row)"
+                        (click)="selectAction(action, row, rowIndex(index))"
+                      >
+                        @if (actionIcon(action); as icon) {
+                          <svg [lucideIcon]="icon" class="h-4 w-4" aria-hidden="true"></svg>
+                        }
+                        {{ action.label }}
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (pagination() && !loading() && visibleRows().length > 0) {
+  <ng-container [ngTemplateOutlet]="paginationControls" />
+}
+
+<ng-template #paginationControls>
+  <div class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm text-text-secondary">
+    <div class="flex items-center gap-2">
+      <label class="whitespace-nowrap" for="data-table-page-size">Itens por página</label>
+      <select
+        id="data-table-page-size"
+        class="h-9 rounded-md border border-border bg-surface-elevated px-2 text-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+        [value]="pageSize()"
+        (change)="setPageSize($any($event.target).value)"
+      >
+        @for (option of pageSizeOptions(); track option) {
+          <option [value]="option">{{ option }}</option>
+        }
+      </select>
+      <span>{{ pageLabel() }}</span>
+    </div>
+    <nav class="flex items-center gap-1" aria-label="Paginação">
+      <button
+        app-icon-button
+        type="button"
+        label="Página anterior"
+        [isDisabled]="activePage() === 1"
+        (click)="setPage(activePage() - 1)"
+      >
+        <svg lucideIcon="chevron-left" class="h-5 w-5" aria-hidden="true"></svg>
+      </button>
+      <span class="min-w-24 text-center text-sm"
+        >Página {{ activePage() }} de {{ pageCount() }}</span
+      >
+      <button
+        app-icon-button
+        type="button"
+        label="Próxima página"
+        [isDisabled]="activePage() === pageCount()"
+        (click)="setPage(activePage() + 1)"
+      >
+        <svg lucideIcon="chevron-right" class="h-5 w-5" aria-hidden="true"></svg>
+      </button>
+    </nav>
+  </div>
+</ng-template>

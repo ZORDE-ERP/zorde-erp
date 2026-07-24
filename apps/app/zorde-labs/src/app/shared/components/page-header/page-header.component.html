@@ -1,0 +1,16 @@
+<header class="flex w-full flex-col gap-stack-md sm:flex-row sm:items-end sm:justify-between">
+	<div class="min-w-0">
+		<h1 class="font-heading text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+			{{ title() }}
+		</h1>
+		@if (description()) {
+			<p class="mt-2 max-w-leitura text-sm text-text-secondary sm:text-base">
+				{{ description() }}
+			</p>
+		}
+	</div>
+
+	<div class="flex flex-wrap items-center gap-2">
+		<ng-content />
+	</div>
+</header>

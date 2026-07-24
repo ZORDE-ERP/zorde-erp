@@ -1,0 +1,7 @@
+<app-searchable-select
+  [options]="options()"
+  [(value)]="value"
+  [placeholder]="placeholder()"
+  [disabled]="disabled() || loading()"
+  emptyMessage="Nenhum serviço encontrado"
+/>
