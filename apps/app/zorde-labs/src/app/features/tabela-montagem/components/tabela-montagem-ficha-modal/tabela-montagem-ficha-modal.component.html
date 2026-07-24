@@ -1,0 +1,100 @@
+<app-modal
+  [open]="open()"
+  [title]="row()?.nomeCliente ?? 'Ficha do cliente'"
+  [description]="
+    isEditMode()
+      ? 'Edite os serviços vinculados a este cliente.'
+      : 'Serviços vinculados a este cliente.'
+  "
+  size="md"
+  (closed)="onClose()"
+>
+  <div class="flex flex-col gap-stack-lg">
+    @if (!isEditMode()) {
+      @if (draftItens().length > 0) {
+        <ul class="divide-y divide-border">
+          @for (item of draftItens(); track item.key) {
+            <li class="flex items-center justify-between gap-3 py-2">
+              <span class="text-text-primary">{{ item.nomeServico }}</span>
+              <span class="font-medium text-text-primary">{{ item.valor | appBrlCurrency }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-sm text-text-muted">Nenhum serviço vinculado a este cliente.</p>
+      }
+    } @else {
+      @if (draftItens().length > 0) {
+        <ul class="flex flex-col gap-3">
+          @for (item of draftItens(); track item.key) {
+            <li class="flex items-center gap-3 rounded-md border border-border p-3">
+              <span class="min-w-0 flex-1 truncate text-sm text-text-primary">{{ item.nomeServico }}</span>
+              <input
+                app-input
+                appBrlCurrencyMask
+                class="w-36"
+                type="text"
+                inputmode="numeric"
+                [attr.aria-label]="'Valor de ' + item.nomeServico"
+                [ngModel]="item.valor"
+                (ngModelChange)="updateValor(item.key, $event)"
+              />
+              <button app-icon-button type="button" label="Remover vínculo" (click)="removeItem(item.key)">
+                <svg lucideTrash2 class="h-4 w-4" aria-hidden="true"></svg>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-sm text-text-muted">Nenhum serviço vinculado a este cliente.</p>
+      }
+
+      <div class="flex flex-col gap-3 rounded-md border border-dashed border-border p-3">
+        <p class="text-xs font-semibold uppercase tracking-caps text-text-secondary">Adicionar serviço</p>
+
+        <app-field label="Serviço" htmlFor="ficha-novo-servico">
+          <app-servico-select
+            [(value)]="novoServicoId"
+            placeholder="Buscar serviço..."
+            (selectedOption)="onNovoServicoOptionChange($event)"
+          />
+        </app-field>
+
+        <app-field
+          label="Valor"
+          htmlFor="ficha-novo-valor"
+          [error]="novoIsDuplicate() ? 'Este cliente já possui esse serviço vinculado.' : null"
+        >
+          <input
+            app-input
+            appBrlCurrencyMask
+            id="ficha-novo-valor"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="R$ 0,00"
+            [hasError]="novoIsDuplicate()"
+            [ngModel]="novoValor()"
+            (ngModelChange)="novoValor.set($event)"
+          />
+        </app-field>
+
+        <button app-button variant="outline" type="button" [isDisabled]="!canAddNovo()" (click)="addNovoVinculo()">
+          <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
+          Adicionar serviço
+        </button>
+      </div>
+    }
+  </div>
+
+  <div modal-actions>
+    <button app-button variant="outline" type="button" [isDisabled]="saving()" (click)="onClose()">
+      {{ isEditMode() ? 'Cancelar' : 'Fechar' }}
+    </button>
+    @if (isEditMode()) {
+      <button app-button type="button" [isDisabled]="saving()" [loading]="saving()" (click)="onSave()">
+        Salvar
+      </button>
+    }
+  </div>
+</app-modal>

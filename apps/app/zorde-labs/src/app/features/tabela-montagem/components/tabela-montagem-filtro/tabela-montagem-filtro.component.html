@@ -1,0 +1,18 @@
+<app-filter-card
+  description="Busque e refine a listagem agrupada por cliente."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form>
+    <app-field label="Cliente" htmlFor="tabela-montagem-nome">
+      <input
+        app-input
+        id="tabela-montagem-nome"
+        type="search"
+        autocomplete="off"
+        placeholder="Digite o nome do cliente"
+        [formField]="filtroForm().nome"
+      />
+    </app-field>
+  </form>
+</app-filter-card>

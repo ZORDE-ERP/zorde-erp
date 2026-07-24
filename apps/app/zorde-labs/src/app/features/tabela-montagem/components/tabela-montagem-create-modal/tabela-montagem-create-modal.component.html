@@ -1,0 +1,82 @@
+<app-modal
+  [open]="open()"
+  title="Novo vínculo"
+  description="Selecione um cliente e um serviço para cadastrar o valor de montagem."
+  size="md"
+  (closed)="onClose()"
+>
+  <div class="grid grid-cols-12 gap-4">
+    <app-field label="Cliente" htmlFor="criar-vinculo-cliente" class="col-span-12">
+      <app-cliente-select [(value)]="clienteId" placeholder="Buscar cliente..." />
+    </app-field>
+
+    @if (clienteId() !== null) {
+      <div class="col-span-12">
+        @if (clienteVinculos().length > 0) {
+          <div class="rounded-md border border-border bg-surface-muted/40 p-3">
+            <p class="text-xs font-semibold uppercase tracking-caps text-text-secondary">
+              Vínculos existentes deste cliente
+            </p>
+            <ul class="mt-2 flex flex-col gap-1 text-sm text-text-secondary">
+              @for (item of clienteVinculos(); track item.id) {
+                <li class="flex items-center justify-between gap-3">
+                  <span>{{ item.nomeServico }}</span>
+                  <span class="font-medium text-text-primary">{{ item.valor | appBrlCurrency }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        } @else {
+          <p class="text-sm text-text-muted">Este cliente ainda não possui serviços vinculados.</p>
+        }
+      </div>
+    }
+
+    <app-field label="Serviço" htmlFor="criar-vinculo-servico" class="col-span-12 sm:col-span-8">
+      <app-servico-select [(value)]="servicoId" placeholder="Buscar serviço..." />
+    </app-field>
+
+    <app-field
+      label="Valor"
+      htmlFor="criar-vinculo-valor"
+      class="col-span-12 sm:col-span-4"
+      [error]="isDuplicate() ? 'Este cliente já possui esse serviço vinculado.' : null"
+    >
+      <input
+        app-input
+        appBrlCurrencyMask
+        id="criar-vinculo-valor"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="R$ 0,00"
+        [hasError]="isDuplicate()"
+        [ngModel]="valor()"
+        (ngModelChange)="valor.set($event)"
+      />
+    </app-field>
+  </div>
+
+  <div modal-actions class="flex justify-end gap-2 w-full">
+    <button
+      app-button
+      variant="outline"
+      type="button"
+      [isDisabled]="saving()"
+      (click)="onClose()"
+      class="w-full sm:w-auto py-2 px-6"
+    >
+      Cancelar
+    </button>
+    <button
+      app-button
+      type="button"
+      [isDisabled]="!canSubmit() || isDuplicate() || saving()"
+      [loading]="saving()"
+      (click)="onSubmit()"
+      class="w-full sm:w-auto py-2 px-6"
+    >
+      Salvar
+    </button>
+  </div>
+</app-modal>
