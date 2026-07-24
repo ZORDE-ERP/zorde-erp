@@ -1,0 +1,26 @@
+<app-filter-card
+  description="Busque e refine a listagem de serviços."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form>
+    <app-field label="Serviço" htmlFor="servico-nome">
+      <input
+        app-input
+        id="servico-nome"
+        type="search"
+        autocomplete="off"
+        placeholder="Digite o nome do serviço"
+        [formField]="filtroForm().nome"
+        (search)="onSearchInput()"
+      />
+    </app-field>
+
+    <!-- <app-field label="Status" htmlFor="servico-status">
+      <app-dropdown-menu
+        id="servico-status"
+        [label]="statusLabel()"
+      />
+    </app-field> -->
+  </form>
+</app-filter-card>

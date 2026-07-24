@@ -1,0 +1,47 @@
+<section class="flex w-full flex-col gap-stack-xl">
+  <app-page-header
+    title="Catálogo de Serviços"
+    description="Gerencie os serviços oferecidos pelo laboratório."
+  >
+    <button app-button type="button" class="w-full sm:w-auto" (click)="onCreate()">
+      <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
+      Novo Serviço
+    </button>
+  </app-page-header>
+
+  <app-summary-cards [items]="summaryItems()" (cardClick)="onSummaryClick($event)" />
+
+  <app-servico-filtro
+    [filterExpanded]="false"
+    (onClearFilter)="onClearFilter()"
+    (onSearch)="onSearch()"
+    [filtroForm]="filtroForm"
+  />
+
+  <section aria-labelledby="servicos-lista-heading" class="min-w-0">
+    <h2 id="servicos-lista-heading" class="sr-only">Serviços cadastrados</h2>
+    <article app-card class="min-h-80">
+      <div app-card-body class="min-w-0">
+        <app-servicos-table
+          [rows]="rows()"
+          [totalItems]="total()"
+          [loading]="loading()"
+          [page]="page()"
+          [pageSize]="pageSize()"
+          (actionTriggered)="onRowAction($event)"
+          (toolbarActionTriggered)="onListAction($event)"
+          (paginationChanged)="onPaginationChange($event)"
+        />
+      </div>
+    </article>
+  </section>
+
+  <app-servico-form-modal
+    [open]="modalOpen()"
+    [editing]="editingServico() !== null"
+    [saving]="saving()"
+    [servicoForm]="servicoForm"
+    (closed)="onModalClosed()"
+    (submitted)="onModalSubmit()"
+  />
+</section>
