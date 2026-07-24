@@ -1,0 +1,34 @@
+@if (open()) {
+	<div
+		class="fixed inset-0 z-modal-backdrop flex items-center justify-center bg-surface-inverse/50 p-4"
+		role="presentation"
+		(click)="onBackdropClick()"
+		(keydown)="onKeydown($event)"
+	>
+		<div
+			class="z-modal w-full max-w-lg rounded-xl border border-border bg-surface-elevated shadow-xl motion-safe:transition-opacity"
+			role="dialog"
+			aria-modal="true"
+			cdkTrapFocus
+			cdkTrapFocusAutoCapture
+			[attr.aria-labelledby]="titleId"
+			[attr.aria-describedby]="description() ? descriptionId : null"
+			(click)="onDialogClick($event)"
+		>
+			<header class="border-b border-border px-6 py-4">
+				<h2 [id]="titleId" class="font-heading text-lg font-semibold text-text-primary">
+					{{ title() }}
+				</h2>
+				@if (description()) {
+					<p [id]="descriptionId" class="mt-1 text-sm text-text-muted">{{ description() }}</p>
+				}
+			</header>
+			<div class="px-6 py-5 text-text-secondary">
+				<ng-content />
+			</div>
+			<footer class="flex justify-end gap-2 border-t border-border px-6 py-4 empty:hidden">
+				<ng-content select="[modal-actions]" />
+			</footer>
+		</div>
+	</div>
+}

@@ -1,0 +1,18 @@
+<div class="flex flex-col gap-stack-sm">
+	<label class="text-sm font-medium text-text-primary" [attr.for]="htmlFor()">
+		{{ label() }}
+		@if (required()) {
+			<span class="text-error" aria-hidden="true"> *</span>
+		}
+	</label>
+
+	<ng-content />
+
+	@if (hint() && !error()) {
+		<p class="text-xs text-text-muted" [id]="htmlFor() + '-hint'">{{ hint() }}</p>
+	}
+
+	@if (error()) {
+		<p class="text-xs text-error" role="alert" [id]="htmlFor() + '-error'">{{ error() }}</p>
+	}
+</div>
