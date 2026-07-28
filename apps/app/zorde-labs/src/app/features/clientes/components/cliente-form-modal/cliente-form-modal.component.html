@@ -4,6 +4,7 @@
   size="lg"
   confirmLabel="Salvar"
   [confirmLoading]="saving()"
+  [confirmDisabled]="confirmDisabled()"
   (closed)="onClose()"
   (confirmed)="onSubmit()"
 >
@@ -17,56 +18,135 @@
       />
     }
 
-    @if (activeTab() === 'tabela') {
-      <div class="flex flex-col gap-stack-md">
-        <div class="grid grid-cols-12 gap-3 sm:items-end">
-          <app-field label="Serviço" htmlFor="vinculo-servico" class="col-span-12 sm:col-span-7">
-            <select
-              app-select
-              id="vinculo-servico"
-              name="vinculo-servico"
-              [ngModel]="novoServicoId()"
-              (ngModelChange)="novoServicoId.set($event)"
-            >
-              <option [ngValue]="null" disabled>Selecione um serviço</option>
-              @for (servico of servicos(); track servico.id) {
-                <option [ngValue]="servico.id">{{ servico.nome }}</option>
-              }
-            </select>
-          </app-field>
+    @if (activeTab() === 'imagem') {
+      <app-file-upload
+        label="Logo do cliente"
+        [previewUrl]="previewLogoUrl()"
+        [loading]="logoLoading()"
+        (fileSelected)="onLogoSelected($event)"
+        (cleared)="onLogoCleared()"
+      />
+    }
 
-          <app-field label="Valor" htmlFor="vinculo-valor" class="col-span-12 sm:col-span-3">
-            <input
-              app-input
-              appBrlCurrencyMask
-              id="vinculo-valor"
-              name="vinculo-valor"
-              type="text"
-              inputmode="numeric"
-              autocomplete="off"
-              placeholder="R$ 0,00"
-              [ngModel]="novoValor()"
-              (ngModelChange)="novoValor.set($event)"
-            />
-          </app-field>
-
-          <div class="col-span-12 sm:col-span-2">
-            <button app-button type="button" size="md" class="w-full" (click)="addVinculo()">Adicionar</button>
-          </div>
+    @if (activeTab() === 'qrcode' && !isCreateMode()) {
+      <div class="flex flex-col items-center gap-stack-lg text-center">
+        <div class="flex flex-col items-center gap-2">
+          <app-badge [variant]="currentQrCodeUrl() ? 'success' : 'neutral'">
+            {{ currentQrCodeUrl() ? 'QR ativo' : 'Sem QR' }}
+          </app-badge>
         </div>
 
-        @if (vinculosLoading()) {
+        @if (currentQrCodeUrl(); as qrUrl) {
+          <img
+            [src]="qrUrl"
+            [alt]="'QR Code de ' + value().nome"
+            class="h-48 w-48 rounded-sm-md border border-border object-contain"
+          />
+          @if (currentQrGeradoEm(); as geradoEm) {
+            <p class="text-sm text-text-muted">Gerado em {{ geradoEm | appDateBr: true }}</p>
+          }
+        } @else {
+          <p class="text-sm text-text-muted">Este cliente ainda não possui um QR Code gerado.</p>
+        }
+
+        <p class="max-w-leitura text-xs text-text-muted">
+          Ao revogar, o QR Code anterior deste cliente é invalidado imediatamente. Folhas de OS já
+          impressas ou entregues ficarão com o código desatualizado e precisarão ser reimpressas.
+        </p>
+
+        <button
+          app-button
+          type="button"
+          variant="outline"
+          [disabled]="revokingQr()"
+          (click)="onRevogarQr()"
+        >
+          @if (revokingQr()) {
+            <app-spinner size="sm" label="Revogando QR Code" />
+            Revogando…
+          } @else {
+            Revogar
+          }
+        </button>
+      </div>
+    }
+
+    @if (activeTab() === 'tabela') {
+      <div class="flex flex-col gap-stack-md">
+        @if (servicosLoading()) {
+          <div class="flex items-center gap-2 text-sm text-text-muted">
+            <app-spinner size="sm" label="Carregando serviços" />
+            Carregando serviços…
+          </div>
+        } @else if (servicos().length === 0) {
+          <p class="text-sm text-text-muted">
+            Não há serviços cadastrados. Cadastre serviços antes de
+            {{ isCreateMode() ? 'criar um cliente' : 'vincular à tabela de montagem' }}.
+          </p>
+        } @else {
+          @if (isCreateMode()) {
+            <p class="text-sm text-text-secondary">
+              Adicione ao menos um serviço com valor para poder salvar o cliente.
+            </p>
+          }
+
+          <div class="grid grid-cols-12 gap-3 sm:items-end">
+            <app-field label="Serviço" htmlFor="vinculo-servico" class="col-span-12 sm:col-span-7">
+              <select
+                app-select
+                id="vinculo-servico"
+                name="vinculo-servico"
+                [ngModel]="novoServicoId()"
+                (ngModelChange)="novoServicoId.set($event)"
+              >
+                <option [ngValue]="null" disabled>Selecione um serviço</option>
+                @for (servico of servicos(); track servico.id) {
+                  <option [ngValue]="servico.id">{{ servico.nome }}</option>
+                }
+              </select>
+            </app-field>
+
+            <app-field label="Valor" htmlFor="vinculo-valor" class="col-span-12 sm:col-span-3">
+              <input
+                app-input
+                appBrlCurrencyMask
+                id="vinculo-valor"
+                name="vinculo-valor"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="R$ 0,00"
+                [ngModel]="novoValor()"
+                (ngModelChange)="novoValor.set($event)"
+              />
+            </app-field>
+
+            <div class="col-span-12 sm:col-span-2">
+              <button app-button type="button" size="md" class="w-full" (click)="addVinculo()">
+                Adicionar
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (vinculosLoading() && !isCreateMode()) {
           <div class="flex items-center gap-2 text-sm text-text-muted">
             <app-spinner size="sm" label="Carregando vínculos" />
             Carregando vínculos…
           </div>
-        } @else if (vinculos().length === 0) {
-          <p class="text-sm text-text-muted">Nenhum vínculo cadastrado para este cliente.</p>
+        } @else if (displayVinculos().length === 0) {
+          <p class="text-sm text-text-muted">
+            {{
+              isCreateMode()
+                ? 'Nenhum serviço adicionado ainda.'
+                : 'Nenhum vínculo cadastrado para este cliente.'
+            }}
+          </p>
         } @else {
           <ul class="flex flex-col gap-2">
-            @for (vinculo of vinculos(); track vinculo.id) {
+            @for (vinculo of displayVinculos(); track vinculo.id) {
               <li
-                class="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-surface-elevated px-3 py-2"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-sm-sm border border-border bg-surface-elevated px-3 py-2"
               >
                 <span class="min-w-0 flex-1 truncate text-sm text-text-primary">
                   {{ vinculo.nomeServico ?? nomeServico(vinculo.servicoId) }}
@@ -88,17 +168,34 @@
                     <button app-icon-button type="button" label="Salvar valor" (click)="saveEdit()">
                       <svg lucideIcon="circle-check" class="h-4 w-4" aria-hidden="true"></svg>
                     </button>
-                    <button app-icon-button type="button" label="Cancelar edição" (click)="cancelEdit()">
+                    <button
+                      app-icon-button
+                      type="button"
+                      label="Cancelar edição"
+                      (click)="cancelEdit()"
+                    >
                       <svg lucideIcon="x" class="h-4 w-4" aria-hidden="true"></svg>
                     </button>
                   </div>
                 } @else {
                   <div class="flex items-center gap-2">
-                    <span class="font-medium text-text-primary">{{ vinculo.valor | appBrlCurrency }}</span>
-                    <button app-icon-button type="button" label="Editar valor" (click)="startEdit(vinculo)">
+                    <span class="font-medium text-text-primary">{{
+                      vinculo.valor | appBrlCurrency
+                    }}</span>
+                    <button
+                      app-icon-button
+                      type="button"
+                      label="Editar valor"
+                      (click)="startEdit(vinculo)"
+                    >
                       <svg lucideIcon="pencil" class="h-4 w-4" aria-hidden="true"></svg>
                     </button>
-                    <button app-icon-button type="button" label="Remover vínculo" (click)="removeVinculo(vinculo.id)">
+                    <button
+                      app-icon-button
+                      type="button"
+                      label="Remover vínculo"
+                      (click)="removeVinculo(vinculo.id)"
+                    >
                       <svg lucideIcon="trash-2" class="h-4 w-4" aria-hidden="true"></svg>
                     </button>
                   </div>

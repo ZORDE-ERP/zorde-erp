@@ -29,6 +29,8 @@ export interface OrdemItemDraft {
 	valorUnitario: number;
 }
 
+export type TipoOsCreate = 'MANUAL' | 'IMPRESSA';
+
 @Component({
 	selector: 'app-ordem-servico-create-modal',
 	templateUrl: './ordem-servico-create-modal.component.html',
@@ -55,7 +57,8 @@ export class OrdemServicoCreateModalComponent {
 	public readonly created = output<void>();
 
 	public readonly clienteId = signal<number | null>(null);
-	public readonly codigoOS = signal('');
+	public readonly tipoOs = signal<TipoOsCreate>('MANUAL');
+	public readonly codigoFolha = signal('');
 	public readonly observacao = signal('');
 	public readonly itens = signal<OrdemItemDraft[]>([]);
 	public readonly tabelaItens = signal<readonly TabelaMontagem[]>([]);
@@ -83,7 +86,15 @@ export class OrdemServicoCreateModalComponent {
 		return selected !== null && qty >= 1 && valor !== null && valor >= 0;
 	});
 
-	public readonly canSubmit = computed(() => this.clienteId() !== null && this.itens().length > 0);
+	public readonly canSubmit = computed(() => {
+		if (this.clienteId() === null || this.itens().length === 0) {
+			return false;
+		}
+		if (this.tipoOs() === 'IMPRESSA') {
+			return this.codigoFolha().trim().length > 0;
+		}
+		return true;
+	});
 
 	public constructor() {
 		effect(() => {
@@ -152,10 +163,13 @@ export class OrdemServicoCreateModalComponent {
 		const payload: CreateOrdemServicoPayload = {
 			clienteId,
 			origem: 'MANUAL',
-			codigoOS: this.codigoOS().trim() || undefined,
 			observacao: this.observacao().trim() || undefined,
 			itens: itens.map((item) => toCreateItemPayload(item)),
 		};
+
+		if (this.tipoOs() === 'IMPRESSA') {
+			payload.codigoFolha = this.codigoFolha().trim();
+		}
 
 		this.saving.set(true);
 		this.ordemFacade
@@ -172,19 +186,19 @@ export class OrdemServicoCreateModalComponent {
 	private loadTabela(clienteId: number): void {
 		this.loadingTabela.set(true);
 		this.tabelaFacade
-			.list(1, 500)
+			.list({ page: 1, limit: 500, clienteId })
 			.pipe(finalize(() => this.loadingTabela.set(false)))
 			.subscribe({
 				next: (response: HttpResponse<TabelaMontagemListResponse>) => {
-					const items = (response.body?.items ?? []).filter((item) => item.clienteId === clienteId);
-					this.tabelaItens.set(items);
+					this.tabelaItens.set(response.body?.items ?? []);
 				},
 			});
 	}
 
 	private reset(): void {
 		this.clienteId.set(null);
-		this.codigoOS.set('');
+		this.tipoOs.set('MANUAL');
+		this.codigoFolha.set('');
 		this.observacao.set('');
 		this.itens.set([]);
 		this.tabelaItens.set([]);

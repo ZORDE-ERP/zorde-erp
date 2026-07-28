@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 @Component({
 	selector: 'app-skeleton',
 	host: {
-		class: 'block animate-pulse rounded-sm bg-surface-muted',
+		class: 'block animate-pulse rounded-sm-sm bg-surface-muted',
 		'[class.h-4]': 'size() === "sm"',
 		'[class.h-5]': 'size() === "md"',
 		'[class.h-8]': 'size() === "lg"',

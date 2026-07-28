@@ -16,5 +16,15 @@
         [section]="activeTab() === 'endereco' ? 'endereco' : 'dados'"
       />
     }
+
+    @if (activeTab() === 'imagem') {
+      <app-file-upload
+        label="Logo do fornecedor"
+        [previewUrl]="previewLogoUrl()"
+        [loading]="logoLoading()"
+        (fileSelected)="onLogoSelected($event)"
+        (cleared)="onLogoCleared()"
+      />
+    }
   </div>
 </app-modal>

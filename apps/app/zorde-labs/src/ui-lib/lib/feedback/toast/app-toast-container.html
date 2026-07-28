@@ -5,7 +5,7 @@
 >
   @for (toast of toastService.toasts(); track toast.id) {
     <div
-      class="toast-item pointer-events-auto rounded-sm border px-4 py-3 text-sm shadow-lg"
+      class="toast-item pointer-events-auto rounded-sm-sm border px-4 py-3 text-sm shadow-lg"
       [class.border-info]="toast.variant === 'info'"
       [class.bg-info-muted]="toast.variant === 'info'"
       [class.text-info-foreground]="toast.variant === 'info'"
@@ -23,7 +23,7 @@
       <div class="flex items-start justify-between gap-3">
         <p>{{ toast.message }}</p>
         <button
-          class="rounded-sm text-current opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+          class="rounded-sm-sm text-current opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
           type="button"
           aria-label="Fechar notificação"
           (click)="toastService.dismiss(toast.id)"

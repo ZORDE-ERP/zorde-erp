@@ -3,7 +3,6 @@ import { DataTableAction, DataTableColumn } from '../../../shared/components/dat
 import { Cliente } from '../../clientes/models/cliente.model';
 
 export const ACTIONS: readonly DataTableAction<Cliente>[] = [
-	{ value: 'ver-qr', label: 'Ver QR', icon: 'qrcode', color: 'primary' },
 	{ value: 'imprimir-folhas', label: 'Imprimir', icon: 'print', color: 'orange' },
 ];
 

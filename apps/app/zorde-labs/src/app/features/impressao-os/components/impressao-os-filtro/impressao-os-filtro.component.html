@@ -3,15 +3,12 @@
   [(expanded)]="filterExpanded"
   (cleared)="onClearFilters()"
 >
-  <form>
-    <app-field label="Cliente" htmlFor="impressao-os-nome">
-      <input
-        app-input
-        id="impressao-os-nome"
-        type="search"
-        autocomplete="off"
-        placeholder="Digite o nome do cliente"
-        [formField]="filtroForm().nome"
+  <form class="contents">
+    <app-field label="Cliente" htmlFor="impressao-os-cliente">
+      <app-cliente-select
+        [value]="filtroForm().clienteId().value()"
+        placeholder="Todos os clientes"
+        (valueChange)="onClienteIdChange($event)"
       />
     </app-field>
   </form>

@@ -1,24 +1,31 @@
 <app-page-layout
-	title="Bordas"
-	description="Teste raios de borda e estilos de contorno com tokens em packages/tailwind-config/src/radius.css."
+  title="Bordas"
+  description="Teste raios de borda e estilos de contorno com tokens em packages/tailwind-config/src/radius.css."
 >
-	<app-preview-block title="Raios">
-		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			@for (token of radiusTokens; track token.variable) {
-				<div class="space-y-2">
-					<div class="h-24 border border-border-strong bg-surface-muted" [class]="token.className"></div>
-					<p class="text-sm font-medium text-text-primary">{{ token.label }}</p>
-					<p class="font-mono text-xs text-text-muted">{{ token.variable }}</p>
-				</div>
-			}
-		</div>
-	</app-preview-block>
+  <app-preview-block title="Raios">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      @for (token of radiusTokens; track token.variable) {
+        <div class="space-y-2">
+          <div
+            class="h-24 border border-border-strong bg-surface-muted"
+            [class]="token.className"
+          ></div>
+          <p class="text-sm font-medium text-text-primary">{{ token.label }}</p>
+          <p class="font-mono text-xs text-text-muted">{{ token.variable }}</p>
+        </div>
+      }
+    </div>
+  </app-preview-block>
 
-	<app-preview-block title="Estilos de borda">
-		<div class="grid gap-4 md:grid-cols-3">
-			<div class="rounded-sm border border-border bg-surface p-4">border-border</div>
-			<div class="rounded-sm border-2 border-border-strong bg-surface p-4">border-border-strong</div>
-			<div class="rounded-sm border-2 border-border-focus bg-surface p-4">border-border-focus</div>
-		</div>
-	</app-preview-block>
+  <app-preview-block title="Estilos de borda">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="rounded-sm-sm border border-border bg-surface p-4">border-border</div>
+      <div class="rounded-sm-sm border-2 border-border-strong bg-surface p-4">
+        border-border-strong
+      </div>
+      <div class="rounded-sm-sm border-2 border-border-focus bg-surface p-4">
+        border-border-focus
+      </div>
+    </div>
+  </app-preview-block>
 </app-page-layout>

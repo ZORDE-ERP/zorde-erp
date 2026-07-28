@@ -22,6 +22,7 @@ export function fornecedorToResponse(entity: FornecedorEntity): FornecedorRespon
 		razaoSocial: entity.getRazaoSocial() ?? null,
 		nomeFantasia: entity.getNomeFantasia() ?? null,
 		usuarioId: entity.getUsuarioId(),
+		logoUrl: entity.getLogoUrl() ?? null,
 		createdAt: entity.getCreatedAt() as Date,
 		updatedAt: entity.getUpdatedAt() as Date,
 	};

@@ -147,6 +147,9 @@ describe('Fornecedor Unit Tests', () => {
 				update: jest.fn(),
 				findById: jest.fn(),
 				findByUsuarioId: jest.fn(),
+				findAllPaginated: jest.fn(),
+				countByStatus: jest.fn(),
+				updateLogo: jest.fn(),
 				softDelete: jest.fn(),
 			} as unknown as jest.Mocked<IFornecedorRepository>;
 			mockEnderecoRepo = {
@@ -224,17 +227,26 @@ describe('Fornecedor Unit Tests', () => {
 		});
 
 		describe('FindAllFornecedoresUseCase', () => {
-			it('should return a list of supplier responses', async () => {
+			it('should return a paginated list of supplier responses', async () => {
 				const useCase = new FindAllFornecedoresUseCase(mockRepository);
 				const entity = new FornecedorEntity(mockFornecedorProps);
 
-				mockRepository.findByUsuarioId.mockResolvedValue([entity]);
+				mockRepository.findAllPaginated.mockResolvedValue({ items: [entity], total: 1 });
+				mockRepository.countByStatus.mockResolvedValue({ total: 1, ativos: 1, inativos: 0 });
 
-				const result = await useCase.execute(10);
+				const result = await useCase.execute({ page: 1, limit: 10, search: '' }, 10);
 
-				expect(mockRepository.findByUsuarioId).toHaveBeenCalledWith(10);
-				expect(result).toHaveLength(1);
-				expect(result[0].id).toBe(1);
+				expect(mockRepository.findAllPaginated).toHaveBeenCalledWith({
+					page: 1,
+					limit: 10,
+					search: '',
+					status: undefined,
+					usuarioId: 10,
+				});
+				expect(result.items).toHaveLength(1);
+				expect(result.total).toBe(1);
+				expect(result.counts.ativos).toBe(1);
+				expect(result.items[0].id).toBe(1);
 			});
 		});
 

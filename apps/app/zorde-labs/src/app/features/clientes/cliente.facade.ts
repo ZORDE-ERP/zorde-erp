@@ -4,8 +4,11 @@ import { Observable } from 'rxjs';
 import { ClienteApi } from './api/cliente.api';
 import {
 	Cliente,
+	ClienteListResponse,
 	ClienteQrCodeResponse,
 	CreateClientePayload,
+	FolhaOsStatusResponse,
+	ListClientesQuery,
 	TabelaMontagemPorQrResponse,
 	UpdateClientePayload,
 } from './models/cliente.model';
@@ -18,8 +21,8 @@ export class ClienteFacade {
 		return this.clienteApi.create(body);
 	}
 
-	public list(): Observable<HttpResponse<Cliente[]>> {
-		return this.clienteApi.list();
+	public list(query: ListClientesQuery = {}): Observable<HttpResponse<ClienteListResponse>> {
+		return this.clienteApi.list(query);
 	}
 
 	public getById(id: number): Observable<HttpResponse<Cliente>> {
@@ -44,5 +47,17 @@ export class ClienteFacade {
 
 	public tabelaMontagemPorQr(clienteId: number, token: string): Observable<HttpResponse<TabelaMontagemPorQrResponse>> {
 		return this.clienteApi.tabelaMontagemPorQr(clienteId, token);
+	}
+
+	public statusFolhaOs(codigoFolha: string, clienteId: number): Observable<HttpResponse<FolhaOsStatusResponse>> {
+		return this.clienteApi.statusFolhaOs(codigoFolha, clienteId);
+	}
+
+	public uploadLogo(id: number, file: File): Observable<HttpResponse<Cliente>> {
+		return this.clienteApi.uploadLogo(id, file);
+	}
+
+	public removerLogo(id: number): Observable<HttpResponse<Cliente>> {
+		return this.clienteApi.removerLogo(id);
 	}
 }

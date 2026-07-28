@@ -1,31 +1,31 @@
 <app-page-layout
-	title="Espaçamento"
-	description="Valide ritmo vertical, gaps e padding com tokens semânticos e escala padrão do Tailwind."
+  title="Espaçamento"
+  description="Valide ritmo vertical, gaps e padding com tokens semânticos e escala padrão do Tailwind."
 >
-	<app-preview-block title="Escala padrão">
-		<div class="space-y-3">
-			@for (size of spacingScale; track size) {
-				<div class="flex items-center gap-4">
-					<span class="w-10 font-mono text-xs text-text-muted">p-{{ size }}</span>
-					<div class="h-8 rounded-sm bg-primary/20" [class]="'w-' + size"></div>
-				</div>
-			}
-		</div>
-	</app-preview-block>
+  <app-preview-block title="Escala padrão">
+    <div class="space-y-3">
+      @for (size of spacingScale; track size) {
+        <div class="flex items-center gap-4">
+          <span class="w-10 font-mono text-xs text-text-muted">p-{{ size }}</span>
+          <div class="h-8 rounded-sm-sm bg-primary/20" [class]="'w-' + size"></div>
+        </div>
+      }
+    </div>
+  </app-preview-block>
 
-	<app-preview-block title="Tokens semânticos">
-		<div class="grid gap-4 md:grid-cols-2">
-			@for (token of semanticSpacing; track token.variable) {
-				<div class="rounded-lg border border-border p-4">
-					<p class="text-sm font-medium text-text-primary">{{ token.label }}</p>
-					<p class="font-mono text-xs text-text-muted">{{ token.variable }}</p>
-					<div class="mt-3 flex" [class]="token.className">
-						<div class="h-8 w-8 rounded-sm bg-primary/30"></div>
-						<div class="h-8 w-8 rounded-sm bg-primary/30"></div>
-						<div class="h-8 w-8 rounded-sm bg-primary/30"></div>
-					</div>
-				</div>
-			}
-		</div>
-	</app-preview-block>
+  <app-preview-block title="Tokens semânticos">
+    <div class="grid gap-4 md:grid-cols-2">
+      @for (token of semanticSpacing; track token.variable) {
+        <div class="rounded-sm-lg border border-border p-4">
+          <p class="text-sm font-medium text-text-primary">{{ token.label }}</p>
+          <p class="font-mono text-xs text-text-muted">{{ token.variable }}</p>
+          <div class="mt-3 flex" [class]="token.className">
+            <div class="h-8 w-8 rounded-sm-sm bg-primary/30"></div>
+            <div class="h-8 w-8 rounded-sm-sm bg-primary/30"></div>
+            <div class="h-8 w-8 rounded-sm-sm bg-primary/30"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </app-preview-block>
 </app-page-layout>

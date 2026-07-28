@@ -8,7 +8,15 @@ export const ACTIONS: readonly DataTableAction<Fornecedor>[] = [
 ];
 
 export const COLUMNS: readonly DataTableColumn<Fornecedor>[] = [
-	{ key: 'nome', header: 'Nome', sortable: true, minWidth: '10rem' },
+	{
+		key: 'nome',
+		header: 'Nome',
+		sortable: true,
+		minWidth: '12rem',
+		type: 'avatar',
+		value: (row) => row.logoUrl ?? '',
+		avatarName: (row) => row.nome,
+	},
 	{
 		key: 'documento',
 		header: 'Documento',

@@ -1,5 +1,7 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
 	AppAlertComponent,
@@ -8,31 +10,35 @@ import {
 	AppCardImports,
 	AppFieldComponent,
 	AppInputDirective,
-	AppSearchableSelectComponent,
+	AppSelectDirective,
 	AppSpinnerComponent,
 	AppToastService,
 } from '@repo/angular-ui';
-import { finalize } from 'rxjs';
-import { ClienteSelectComponent } from '../../../shared/components/cliente-select/cliente-select.component';
+import { finalize, switchMap } from 'rxjs';
 import { ClienteFacade } from '../../clientes/cliente.facade';
 import type { TabelaMontagemPorQrItem } from '../../clientes/models/cliente.model';
 import { parseOsScanInput } from '../model/os-scan-parse';
 import { OrdemServicoFacade } from '../ordem-servico.facade';
+
+export interface OsScanFormModel {
+	wedgeInput: string;
+	selectedItemId: string;
+}
 
 @Component({
 	selector: 'app-os-scan',
 	templateUrl: './os-scan.component.html',
 	imports: [
 		FormsModule,
+		FormField,
 		...AppCardImports,
 		AppButtonDirective,
 		AppFieldComponent,
 		AppInputDirective,
+		AppSelectDirective,
 		AppSpinnerComponent,
 		AppAlertComponent,
 		AppBrlCurrencyPipe,
-		AppSearchableSelectComponent,
-		ClienteSelectComponent,
 	],
 })
 export class OsScanComponent implements OnInit {
@@ -42,69 +48,74 @@ export class OsScanComponent implements OnInit {
 	private readonly ordemFacade = inject(OrdemServicoFacade);
 	private readonly toast = inject(AppToastService);
 
-	public readonly wedgeInput = signal('');
+	public readonly scanInputEl = viewChild<ElementRef<HTMLInputElement>>('scanInput');
+
+	public readonly scanModel = signal<OsScanFormModel>({
+		wedgeInput: '',
+		selectedItemId: '',
+	});
+
+	public readonly scanForm = form(this.scanModel);
+
 	public readonly clienteId = signal<number | null>(null);
 	public readonly token = signal<string | null>(null);
-	public readonly codigoFolha = signal<string | undefined>(undefined);
+	public readonly codigoFolha = signal<string | null>(null);
 	public readonly clienteNome = signal('');
 	public readonly itens = signal<readonly TabelaMontagemPorQrItem[]>([]);
 	public readonly loading = signal(false);
 	public readonly saving = signal(false);
 	public readonly errorMessage = signal<string | null>(null);
-	public readonly selectedItemId = signal<number | null>(null);
 
 	public readonly selectedItem = computed(() => {
-		const id = this.selectedItemId();
-		if (id === null) {
+		const id = this.scanModel().selectedItemId;
+		if (!id) {
 			return null;
 		}
-		return this.itens().find((item) => item.id === id) ?? null;
+		const numericId = Number(id);
+		if (Number.isNaN(numericId)) {
+			return null;
+		}
+		return this.itens().find((item) => item.id === numericId) ?? null;
 	});
 
-	public readonly hasSession = computed(() => this.clienteId() !== null && !!this.token());
+	public readonly hasSession = computed(() => this.clienteId() !== null && !!this.token() && !!this.codigoFolha());
+
+	public readonly canSave = computed(() => this.hasSession() && this.selectedItem() !== null && !this.errorMessage());
 
 	public ngOnInit(): void {
-		console.log(this.token(), 'token?', this.clienteId());
 		const params = this.route.snapshot.queryParamMap;
-		console.log(params, 'params');
 		const c = Number(params.get('c'));
 		const t = params.get('t')?.trim() ?? '';
-		const codigoFolha = params.get('f')?.trim() || params.get('codigoFolha')?.trim() || undefined;
+		const codigoFolha = params.get('f')?.trim() || params.get('codigoFolha')?.trim() || '';
 
-		if (Number.isFinite(c) && c > 0 && t) {
+		if (Number.isFinite(c) && c > 0 && t && codigoFolha) {
 			this.startSession(c, t, codigoFolha);
-			return;
 		}
-
-		// foco no input wedge fica no template via autofocus
 	}
 
 	public onWedgeSubmit(): void {
-		const parsed = parseOsScanInput(this.wedgeInput());
+		const rawInput = this.scanModel().wedgeInput ?? '';
+		const parsed = parseOsScanInput(rawInput);
 		if (!parsed) {
-			this.errorMessage.set('Código inválido. Bipe o QR ou cole a URL completa (/os/scan?c=...&t=...).');
+			this.errorMessage.set('Código inválido. Bipe o QR da folha impressa (URL com c, t e f) ou cole a URL completa.');
 			return;
 		}
 
-		this.wedgeInput.set('');
+		this.scanModel.update((m) => ({ ...m, wedgeInput: '' }));
 		void this.router.navigate([], {
 			relativeTo: this.route,
-			queryParams: { c: parsed.clienteId, t: parsed.token, f: parsed.codigoFolha ?? null },
+			queryParams: { c: parsed.clienteId, t: parsed.token, f: parsed.codigoFolha },
 			queryParamsHandling: 'merge',
 			replaceUrl: true,
 		});
 		this.startSession(parsed.clienteId, parsed.token, parsed.codigoFolha);
 	}
 
-	public onSelectItem(item: TabelaMontagemPorQrItem): void {
-		this.selectedItemId.set(item.id);
-	}
-
 	public onSave(): void {
 		const clienteId = this.clienteId();
-		const token = this.token();
+		const codigoFolha = this.codigoFolha();
 		const item = this.selectedItem();
-		if (clienteId === null || !token || !item) {
+		if (clienteId === null || !codigoFolha || !item) {
 			return;
 		}
 
@@ -113,7 +124,7 @@ export class OsScanComponent implements OnInit {
 			.create({
 				clienteId,
 				origem: 'QR_SCAN',
-				codigoFolha: this.codigoFolha(),
+				codigoFolha,
 				itens: [
 					{
 						tabelaMontagemId: item.id,
@@ -127,51 +138,71 @@ export class OsScanComponent implements OnInit {
 			.subscribe({
 				next: () => {
 					this.toast.show('OS lançada com sucesso!', 'success');
-					this.resetToSelection();
+					this.onTrocarCliente();
 				},
-				error: () => this.toast.show('Não foi possível lançar a OS.', 'error'),
 			});
 	}
 
 	public onTrocarCliente(): void {
+		this.resetSession();
+		void this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+		setTimeout(() => {
+			this.scanInputEl()?.nativeElement.focus();
+		}, 0);
+	}
+
+	private resetSession(): void {
 		this.clienteId.set(null);
 		this.token.set(null);
-		this.codigoFolha.set(undefined);
+		this.codigoFolha.set(null);
 		this.itens.set([]);
-		this.selectedItemId.set(null);
+		this.scanModel.set({ wedgeInput: '', selectedItemId: '' });
 		this.clienteNome.set('');
 		this.errorMessage.set(null);
-		void this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
 	}
 
-	private resetToSelection(): void {
-		this.selectedItemId.set(null);
-	}
-
-	private startSession(clienteId: number, token: string, codigoFolha?: string): void {
+	private startSession(clienteId: number, token: string, codigoFolha: string): void {
 		this.clienteId.set(clienteId);
 		this.token.set(token);
 		this.codigoFolha.set(codigoFolha);
-		this.selectedItemId.set(null);
+		this.scanModel.update((m) => ({ ...m, selectedItemId: '' }));
 		this.errorMessage.set(null);
 		this.loading.set(true);
 
 		this.clienteFacade
-			.tabelaMontagemPorQr(clienteId, token)
-			.pipe(finalize(() => this.loading.set(false)))
+			.statusFolhaOs(codigoFolha, clienteId)
+			.pipe(
+				switchMap(() => this.clienteFacade.tabelaMontagemPorQr(clienteId, token)),
+				finalize(() => this.loading.set(false)),
+			)
 			.subscribe({
-				next: (response) => {
+				next: (response: { body?: { itens?: TabelaMontagemPorQrItem[] } | null }) => {
 					const body = response.body;
 					this.itens.set(body?.itens ?? []);
 					this.clienteFacade.getById(clienteId).subscribe({
-						next: (clienteResponse) => {
+						next: (clienteResponse: { body?: { nome?: string } | null }) => {
 							this.clienteNome.set(clienteResponse.body?.nome ?? `Cliente #${clienteId}`);
 						},
 						error: () => this.clienteNome.set(`Cliente #${clienteId}`),
 					});
 				},
-				error: () => {
-					this.errorMessage.set('Token inválido ou expirado. Bipe novamente ou use o campo manual.');
+				error: (error: HttpErrorResponse) => {
+					if (error.status === 409) {
+						this.errorMessage.set('Esta OS impressa já foi lançada');
+						this.itens.set([]);
+						return;
+					}
+					if (error.status === 404) {
+						this.errorMessage.set('Cliente inválido');
+						this.itens.set([]);
+						return;
+					}
+					if (error.status === 403) {
+						this.errorMessage.set('Token inválido ou expirado. Bipe novamente ou use o campo manual.');
+						this.itens.set([]);
+						return;
+					}
+					this.errorMessage.set('Não foi possível validar a folha impressa. Tente novamente.');
 					this.itens.set([]);
 				},
 			});

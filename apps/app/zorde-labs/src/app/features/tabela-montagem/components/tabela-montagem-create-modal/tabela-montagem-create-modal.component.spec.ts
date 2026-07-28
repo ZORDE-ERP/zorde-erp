@@ -31,7 +31,11 @@ describe('TabelaMontagemCreateModalComponent', () => {
 		fixture.componentRef.setInput('existingItens', existingItens);
 		fixture.componentRef.setInput('open', true);
 		fixture.detectChanges();
-		httpMock.expectOne(`${environment.baseUrl}clientes`).flush([{ id: 5, nome: 'João Silva' }]);
+		httpMock.expectOne(`${environment.baseUrl}clientes?page=1&limit=20`).flush({
+			items: [{ id: 5, nome: 'João Silva' }],
+			total: 1,
+			counts: { total: 1, ativos: 1, inativos: 0 },
+		});
 		httpMock.expectOne(`${environment.baseUrl}servico?page=1&limit=200`).flush({
 			items: [
 				{ id: 1, nome: 'Montagem Simples' },

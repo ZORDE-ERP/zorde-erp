@@ -24,6 +24,7 @@ export interface Cliente {
 	usuarioId: number;
 	qrCodeUrl?: string | null;
 	qrGeradoEm?: string | Date | null;
+	logoUrl?: string | null;
 	createdAt: string | Date | null;
 	updatedAt?: string | Date | null;
 }
@@ -90,4 +91,31 @@ export interface TabelaMontagemPorQrItem {
 export interface TabelaMontagemPorQrResponse {
 	clienteId: number;
 	itens: TabelaMontagemPorQrItem[];
+}
+
+export interface FolhaOsStatusResponse {
+	codigoFolha: string;
+	clienteId: number;
+	status: string;
+	ordemDeServicoId?: number | null;
+}
+
+export interface ClienteStatusCounts {
+	total: number;
+	ativos: number;
+	inativos: number;
+}
+
+export interface ClienteListResponse {
+	items: Cliente[];
+	total: number;
+	counts: ClienteStatusCounts;
+}
+
+export interface ListClientesQuery {
+	page?: number;
+	limit?: number;
+	search?: string;
+	status?: StatusPessoa;
+	id?: number;
 }

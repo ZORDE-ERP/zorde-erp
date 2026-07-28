@@ -15,28 +15,6 @@
       <app-cliente-select [(value)]="clienteId" placeholder="Buscar cliente..." />
     </app-field>
 
-    @if (clienteId() !== null) {
-      <div class="col-span-12">
-        @if (clienteVinculos().length > 0) {
-          <div class="rounded-md border border-border bg-surface-muted/40 p-3">
-            <p class="text-xs font-semibold uppercase tracking-caps text-text-secondary">
-              Vínculos existentes deste cliente
-            </p>
-            <ul class="mt-2 flex flex-col gap-1 text-sm text-text-secondary">
-              @for (item of clienteVinculos(); track item.id) {
-                <li class="flex items-center justify-between gap-3">
-                  <span>{{ item.nomeServico }}</span>
-                  <span class="font-medium text-text-primary">{{ item.valor | appBrlCurrency }}</span>
-                </li>
-              }
-            </ul>
-          </div>
-        } @else {
-          <p class="text-sm text-text-muted">Este cliente ainda não possui serviços vinculados.</p>
-        }
-      </div>
-    }
-
     <app-field label="Serviço" htmlFor="criar-vinculo-servico" class="col-span-12 sm:col-span-8">
       <app-servico-select [(value)]="servicoId" placeholder="Buscar serviço..." />
     </app-field>
@@ -61,5 +39,4 @@
       />
     </app-field>
   </div>
-
 </app-modal>

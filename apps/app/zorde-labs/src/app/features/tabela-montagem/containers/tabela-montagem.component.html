@@ -10,8 +10,8 @@
   </app-page-header>
 
   <app-tabela-montagem-filtro
-    [filterExpanded]="false"
     (onClearFilter)="onClearFilter()"
+    (onSearch)="onSearch()"
     [filtroForm]="filtroForm"
   />
 
@@ -20,7 +20,7 @@
     <article app-card class="min-h-80">
       <div app-card-body class="min-w-0">
         <app-tabela-montagem-table
-          [rows]="filteredRows()"
+          [rows]="aggregatedRows()"
           [loading]="loading()"
           (actionTriggered)="onRowAction($event)"
         />

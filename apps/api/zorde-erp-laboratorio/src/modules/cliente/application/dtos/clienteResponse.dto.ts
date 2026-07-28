@@ -24,6 +24,7 @@ export interface ClienteResponseDto {
 	usuarioId: number;
 	qrCodeUrl?: string | null;
 	qrGeradoEm?: Date | null;
+	logoUrl?: string | null;
 	createdAt: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;

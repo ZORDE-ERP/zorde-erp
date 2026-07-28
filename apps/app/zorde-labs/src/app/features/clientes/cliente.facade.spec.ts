@@ -33,11 +33,11 @@ describe('ClienteFacade', () => {
 	});
 
 	it('should list clientes', () => {
-		facade.list().subscribe();
+		facade.list({ page: 1, limit: 10, search: 'joao' }).subscribe();
 
-		const req = httpMock.expectOne(`${environment.baseUrl}clientes`);
+		const req = httpMock.expectOne(`${environment.baseUrl}clientes?page=1&limit=10&search=joao`);
 		expect(req.request.method).toBe('GET');
-		req.flush([]);
+		req.flush({ items: [], total: 0, counts: { total: 0, ativos: 0, inativos: 0 } });
 	});
 
 	it('should get cliente by id', () => {

@@ -151,7 +151,7 @@ export class AppSidebarComponent {
 
 	protected itemClasses(item: AppNavItem, exact = false): string {
 		const base =
-			'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium motion-safe:transition-colors hover:bg-sidebar-hover/20 hover:text-sidebar-text-active';
+			'flex items-center gap-3 rounded-sm-lg px-3 py-2.5 text-sm font-medium motion-safe:transition-colors hover:bg-sidebar-hover/20 hover:text-sidebar-text-active';
 		const active = this.isActive(item.path, exact) ? 'bg-sidebar-active-bg text-sidebar-text-active' : 'text-sidebar-text';
 		return `${base} ${active}`;
 	}

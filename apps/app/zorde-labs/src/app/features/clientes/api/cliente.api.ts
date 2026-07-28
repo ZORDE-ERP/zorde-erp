@@ -4,8 +4,11 @@ import { Observable } from 'rxjs';
 import { HttpClientConfigService } from '../../../shared/providers/httpClient.service';
 import {
 	Cliente,
+	ClienteListResponse,
 	ClienteQrCodeResponse,
 	CreateClientePayload,
+	FolhaOsStatusResponse,
+	ListClientesQuery,
 	TabelaMontagemPorQrResponse,
 	UpdateClientePayload,
 } from '../models/cliente.model';
@@ -18,8 +21,8 @@ export class ClienteApi {
 		return this.httpService.post<Cliente>(`clientes`, body);
 	}
 
-	public list(): Observable<HttpResponse<Cliente[]>> {
-		return this.httpService.get<Cliente[]>(`clientes`);
+	public list(query: ListClientesQuery = {}): Observable<HttpResponse<ClienteListResponse>> {
+		return this.httpService.get<ClienteListResponse>(`clientes${this.buildQuery(query)}`);
 	}
 
 	public getById(id: number): Observable<HttpResponse<Cliente>> {
@@ -45,5 +48,41 @@ export class ClienteApi {
 	public tabelaMontagemPorQr(clienteId: number, token: string): Observable<HttpResponse<TabelaMontagemPorQrResponse>> {
 		const params = new URLSearchParams({ token });
 		return this.httpService.get<TabelaMontagemPorQrResponse>(`clientes/${clienteId}/tabela-montagem?${params.toString()}`);
+	}
+
+	public statusFolhaOs(codigoFolha: string, clienteId: number): Observable<HttpResponse<FolhaOsStatusResponse>> {
+		const params = new URLSearchParams({ codigoFolha, clienteId: String(clienteId) });
+		return this.httpService.get<FolhaOsStatusResponse>(`folhas-os/por-codigo?${params.toString()}`);
+	}
+
+	public uploadLogo(id: number, file: File): Observable<HttpResponse<Cliente>> {
+		const formData = new FormData();
+		formData.append('file', file);
+		return this.httpService.postFormData<Cliente>(`clientes/${id}/logo`, formData);
+	}
+
+	public removerLogo(id: number): Observable<HttpResponse<Cliente>> {
+		return this.httpService.delete<Cliente>(`clientes/${id}/logo`);
+	}
+
+	private buildQuery(query: ListClientesQuery): string {
+		const params = new URLSearchParams();
+		if (query.page != null) {
+			params.set('page', String(query.page));
+		}
+		if (query.limit != null) {
+			params.set('limit', String(query.limit));
+		}
+		if (query.search) {
+			params.set('search', query.search);
+		}
+		if (query.status) {
+			params.set('status', query.status);
+		}
+		if (query.id != null) {
+			params.set('id', String(query.id));
+		}
+		const queryString = params.toString();
+		return queryString ? `?${queryString}` : '';
 	}
 }

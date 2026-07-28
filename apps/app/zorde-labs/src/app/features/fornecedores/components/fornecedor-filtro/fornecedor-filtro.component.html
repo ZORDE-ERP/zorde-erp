@@ -3,8 +3,8 @@
   [(expanded)]="filterExpanded"
   (cleared)="onClearFilters()"
 >
-  <form>
-    <app-field label="Fornecedor" htmlFor="fornecedor-nome">
+  <form class="contents">
+    <app-field label="Nome" htmlFor="fornecedor-nome">
       <input
         app-input
         id="fornecedor-nome"
@@ -12,7 +12,16 @@
         autocomplete="off"
         placeholder="Digite o nome do fornecedor"
         [formField]="filtroForm().nome"
+        (input)="onNomeInput()"
       />
+    </app-field>
+
+    <app-field label="Status" htmlFor="fornecedor-status">
+      <select app-select id="fornecedor-status" [formField]="filtroForm().status" (change)="onStatusChange()">
+        <option value="">Todos</option>
+        <option value="ATIVO">Ativo</option>
+        <option value="INATIVO">Inativo</option>
+      </select>
     </app-field>
   </form>
 </app-filter-card>

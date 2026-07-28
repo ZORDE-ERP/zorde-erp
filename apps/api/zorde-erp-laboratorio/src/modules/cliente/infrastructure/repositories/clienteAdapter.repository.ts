@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Cliente, Endereco } from '@prisma/client';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import { ClienteEntity } from '../../domain/entities/cliente.entity';
-import type { IClienteRepository, UpdateQrCodeData } from '../../domain/repositories/cliente.repository';
+import type { IClienteRepository, UpdateLogoData, UpdateQrCodeData } from '../../domain/repositories/cliente.repository';
 import { ClienteInfraMapper } from '../mappers/clienteInfra.mapper';
 
 @Injectable()
@@ -62,6 +62,68 @@ export class PrismaClienteRepository implements IClienteRepository {
 		return clients.map(ClienteInfraMapper.toDomain);
 	}
 
+	public async findAllPaginated(params: {
+		page: number;
+		limit: number;
+		search?: string;
+		status?: string;
+		id?: number;
+		usuarioId: number;
+	}): Promise<{ items: ClienteEntity[]; total: number }> {
+		const { page, limit, search, status, id, usuarioId } = params;
+		const skip = (page - 1) * limit;
+
+		const where: Record<string, unknown> = {
+			usuarioId,
+			deletedAt: null,
+		};
+
+		if (id != null) {
+			where.id = id;
+		}
+
+		if (status) {
+			where.status = status;
+		}
+
+		const term = search?.trim();
+		if (term) {
+			where.OR = [
+				{ nome: { contains: term, mode: 'insensitive' } },
+				{ documento: { contains: term, mode: 'insensitive' } },
+				{ email: { contains: term, mode: 'insensitive' } },
+				{ nomeFantasia: { contains: term, mode: 'insensitive' } },
+				{ razaoSocial: { contains: term, mode: 'insensitive' } },
+			];
+		}
+
+		const [items, total] = await Promise.all([
+			this.prisma.cliente.findMany({
+				where,
+				skip,
+				take: limit,
+				include: { Endereco: true },
+				orderBy: { id: 'desc' },
+			}),
+			this.prisma.cliente.count({ where }),
+		]);
+
+		return {
+			items: items.map((item) => ClienteInfraMapper.toDomain(item as Cliente & { Endereco: Endereco })),
+			total,
+		};
+	}
+
+	public async countByStatus(usuarioId: number): Promise<{ total: number; ativos: number; inativos: number }> {
+		const where = { usuarioId, deletedAt: null };
+		const [total, ativos, inativos] = await Promise.all([
+			this.prisma.cliente.count({ where }),
+			this.prisma.cliente.count({ where: { ...where, status: 'ATIVO' } }),
+			this.prisma.cliente.count({ where: { ...where, status: 'INATIVO' } }),
+		]);
+		return { total, ativos, inativos };
+	}
+
 	public async update(client: ClienteEntity): Promise<ClienteEntity> {
 		const updated = await this.prisma.cliente.update({
 			where: { id: client.getId() as number, AND: { usuarioId: { equals: client.getUsuarioId() } } },
@@ -119,6 +181,26 @@ export class PrismaClienteRepository implements IClienteRepository {
 				qrGeradoEm: data.qrGeradoEm,
 				qrCodeUrl: data.qrCodeUrl,
 				qrCodePublicId: data.qrCodePublicId,
+				updatedAt: new Date(),
+			},
+			include: {
+				Endereco: true,
+			},
+		});
+		return ClienteInfraMapper.toDomain(updated as Cliente & { Endereco: Endereco });
+	}
+
+	public async updateLogo(id: number, usuarioId: number, data: UpdateLogoData): Promise<ClienteEntity> {
+		const existing = await this.findById(id, usuarioId);
+		if (!existing) {
+			throw new Error('Cliente não encontrado');
+		}
+
+		const updated = await this.prisma.cliente.update({
+			where: { id },
+			data: {
+				logoUrl: data.logoUrl,
+				logoPublicId: data.logoPublicId,
 				updatedAt: new Date(),
 			},
 			include: {

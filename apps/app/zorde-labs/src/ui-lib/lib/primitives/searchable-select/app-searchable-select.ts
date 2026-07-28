@@ -1,5 +1,5 @@
 import { CdkConnectedOverlay, CdkOverlayOrigin, type ConnectedPosition } from '@angular/cdk/overlay';
-import { Component, computed, input, model, signal, viewChild } from '@angular/core';
+import { Component, computed, input, model, output, signal, viewChild } from '@angular/core';
 
 export interface AppSearchableSelectOption {
 	readonly value: string | number;
@@ -23,6 +23,10 @@ export class AppSearchableSelectComponent {
 	public readonly placeholder = input('Buscar...');
 	public readonly disabled = input(false);
 	public readonly emptyMessage = input('Nenhum resultado');
+	/** Quando false, a lista já vem filtrada do servidor e o filtro local é desativado. */
+	public readonly filterLocally = input(true);
+
+	public readonly queryChange = output<string>();
 
 	protected readonly open = signal(false);
 	protected readonly query = signal('');
@@ -41,6 +45,9 @@ export class AppSearchableSelectComponent {
 	protected readonly displayValue = computed((): string => (this.open() ? this.query() : this.selectedLabel()));
 
 	protected readonly filteredOptions = computed((): readonly AppSearchableSelectOption[] => {
+		if (!this.filterLocally()) {
+			return this.options();
+		}
 		const term = this.query().trim().toLowerCase();
 		if (!term) {
 			return this.options();
@@ -70,6 +77,7 @@ export class AppSearchableSelectComponent {
 
 		this.syncOverlayWidth();
 		this.open.set(true);
+		this.queryChange.emit(text);
 	}
 
 	protected onKeydown(event: KeyboardEvent): void {

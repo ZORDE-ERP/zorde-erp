@@ -19,6 +19,6 @@ export class AppAlertComponent {
 			error: 'border-error bg-error-muted text-error-foreground',
 		};
 
-		return joinClasses('rounded-sm border px-4 py-3 text-sm', variants[this.variant()]);
+		return joinClasses('rounded-sm-sm border px-4 py-3 text-sm', variants[this.variant()]);
 	});
 }

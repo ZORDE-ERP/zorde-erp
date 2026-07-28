@@ -1,3 +1,3 @@
 export interface TabelaMontagemFiltroModel {
-	nome: string;
+	clienteId: number | null;
 }

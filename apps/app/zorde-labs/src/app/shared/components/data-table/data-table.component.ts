@@ -437,7 +437,7 @@ export class DataTableComponent<T extends object = object> {
 		return `${this.appearanceClasses({
 			background: action.color ?? 'neutral',
 			border: { side: 'left', color: action.color ?? 'neutral' },
-		})} mx-1 my-0.5 rounded-md hover:brightness-95`;
+		})} mx-1 my-0.5 rounded-sm-md hover:brightness-95`;
 	}
 
 	protected onDocumentClick(event: MouseEvent): void {

@@ -1,5 +1,9 @@
 import { TabelaMontagem } from '../models/tabela-montagem.model';
-import { aggregateTabelaMontagemPorCliente, filterAggregatedByNomeCliente } from './tabela-montagem-table';
+import {
+	aggregateTabelaMontagemPorCliente,
+	filterAggregatedByClienteId,
+	filterAggregatedByNomeCliente,
+} from './tabela-montagem-table';
 
 function buildItem(overrides: Partial<TabelaMontagem>): TabelaMontagem {
 	return {
@@ -72,5 +76,22 @@ describe('filterAggregatedByNomeCliente', () => {
 
 	it('should return an empty array when no row matches', () => {
 		expect(filterAggregatedByNomeCliente(rows, 'inexistente')).toEqual([]);
+	});
+});
+
+describe('filterAggregatedByClienteId', () => {
+	const rows = aggregateTabelaMontagemPorCliente([
+		buildItem({ id: 1, clienteId: 1, nomeCliente: 'João Silva' }),
+		buildItem({ id: 2, clienteId: 2, nomeCliente: 'Maria Souza' }),
+	]);
+
+	it('should return all rows when clienteId is null', () => {
+		expect(filterAggregatedByClienteId(rows, null)).toHaveLength(2);
+	});
+
+	it('should filter rows by clienteId', () => {
+		const result = filterAggregatedByClienteId(rows, 2);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.nomeCliente).toBe('Maria Souza');
 	});
 });

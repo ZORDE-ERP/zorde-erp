@@ -51,7 +51,17 @@ describe('FornecedorComponent', () => {
 
 	beforeEach(async () => {
 		fornecedorFacade = {
-			list: vi.fn(() => of(new HttpResponse<Fornecedor[]>({ body: [...fornecedores] }))),
+			list: vi.fn(() =>
+				of(
+					new HttpResponse({
+						body: {
+							items: [...fornecedores],
+							total: fornecedores.length,
+							counts: { total: fornecedores.length, ativos: 1, inativos: 1 },
+						},
+					}),
+				),
+			),
 			getById: vi.fn(() => of(new HttpResponse<Fornecedor>({ body: fornecedores[0] }))),
 			create: vi.fn(() => of(new HttpResponse<Fornecedor>({ body: fornecedores[0] }))),
 			update: vi.fn(() => of(new HttpResponse<Fornecedor>({ body: fornecedores[0] }))),

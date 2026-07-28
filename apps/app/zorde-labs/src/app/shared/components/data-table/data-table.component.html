@@ -1,13 +1,13 @@
 @if (toolbarActions().length > 0) {
   <div
-    class="mb-4 flex flex-wrap items-center gap-2 rounded-sm justify-end border border-border bg-surface-elevated p-2"
+    class="mb-4 flex flex-wrap items-center gap-2 rounded-sm-sm justify-end border border-border bg-surface-elevated p-2"
     role="toolbar"
     aria-label="Ações da lista"
   >
     @for (action of toolbarActions(); track action.value) {
       <button
         type="button"
-        class="inline-flex min-h-10 items-center gap-2 rounded-sm px-3 text-sm font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus disabled:pointer-events-none disabled:opacity-50"
+        class="inline-flex min-h-10 items-center gap-2 rounded-sm-sm px-3 text-sm font-medium text-primary transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus disabled:pointer-events-none disabled:opacity-50"
         [class]="actionColor(action)"
         [disabled]="isToolbarActionDisabled(action)"
         (click)="runToolbarAction(action)"
@@ -26,7 +26,7 @@
 }
 
 <div
-  class="overflow-auto rounded-lg border border-border bg-surface-elevated"
+  class="overflow-auto rounded-sm-sm border border-border bg-surface-elevated"
   [style.max-height]="maxHeight()"
 >
   @if (loading()) {
@@ -80,7 +80,7 @@
               @if (column.sortable) {
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1 rounded-sm text-left hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                  class="inline-flex items-center gap-1 rounded-sm-sm text-left hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                   [attr.aria-label]="sortLabel(column)"
                   (click)="sortColumn(column)"
                 >
@@ -148,16 +148,23 @@
                   }}</app-badge>
                 } @else if (column.type === 'image') {
                   <img
-                    class="h-9 w-9 rounded-md object-cover"
+                    class="h-9 w-9 rounded-sm-sm object-cover"
                     [src]="textValue(column, row)"
                     [alt]="column.imageAlt?.(row) ?? ''"
                   />
                 } @else if (column.type === 'avatar') {
-                  <app-avatar
-                    size="sm"
-                    [name]="avatarName(column, row)"
-                    [src]="textValue(column, row)"
-                  />
+                  <div class="inline-flex min-w-0 items-center gap-2.5">
+                    <app-avatar
+                      size="md"
+                      [name]="avatarName(column, row)"
+                      [src]="
+                        textValue(column, row) === '—'
+                          ? undefined
+                          : textValue(column, row) || undefined
+                      "
+                    />
+                    <span class="truncate">{{ avatarName(column, row) }}</span>
+                  </div>
                 } @else if (column.type === 'icon') {
                   <svg
                     [lucideIcon]="iconName(column, row)"
@@ -188,7 +195,7 @@
                     </button>
                     @if (isActionMenuOpen(row)) {
                       <ul
-                        class="absolute right-0 z-50 w-48 overflow-hidden rounded-lg border border-border bg-surface-elevated py-1 text-left shadow-lg"
+                        class="absolute right-0 z-50 w-48 overflow-hidden rounded-sm-sm border border-border bg-surface-elevated py-1 text-left shadow-lg"
                         [class.bottom-full]="isMenuNearBottom(index)"
                         [class.mb-1]="isMenuNearBottom(index)"
                         [class.mt-1]="!isMenuNearBottom(index)"
@@ -219,7 +226,7 @@
                     @for (action of visibleActions(row); track action.value) {
                       <button
                         type="button"
-                        class="inline-flex min-h-10 items-center gap-1 rounded-md px-2 text-xs font-medium hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus disabled:pointer-events-none disabled:opacity-50"
+                        class="inline-flex min-h-10 items-center gap-1 rounded-sm-sm px-2 text-xs font-medium hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus disabled:pointer-events-none disabled:opacity-50"
                         [class]="actionColor(action)"
                         [disabled]="isActionDisabled(action, row)"
                         (click)="selectAction(action, row, rowIndex(index))"
@@ -251,7 +258,7 @@
       <label class="whitespace-nowrap" for="data-table-page-size">Itens por página</label>
       <select
         id="data-table-page-size"
-        class="h-9 rounded-md border border-border bg-surface-elevated px-2 text-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+        class="h-9 rounded-sm-sm border border-border bg-surface-elevated px-2 text-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
         [value]="pageSize()"
         (change)="setPageSize($any($event.target).value)"
       >

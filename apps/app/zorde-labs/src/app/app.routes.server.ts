@@ -9,6 +9,8 @@ export const serverRoutes: ServerRoute[] = [
 	{ path: 'clientes', renderMode: RenderMode.Client },
 	{ path: 'fornecedores', renderMode: RenderMode.Client },
 	{ path: 'ordens-de-servico', renderMode: RenderMode.Client },
+	{ path: 'os/scan', renderMode: RenderMode.Client },
+	{ path: 'impressao-os', renderMode: RenderMode.Client },
 	{ path: 'faturamento', renderMode: RenderMode.Client },
 	{ path: 'playground', renderMode: RenderMode.Prerender },
 	{ path: 'playground/foundations/colors', renderMode: RenderMode.Prerender },

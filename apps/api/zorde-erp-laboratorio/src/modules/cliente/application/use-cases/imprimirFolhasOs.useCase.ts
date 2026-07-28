@@ -5,6 +5,7 @@ import { ICLIENTE_REPOSITORY } from '../../domain/repositories/cliente.repositor
 import type { IFolhaOsRepository } from '../../domain/repositories/folhaOs.repository';
 import { IFOLHA_OS_REPOSITORY } from '../../domain/repositories/folhaOs.repository';
 import { OsFolhaPdfService } from '../../infrastructure/services/osFolhaPdf.service';
+import { QrCodeImageService } from '../../infrastructure/services/qrCodeImage.service';
 import type { ImpressaoOsDto } from '../dtos/impressaoOs.dto';
 
 export interface ImprimirFolhasOsResult {
@@ -23,6 +24,7 @@ export class ImprimirFolhasOsUseCase {
 		@Inject(IFOLHA_OS_REPOSITORY)
 		private readonly folhaOsRepository: IFolhaOsRepository,
 		private readonly osFolhaPdfService: OsFolhaPdfService,
+		private readonly qrCodeImageService: QrCodeImageService,
 	) {}
 
 	public async execute(clienteId: number, usuarioId: number, dto: ImpressaoOsDto): Promise<ImprimirFolhasOsResult> {
@@ -31,8 +33,8 @@ export class ImprimirFolhasOsUseCase {
 			throw new EntityNotFoundException('Cliente não encontrado');
 		}
 
-		const qrCodeUrl = cliente.getQrCodeUrl();
-		if (!cliente.getQrToken() || !qrCodeUrl) {
+		const qrToken = cliente.getQrToken();
+		if (!qrToken || !cliente.getQrCodeUrl()) {
 			throw new BusinessRuleException('Cliente sem QR Code. Gere o QR antes de imprimir as folhas.');
 		}
 
@@ -43,13 +45,26 @@ export class ImprimirFolhasOsUseCase {
 		});
 
 		const nomeOtica = cliente.getNomeFantasia() || cliente.getNome();
-		const buffer = await this.osFolhaPdfService.generatePdf(
-			lote.folhas.map((folha) => ({
-				nomeOtica,
-				qrCodeUrl,
-				codigoFolha: folha.getCodigoFolha(),
-			})),
+		const folhasPdf = await Promise.all(
+			lote.folhas.map(async (folha) => {
+				const codigoFolha = folha.getCodigoFolha();
+				const scanUrl = this.qrCodeImageService.buildScanUrl(clienteId, qrToken, codigoFolha);
+				const qrCodeDataUrl = await this.qrCodeImageService.generatePngDataUrl(scanUrl);
+
+				return {
+					nomeOtica,
+					qrCodeDataUrl,
+					codigoFolha,
+					clienteId: cliente.getId() ?? undefined,
+					contato: cliente.getContato() ?? undefined,
+					cnpj: cliente.getDocumento() ?? undefined,
+					logoUrl: cliente.getLogoUrl() ?? undefined,
+					clienteLogoUrl: cliente.getLogoUrl() ?? undefined,
+				};
+			}),
 		);
+
+		const buffer = await this.osFolhaPdfService.generatePdf(folhasPdf);
 
 		return {
 			buffer,

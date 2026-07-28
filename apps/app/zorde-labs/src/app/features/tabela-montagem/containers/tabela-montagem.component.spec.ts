@@ -68,7 +68,7 @@ describe('TabelaMontagemComponent', () => {
 	});
 
 	it('should load itens on init and aggregate them by cliente', () => {
-		expect(tabelaMontagemFacade.list).toHaveBeenCalledWith(1, 500);
+		expect(tabelaMontagemFacade.list).toHaveBeenCalledWith({ page: 1, limit: 500, clienteId: undefined });
 		expect(component.aggregatedRows()).toHaveLength(2);
 
 		const joao = component.aggregatedRows().find((row) => row.clienteId === 1);
@@ -81,21 +81,23 @@ describe('TabelaMontagemComponent', () => {
 		expect(maria?.valorTotal).toBe(100);
 	});
 
-	it('should filter aggregated rows by cliente nome', () => {
-		component.filtroForm.nome().value.set('maria');
+	it('should reload the list filtered by cliente id on search', () => {
+		component.filtroForm.clienteId().value.set(2);
+		tabelaMontagemFacade.list.mockClear();
 
-		expect(component.filteredRows()).toHaveLength(1);
-		expect(component.filteredRows()[0]?.nomeCliente).toBe('Maria Souza');
+		component.onSearch();
+
+		expect(tabelaMontagemFacade.list).toHaveBeenCalledWith({ page: 1, limit: 500, clienteId: 2 });
 	});
 
-	it('should reset the filter and show every aggregated row on clear', () => {
-		component.filtroForm.nome().value.set('maria');
-		expect(component.filteredRows()).toHaveLength(1);
+	it('should reset the filter and reload the full list on clear', () => {
+		component.filtroForm.clienteId().value.set(2);
+		tabelaMontagemFacade.list.mockClear();
 
 		component.onClearFilter();
 
-		expect(component.filtroForm().value().nome).toBe('');
-		expect(component.filteredRows()).toHaveLength(2);
+		expect(component.filtroForm().value().clienteId).toBeNull();
+		expect(tabelaMontagemFacade.list).toHaveBeenCalledWith({ page: 1, limit: 500, clienteId: undefined });
 	});
 
 	it('should open the ficha modal in visualizar mode on the visualizar action', () => {

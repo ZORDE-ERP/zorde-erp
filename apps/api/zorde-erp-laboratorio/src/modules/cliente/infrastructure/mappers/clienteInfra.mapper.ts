@@ -32,6 +32,8 @@ export class ClienteInfraMapper {
 			qrGeradoEm: raw.qrGeradoEm || null,
 			qrCodeUrl: raw.qrCodeUrl || null,
 			qrCodePublicId: raw.qrCodePublicId || null,
+			logoUrl: raw.logoUrl || null,
+			logoPublicId: raw.logoPublicId || null,
 		});
 	}
 	public static toPersistence(entity: ClienteEntity): {

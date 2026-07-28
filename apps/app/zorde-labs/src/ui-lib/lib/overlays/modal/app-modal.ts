@@ -66,7 +66,7 @@ export class AppModalComponent {
 
 	protected readonly dialogClasses = computed((): string =>
 		joinClasses(
-			'z-modal flex w-full max-h-[min(90vh,56rem)] flex-col rounded-xl border border-border bg-surface-elevated shadow-xl motion-safe:transition-opacity',
+			'z-modal flex w-full max-h-[min(90vh,56rem)] flex-col rounded-sm-xl border border-border bg-surface-elevated shadow-xl motion-safe:transition-opacity',
 			MODAL_SIZE_CLASS[this.size()],
 		),
 	);

@@ -32,6 +32,15 @@ export const createOrderSchema = z
 	.refine((data) => !(data.folhaId != null && data.codigoFolha != null), {
 		message: 'Informe apenas folhaId ou codigoFolha',
 		path: ['codigoFolha'],
+	})
+	.superRefine((data, ctx) => {
+		if (data.origem === OrigemOrdemServico.QR_SCAN && !data.codigoFolha) {
+			ctx.addIssue({
+				code: 'custom',
+				message: 'codigoFolha é obrigatório para origem QR_SCAN',
+				path: ['codigoFolha'],
+			});
+		}
 	});
 
 export const updateOrderSchema = z.object({

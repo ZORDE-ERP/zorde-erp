@@ -9,14 +9,26 @@ import {
 	UpdateTabelaMontagemPayload,
 } from '../models/tabela-montagem.model';
 
+export interface ListTabelaMontagemQuery {
+	page?: number;
+	limit?: number;
+	search?: string;
+	clienteId?: number;
+}
+
 @Service()
 export class TabelaMontagemApi {
 	private readonly httpService = inject(HttpClientConfigService);
 
-	public list(page: number, limit: number, search?: string): Observable<HttpResponse<TabelaMontagemListResponse>> {
-		const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-		if (search) {
-			params.set('search', search);
+	public list(query: ListTabelaMontagemQuery = {}): Observable<HttpResponse<TabelaMontagemListResponse>> {
+		const params = new URLSearchParams();
+		params.set('page', String(query.page ?? 1));
+		params.set('limit', String(query.limit ?? 10));
+		if (query.search) {
+			params.set('search', query.search);
+		}
+		if (query.clienteId != null) {
+			params.set('clienteId', String(query.clienteId));
 		}
 		return this.httpService.get<TabelaMontagemListResponse>(`tabela-montagem?${params.toString()}`);
 	}

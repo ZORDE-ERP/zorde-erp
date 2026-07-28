@@ -11,7 +11,6 @@ describe('ImpressaoOsComponent', () => {
 	let component: ImpressaoOsComponent;
 	let clienteFacade: {
 		list: ReturnType<typeof vi.fn>;
-		gerarQrCode: ReturnType<typeof vi.fn>;
 		imprimirFolhasOs: ReturnType<typeof vi.fn>;
 	};
 	let toastService: AppToastService;
@@ -45,8 +44,9 @@ describe('ImpressaoOsComponent', () => {
 
 	beforeEach(async () => {
 		clienteFacade = {
-			list: vi.fn(() => of(new HttpResponse<Cliente[]>({ body: [...clientes] }))),
-			gerarQrCode: vi.fn(),
+			list: vi.fn(() =>
+				of(new HttpResponse({ body: { items: [...clientes], total: clientes.length, counts: { total: clientes.length, ativos: clientes.length, inativos: 0 } } })),
+			),
 			imprimirFolhasOs: vi.fn(() =>
 				of(new HttpResponse<Blob>({ body: new Blob(['pdf'], { type: 'application/pdf' }) })),
 			),
@@ -69,22 +69,15 @@ describe('ImpressaoOsComponent', () => {
 		expect(component.loading()).toBe(false);
 	});
 
-	it('should filter clientes by nome', () => {
-		component.filtroForm.nome().value.set('maria');
+	it('should reload the list filtered by cliente id on search', () => {
+		component.filtroForm.clienteId().value.set(2);
+		clienteFacade.list.mockClear();
 
-		expect(component.filteredClientes()).toEqual([clientes[1]]);
-	});
+		component.onSearch();
 
-	it('should open the qr modal with the selected cliente on ver-qr action', () => {
-		component.onRowAction({
-			action: { value: 'ver-qr', label: 'Ver QR' },
-			row: clientes[0],
-			rowId: clientes[0].id,
-			rowIndex: 0,
-		});
-
-		expect(component.qrModalOpen()).toBe(true);
-		expect(component.selectedCliente()).toEqual(clientes[0]);
+		expect(clienteFacade.list).toHaveBeenCalledWith(
+			expect.objectContaining({ page: 1, id: 2 }),
+		);
 	});
 
 	it('should open the batch print modal', () => {
@@ -93,22 +86,15 @@ describe('ImpressaoOsComponent', () => {
 		expect(component.loteModalOpen()).toBe(true);
 	});
 
-	it('should update the cliente in the list when the qr code is regenerated', () => {
-		const atualizado: Cliente = { ...clientes[1], qrCodeUrl: 'https://cdn.zorde.dev/qr/2.png', qrGeradoEm: '2026-02-01T00:00:00.000Z' };
-
-		component.onQrRegenerated(atualizado);
-
-		expect(component.selectedCliente()).toEqual(atualizado);
-		expect(component.clientes().find((cliente) => cliente.id === 2)).toEqual(atualizado);
-	});
-
 	it('should print folhas de os for the requested quantity and download the pdf', () => {
 		const toastSpy = vi.spyOn(toastService, 'show');
-		vi.spyOn(window, 'prompt').mockReturnValue('3');
+		const promptSpy = vi.spyOn(window, 'prompt').mockReturnValue('3');
 		const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
 		const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 		const clickSpy = vi.fn();
-		vi.spyOn(document, 'createElement').mockReturnValue({ href: '', download: '', click: clickSpy } as unknown as HTMLAnchorElement);
+		const createElementSpy = vi
+			.spyOn(document, 'createElement')
+			.mockReturnValue({ href: '', download: '', click: clickSpy } as unknown as HTMLAnchorElement);
 
 		component.onRowAction({
 			action: { value: 'imprimir-folhas', label: 'Imprimir' },
@@ -121,8 +107,10 @@ describe('ImpressaoOsComponent', () => {
 		expect(clickSpy).toHaveBeenCalledTimes(1);
 		expect(toastSpy).toHaveBeenCalledWith('Folhas de OS geradas com sucesso.', 'success');
 
+		promptSpy.mockRestore();
 		createObjectURLSpy.mockRestore();
 		revokeObjectURLSpy.mockRestore();
+		createElementSpy.mockRestore();
 	});
 
 	it('should not print when the prompt is dismissed', () => {

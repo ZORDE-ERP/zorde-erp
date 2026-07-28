@@ -46,7 +46,6 @@ export class OrdemServicoComponent {
 	public readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 
 	public readonly createOpen = signal(false);
-	public readonly filtroClienteId = signal<number | null>(null);
 
 	private readonly filtroModel = signal<OrdemServicoFiltroModel>({
 		status: '',
@@ -77,7 +76,7 @@ export class OrdemServicoComponent {
 			page: this.page(),
 			limit: this.pageSize(),
 			status: filtro.status || undefined,
-			clienteId: this.filtroClienteId() ?? undefined,
+			clienteId: filtro.clienteId ?? undefined,
 			dataInicio: filtro.dataInicio || undefined,
 			dataFim: filtro.dataFim || undefined,
 		};
@@ -97,7 +96,6 @@ export class OrdemServicoComponent {
 
 	public onClearFilter(): void {
 		this.filtroModel.set({ status: '', clienteId: null, dataInicio: '', dataFim: '' });
-		this.filtroClienteId.set(null);
 		this.page.set(1);
 		this.loadList();
 	}

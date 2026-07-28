@@ -22,6 +22,7 @@ export function clienteToResponse(entity: ClienteEntity): ClienteResponseDto {
 		usuarioId: entity.getUsuarioId(),
 		qrCodeUrl: entity.getQrCodeUrl() ?? null,
 		qrGeradoEm: entity.getQrGeradoEm() ?? null,
+		logoUrl: entity.getLogoUrl() ?? null,
 		createdAt: entity.getCreatedAt() as Date,
 		updatedAt: entity.getUpdatedAt() as Date,
 	};

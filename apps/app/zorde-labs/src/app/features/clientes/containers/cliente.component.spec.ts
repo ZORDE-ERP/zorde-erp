@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { environment } from '../../../../environments/environment';
-import type { Cliente } from '../models/cliente.model';
+import type { Cliente, ClienteListResponse } from '../models/cliente.model';
 import { ClienteComponent } from './cliente.component';
 
 const MOCK_CLIENTE: Cliente = {
@@ -19,6 +19,16 @@ const MOCK_CLIENTE: Cliente = {
 	createdAt: null,
 };
 
+const LIST_URL = `${environment.baseUrl}clientes?page=1&limit=10`;
+
+function listResponse(items: readonly Cliente[] = [MOCK_CLIENTE]): ClienteListResponse {
+	return {
+		items: [...items],
+		total: items.length,
+		counts: { total: items.length, ativos: items.length, inativos: 0 },
+	};
+}
+
 describe('ClienteComponent', () => {
 	let fixture: ComponentFixture<ClienteComponent>;
 	let component: ClienteComponent;
@@ -34,7 +44,7 @@ describe('ClienteComponent', () => {
 		httpMock = TestBed.inject(HttpTestingController);
 		fixture.detectChanges();
 
-		httpMock.expectOne(`${environment.baseUrl}clientes`).flush([MOCK_CLIENTE]);
+		httpMock.expectOne(LIST_URL).flush(listResponse());
 	});
 
 	afterEach(() => {
@@ -53,6 +63,9 @@ describe('ClienteComponent', () => {
 			email: 'maria@teste.com',
 			documento: '98765432100',
 		}));
+		(component as unknown as { pendingVinculos: { set: (v: unknown) => void } }).pendingVinculos.set([
+			{ tempId: 1, servicoId: 2, valor: 50, nomeServico: 'Montagem' },
+		]);
 
 		(component as unknown as { onModalSubmit: () => void }).onModalSubmit();
 
@@ -61,7 +74,11 @@ describe('ClienteComponent', () => {
 		expect(req.request.body.nome).toBe('Maria Souza');
 		req.flush({ ...MOCK_CLIENTE, id: 2, nome: 'Maria Souza' });
 
-		httpMock.expectOne(`${environment.baseUrl}clientes`).flush([MOCK_CLIENTE]);
+		const vinculoReq = httpMock.expectOne(`${environment.baseUrl}tabela-montagem`);
+		expect(vinculoReq.request.method).toBe('POST');
+		vinculoReq.flush({ id: 10, clienteId: 2, servicoId: 2, valor: 50, createdAt: '2024-01-01' });
+
+		httpMock.expectOne(LIST_URL).flush(listResponse());
 	});
 
 	it('should update an existing cliente on submit when editing', () => {
@@ -85,7 +102,35 @@ describe('ClienteComponent', () => {
 		expect(req.request.body.nome).toBe('João Atualizado');
 		req.flush({ ...MOCK_CLIENTE, nome: 'João Atualizado' });
 
-		httpMock.expectOne(`${environment.baseUrl}clientes`).flush([MOCK_CLIENTE]);
+		const qrReq = httpMock.expectOne(`${environment.baseUrl}clientes/${MOCK_CLIENTE.id}/qrcode`);
+		expect(qrReq.request.method).toBe('POST');
+		qrReq.flush({
+			clienteId: MOCK_CLIENTE.id,
+			token: 'token',
+			qrGeradoEm: '2026-07-24T12:00:00.000Z',
+			qrCodeUrl: 'https://cdn.zorde.dev/qr/1.png',
+			message: 'ok',
+		});
+
+		httpMock.expectOne(LIST_URL).flush(listResponse());
+	});
+
+	it('should not revoke QR when editing without data changes', () => {
+		(component as unknown as { onRowAction: (event: unknown) => void }).onRowAction({
+			action: { value: 'editar', label: 'Editar' },
+			row: MOCK_CLIENTE,
+			rowId: MOCK_CLIENTE.id,
+			rowIndex: 0,
+		});
+
+		(component as unknown as { onModalSubmit: () => void }).onModalSubmit();
+
+		const req = httpMock.expectOne(`${environment.baseUrl}clientes`);
+		expect(req.request.method).toBe('PUT');
+		req.flush(MOCK_CLIENTE);
+
+		httpMock.expectNone(`${environment.baseUrl}clientes/${MOCK_CLIENTE.id}/qrcode`);
+		httpMock.expectOne(LIST_URL).flush(listResponse());
 	});
 
 	it('should delete a cliente when the excluir action is triggered', () => {
@@ -97,6 +142,6 @@ describe('ClienteComponent', () => {
 		});
 
 		httpMock.expectOne(`${environment.baseUrl}clientes/${MOCK_CLIENTE.id}`).flush(null);
-		httpMock.expectOne(`${environment.baseUrl}clientes`).flush([]);
+		httpMock.expectOne(LIST_URL).flush(listResponse([]));
 	});
 });

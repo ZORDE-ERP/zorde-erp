@@ -38,11 +38,11 @@ describe('FornecedorFacade', () => {
 	});
 
 	it('should list fornecedores', () => {
-		facade.list().subscribe();
+		facade.list({ page: 1, limit: 10, search: 'acme' }).subscribe();
 
-		const req = httpMock.expectOne(`${environment.baseUrl}fornecedores`);
+		const req = httpMock.expectOne(`${environment.baseUrl}fornecedores?page=1&limit=10&search=acme`);
 		expect(req.request.method).toBe('GET');
-		req.flush([]);
+		req.flush({ items: [], total: 0, counts: { total: 0, ativos: 0, inativos: 0 } });
 	});
 
 	it('should get fornecedor by id', () => {

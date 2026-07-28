@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, output, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucidePlus, LucideTrash2 } from '@lucide/angular';
 import {
@@ -15,7 +15,6 @@ import { firstValueFrom } from 'rxjs';
 import { ClienteSelectComponent } from '../../../../shared/components/cliente-select/cliente-select.component';
 import { downloadBlob } from '../../../../shared/utils/download-blob';
 import { ClienteFacade } from '../../../clientes/cliente.facade';
-import type { Cliente } from '../../../clientes/models/cliente.model';
 
 export interface ImpressaoLoteRow {
 	readonly id: string;
@@ -63,7 +62,6 @@ export class ImpressaoLoteModalComponent {
 	private readonly toast = inject(AppToastService);
 
 	public readonly open = input(false);
-	public readonly clientes = input<readonly Cliente[]>([]);
 
 	public readonly closed = output<void>();
 	public readonly completed = output<readonly ImpressaoLoteResultado[]>();
@@ -100,13 +98,6 @@ export class ImpressaoLoteModalComponent {
 		this.rows.update((rows) => rows.map((row) => (row.id === id ? { ...row, quantidade: value } : row)));
 	}
 
-	public nomeCliente(clienteId: number | null): string {
-		if (clienteId === null) {
-			return '';
-		}
-		return this.clientes().find((cliente) => cliente.id === clienteId)?.nome ?? `Cliente #${clienteId}`;
-	}
-
 	public onClose(): void {
 		if (this.printing()) {
 			return;
@@ -131,7 +122,7 @@ export class ImpressaoLoteModalComponent {
 		const resultados: ImpressaoLoteResultado[] = [];
 
 		for (const row of validRows) {
-			const nome = this.nomeCliente(row.clienteId);
+			const nome = await this.resolveNomeCliente(row.clienteId);
 
 			try {
 				const response = await firstValueFrom(this.clienteFacade.imprimirFolhasOs(row.clienteId, row.quantidade));
@@ -164,5 +155,24 @@ export class ImpressaoLoteModalComponent {
 		this.rows.set([createRow()]);
 		this.resultados.set(null);
 		this.progress.set({ current: 0, total: 0 });
+	}
+
+	private readonly nomeClienteCache = new Map<number, string>();
+
+	private async resolveNomeCliente(clienteId: number): Promise<string> {
+		const cached = this.nomeClienteCache.get(clienteId);
+		if (cached) {
+			return cached;
+		}
+
+		const fallback = `Cliente #${clienteId}`;
+		try {
+			const response = await firstValueFrom(this.clienteFacade.getById(clienteId));
+			const nome = response.body?.nome ?? fallback;
+			this.nomeClienteCache.set(clienteId, nome);
+			return nome;
+		} catch {
+			return fallback;
+		}
 	}
 }

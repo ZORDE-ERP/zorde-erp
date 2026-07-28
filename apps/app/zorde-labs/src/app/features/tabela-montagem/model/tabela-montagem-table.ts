@@ -44,6 +44,16 @@ export function filterAggregatedByNomeCliente(
 	return rows.filter((row) => row.nomeCliente.toLowerCase().includes(term));
 }
 
+export function filterAggregatedByClienteId(
+	rows: readonly TabelaMontagemAggregatedRow[],
+	clienteId: number | null,
+): TabelaMontagemAggregatedRow[] {
+	if (clienteId == null) {
+		return [...rows];
+	}
+	return rows.filter((row) => row.clienteId === clienteId);
+}
+
 export const ACTIONS: readonly DataTableAction<TabelaMontagemAggregatedRow>[] = [
 	{ value: 'visualizar', label: 'Visualizar', icon: 'eye', color: 'blue' },
 	{ value: 'editar', label: 'Editar', icon: 'pencil', color: 'orange' },

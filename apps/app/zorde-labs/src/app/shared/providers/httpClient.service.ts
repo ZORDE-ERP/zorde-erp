@@ -68,4 +68,16 @@ export class HttpClientConfigService {
 			timeout: 35000,
 		});
 	}
+
+	public postFormData<T>(url: string, data: FormData): Observable<HttpResponse<T>> {
+		return this.http.post<T>(`${this.BaseUrl}${url}`, data, {
+			headers: {
+				Accept: 'application/json',
+				'ngrok-skip-browser-warning': 'true',
+			},
+			withCredentials: true,
+			observe: 'response',
+			timeout: 35000,
+		});
+	}
 }

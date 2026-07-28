@@ -12,9 +12,7 @@
   <app-summary-cards [items]="summaryItems()" (cardClick)="onSummaryClick($event)" />
 
   <app-ordem-servico-filtro
-    [filterExpanded]="true"
     [filtroForm]="filtroForm"
-    [(clienteId)]="filtroClienteId"
     (onClearFilter)="onClearFilter()"
     (onSearch)="onSearch()"
   />

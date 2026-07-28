@@ -26,9 +26,28 @@ export class QrCodeImageService {
 		this.configured = true;
 	}
 
-	public buildScanUrl(clienteId: number, qrToken: string): string {
+	public buildScanUrl(clienteId: number, qrToken: string, codigoFolha?: string): string {
 		const base = globalEnvironment.FRONTEND_APP_URL.replace(/\/$/, '');
-		return `${base}/os/scan?c=${clienteId}&t=${qrToken}`;
+		const params = new URLSearchParams({
+			c: String(clienteId),
+			t: qrToken,
+		});
+		if (codigoFolha) {
+			params.set('f', codigoFolha);
+		}
+		return `${base}/os/scan?${params.toString()}`;
+	}
+
+	public async generatePngDataUrl(scanUrl: string): Promise<string> {
+		return QRCode.toDataURL(scanUrl, {
+			errorCorrectionLevel: 'M',
+			margin: 2,
+			width: 256,
+			color: {
+				dark: '#000000',
+				light: '#FFFFFF',
+			},
+		});
 	}
 
 	public async generateSvg(scanUrl: string): Promise<string> {

@@ -3,5 +3,7 @@
   [(value)]="value"
   [placeholder]="placeholder()"
   [disabled]="disabled() || loading()"
+  [filterLocally]="false"
   emptyMessage="Nenhum cliente encontrado"
+  (queryChange)="onQueryChange($event)"
 />

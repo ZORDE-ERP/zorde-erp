@@ -8,13 +8,25 @@
 
   <app-summary-cards [items]="summaryItems()" (cardClick)="onSummaryClick($event)" />
 
-  <app-cliente-filtro [filterExpanded]="false" (onClearFilter)="onClearFilter()" [filtroForm]="filtroForm" />
+  <app-cliente-filtro
+    (onClearFilter)="onClearFilter()"
+    (onSearch)="onSearch()"
+    [filtroForm]="filtroForm"
+  />
 
   <section aria-labelledby="clientes-lista-heading" class="min-w-0">
     <h2 id="clientes-lista-heading" class="sr-only">Clientes cadastrados</h2>
     <article app-card class="min-h-80">
       <div app-card-body class="min-w-0">
-        <app-clientes-table [rows]="filteredClientes()" [loading]="loading()" (actionTriggered)="onRowAction($event)" />
+        <app-clientes-table
+          [rows]="clientes()"
+          [totalItems]="total()"
+          [loading]="loading()"
+          [page]="page()"
+          [pageSize]="pageSize()"
+          (actionTriggered)="onRowAction($event)"
+          (paginationChanged)="onPaginationChange($event)"
+        />
       </div>
     </article>
   </section>
@@ -25,7 +37,14 @@
   [title]="modalTitle()"
   [saving]="saving()"
   [clienteId]="editingCliente()?.id ?? null"
+  [logoUrl]="editingCliente()?.logoUrl ?? null"
+  [qrCodeUrl]="editingCliente()?.qrCodeUrl ?? null"
+  [qrGeradoEm]="editingCliente()?.qrGeradoEm ?? null"
   [(value)]="formValue"
+  [(pendingLogoFile)]="pendingLogoFile"
+  [(pendingVinculos)]="pendingVinculos"
   (closed)="onModalClosed()"
   (submitted)="onModalSubmit()"
+  (logoChanged)="onLogoChanged($event)"
+  (qrRevoked)="onQrRevoked($event)"
 />

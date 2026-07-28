@@ -9,7 +9,7 @@
   [value]="displayValue()"
   [placeholder]="placeholder()"
   [disabled]="disabled()"
-  class="flex h-11 w-full rounded-sm border border-border-strong bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-50"
+  class="flex h-11 w-full rounded-sm-sm border border-border-strong bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted motion-safe:transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-50"
   (click)="openList()"
   (input)="onInput($event)"
   (keydown)="onKeydown($event)"
@@ -29,7 +29,7 @@
 >
   <div
     role="listbox"
-    class="max-h-60 w-full overflow-auto rounded-sm border border-border bg-surface-elevated py-1 shadow-lg"
+    class="max-h-60 w-full overflow-auto rounded-sm-sm border border-border bg-surface-elevated py-1 shadow-lg"
   >
     @if (filteredOptions().length === 0) {
       <div

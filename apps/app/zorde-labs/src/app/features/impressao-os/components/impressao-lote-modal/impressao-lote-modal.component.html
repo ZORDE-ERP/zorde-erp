@@ -15,7 +15,7 @@
       <ul class="flex flex-col gap-2">
         @for (item of items; track item.clienteId) {
           <li
-            class="flex items-center justify-between gap-3 rounded-sm border border-border bg-surface-elevated px-3 py-2"
+            class="flex items-center justify-between gap-3 rounded-sm-sm border border-border bg-surface-elevated px-3 py-2"
           >
             <span class="min-w-0 flex-1 truncate text-sm text-text-primary">{{ item.nome }}</span>
             <app-badge [variant]="item.sucesso ? 'success' : 'error'">
@@ -65,7 +65,13 @@
         }
       </div>
 
-      <button app-button type="button" variant="outline" [isDisabled]="printing()" (click)="addRow()">
+      <button
+        app-button
+        type="button"
+        variant="outline"
+        [isDisabled]="printing()"
+        (click)="addRow()"
+      >
         <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
         Adicionar cliente
       </button>
@@ -78,5 +84,4 @@
       }
     }
   </div>
-
 </app-modal>

@@ -8,13 +8,25 @@
 
   <app-summary-cards [items]="summaryItems()" (cardClick)="onSummaryClick($event)" />
 
-  <app-fornecedor-filtro [filterExpanded]="false" (onClearFilter)="onClearFilter()" [filtroForm]="filtroForm" />
+  <app-fornecedor-filtro
+    (onClearFilter)="onClearFilter()"
+    (onSearch)="onSearch()"
+    [filtroForm]="filtroForm"
+  />
 
   <section aria-labelledby="fornecedores-lista-heading" class="min-w-0">
     <h2 id="fornecedores-lista-heading" class="sr-only">Fornecedores cadastrados</h2>
     <article app-card class="min-h-80">
       <div app-card-body class="min-w-0">
-        <app-fornecedores-table [rows]="filteredFornecedores()" [loading]="loading()" (actionTriggered)="onRowAction($event)" />
+        <app-fornecedores-table
+          [rows]="fornecedores()"
+          [totalItems]="total()"
+          [loading]="loading()"
+          [page]="page()"
+          [pageSize]="pageSize()"
+          (actionTriggered)="onRowAction($event)"
+          (paginationChanged)="onPaginationChange($event)"
+        />
       </div>
     </article>
   </section>
@@ -25,7 +37,10 @@
   [title]="modalTitle()"
   [saving]="saving()"
   [fornecedorId]="editingFornecedor()?.id ?? null"
+  [logoUrl]="editingFornecedor()?.logoUrl ?? null"
   [(value)]="formValue"
+  [(pendingLogoFile)]="pendingLogoFile"
   (closed)="onModalClosed()"
   (submitted)="onModalSubmit()"
+  (logoChanged)="onLogoChanged($event)"
 />

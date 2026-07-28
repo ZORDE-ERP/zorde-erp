@@ -1,43 +1,43 @@
 <section aria-label="Resumo">
-	<ul class="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 xl:grid-cols-3">
-		@for (item of items(); track item.id) {
-			<li>
-				<article
-					app-card
-					class="h-full motion-safe:transition-colors"
-					[class.cursor-pointer]="isClickable(item)"
-					[attr.role]="isClickable(item) ? 'button' : null"
-					[attr.tabindex]="isClickable(item) ? 0 : null"
-					[attr.aria-label]="isClickable(item) ? item.label : null"
-					(click)="onCardActivate(item)"
-					(keydown.enter)="onCardActivate(item)"
-					(keydown.space)="$event.preventDefault(); onCardActivate(item)"
-				>
-					<header
-						app-card-header
-						class="flex flex-row items-start justify-between gap-3 border-b-0 pb-0"
-					>
-						<div class="min-w-0">
-							<h2 class="text-sm font-medium text-text-muted">{{ item.label }}</h2>
-							<p
-								class="mt-2 font-heading text-3xl font-bold tracking-tight"
-								[class]="valueClass(item)"
-							>
-								{{ item.value }}
-							</p>
-						</div>
-						@if (item.icon) {
-							<span
-								class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm"
-								[class]="iconClass(item)"
-								aria-hidden="true"
-							>
-								<svg [lucideIcon]="item.icon" class="h-4 w-4"></svg>
-							</span>
-						}
-					</header>
-				</article>
-			</li>
-		}
-	</ul>
+  <ul class="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 xl:grid-cols-3">
+    @for (item of items(); track item.id) {
+      <li>
+        <article
+          app-card
+          class="h-full motion-safe:transition-colors"
+          [class.cursor-pointer]="isClickable(item)"
+          [attr.role]="isClickable(item) ? 'button' : null"
+          [attr.tabindex]="isClickable(item) ? 0 : null"
+          [attr.aria-label]="isClickable(item) ? item.label : null"
+          (click)="onCardActivate(item)"
+          (keydown.enter)="onCardActivate(item)"
+          (keydown.space)="$event.preventDefault(); onCardActivate(item)"
+        >
+          <header
+            app-card-header
+            class="flex flex-row items-start justify-between gap-3 border-b-0 pb-0"
+          >
+            <div class="min-w-0">
+              <h2 class="text-sm font-medium text-text-muted">{{ item.label }}</h2>
+              <p
+                class="mt-2 font-heading text-3xl font-bold tracking-tight"
+                [class]="valueClass(item)"
+              >
+                {{ item.value }}
+              </p>
+            </div>
+            @if (item.icon) {
+              <span
+                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm-sm"
+                [class]="iconClass(item)"
+                aria-hidden="true"
+              >
+                <svg [lucideIcon]="item.icon" class="h-4 w-4"></svg>
+              </span>
+            }
+          </header>
+        </article>
+      </li>
+    }
+  </ul>
 </section>

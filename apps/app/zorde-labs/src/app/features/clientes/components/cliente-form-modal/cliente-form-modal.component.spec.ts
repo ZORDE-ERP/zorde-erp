@@ -23,12 +23,14 @@ describe('ClienteFormModalComponent', () => {
 		httpMock.verify();
 	});
 
-	it('should only show the "tabela" tab when editing an existing cliente', () => {
+	it('should show the QR Code tab only when editing an existing cliente', () => {
 		fixture.componentRef.setInput('clienteId', null);
 		fixture.detectChanges();
 		expect((component as unknown as { tabs: () => readonly { id: string }[] }).tabs().map((tab) => tab.id)).toEqual([
 			'dados',
 			'endereco',
+			'imagem',
+			'tabela',
 		]);
 
 		fixture.componentRef.setInput('clienteId', 5);
@@ -36,7 +38,9 @@ describe('ClienteFormModalComponent', () => {
 		expect((component as unknown as { tabs: () => readonly { id: string }[] }).tabs().map((tab) => tab.id)).toEqual([
 			'dados',
 			'endereco',
+			'imagem',
 			'tabela',
+			'qrcode',
 		]);
 	});
 
@@ -85,5 +89,32 @@ describe('ClienteFormModalComponent', () => {
 		createReq.flush({ id: 10, clienteId: 5, servicoId: 2, valor: 50, createdAt: '2024-01-01' });
 
 		httpMock.expectOne(`${environment.baseUrl}tabela-montagem?page=1&limit=100`).flush({ items: [], total: 0 });
+	});
+
+	it('should regenerate the QR Code when Revogar is confirmed', () => {
+		vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+		fixture.componentRef.setInput('open', true);
+		fixture.componentRef.setInput('clienteId', 5);
+		fixture.componentRef.setInput('qrCodeUrl', 'https://cdn.zorde.dev/qr/old.png');
+		fixture.detectChanges();
+
+		httpMock.expectOne(`${environment.baseUrl}servico?page=1&limit=100`).flush({ items: [], total: 0 });
+
+		(component as unknown as { onRevogarQr: () => void }).onRevogarQr();
+
+		const req = httpMock.expectOne(`${environment.baseUrl}clientes/5/qrcode`);
+		expect(req.request.method).toBe('POST');
+		req.flush({
+			clienteId: 5,
+			token: 'novo-token',
+			qrGeradoEm: '2026-07-24T12:00:00.000Z',
+			qrCodeUrl: 'https://cdn.zorde.dev/qr/new.png',
+			message: 'ok',
+		});
+
+		expect((component as unknown as { currentQrCodeUrl: () => string | null }).currentQrCodeUrl()).toBe(
+			'https://cdn.zorde.dev/qr/new.png',
+		);
 	});
 });

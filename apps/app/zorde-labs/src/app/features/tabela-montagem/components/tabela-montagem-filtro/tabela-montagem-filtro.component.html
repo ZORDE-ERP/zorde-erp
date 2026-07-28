@@ -3,15 +3,12 @@
   [(expanded)]="filterExpanded"
   (cleared)="onClearFilters()"
 >
-  <form>
-    <app-field label="Cliente" htmlFor="tabela-montagem-nome">
-      <input
-        app-input
-        id="tabela-montagem-nome"
-        type="search"
-        autocomplete="off"
-        placeholder="Digite o nome do cliente"
-        [formField]="filtroForm().nome"
+  <form class="contents">
+    <app-field label="Cliente" htmlFor="tabela-montagem-cliente">
+      <app-cliente-select
+        [value]="filtroForm().clienteId().value()"
+        placeholder="Todos os clientes"
+        (valueChange)="onClienteIdChange($event)"
       />
     </app-field>
   </form>

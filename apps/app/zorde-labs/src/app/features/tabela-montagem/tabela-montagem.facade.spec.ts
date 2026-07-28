@@ -22,9 +22,17 @@ describe('TabelaMontagemFacade', () => {
 	});
 
 	it('should list tabela de montagem with page, limit and search', () => {
-		facade.list(1, 10, 'lente').subscribe();
+		facade.list({ page: 1, limit: 10, search: 'lente' }).subscribe();
 
 		const req = httpMock.expectOne(`${environment.baseUrl}tabela-montagem?page=1&limit=10&search=lente`);
+		expect(req.request.method).toBe('GET');
+		req.flush({ items: [], total: 0 });
+	});
+
+	it('should list tabela de montagem filtered by clienteId', () => {
+		facade.list({ page: 1, limit: 500, clienteId: 7 }).subscribe();
+
+		const req = httpMock.expectOne(`${environment.baseUrl}tabela-montagem?page=1&limit=500&clienteId=7`);
 		expect(req.request.method).toBe('GET');
 		req.flush({ items: [], total: 0 });
 	});

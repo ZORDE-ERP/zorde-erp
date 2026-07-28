@@ -9,7 +9,7 @@ import { ImpressaoLoteModalComponent, ImpressaoLoteResultado } from './impressao
 describe('ImpressaoLoteModalComponent', () => {
 	let fixture: ComponentFixture<ImpressaoLoteModalComponent>;
 	let component: ImpressaoLoteModalComponent;
-	let clienteFacade: { imprimirFolhasOs: ReturnType<typeof vi.fn> };
+	let clienteFacade: { imprimirFolhasOs: ReturnType<typeof vi.fn>; getById: ReturnType<typeof vi.fn> };
 	let toastService: AppToastService;
 	let createObjectURLSpy: ReturnType<typeof vi.spyOn>;
 	let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>;
@@ -43,7 +43,12 @@ describe('ImpressaoLoteModalComponent', () => {
 	}
 
 	beforeEach(async () => {
-		clienteFacade = { imprimirFolhasOs: vi.fn() };
+		clienteFacade = {
+			imprimirFolhasOs: vi.fn(),
+			getById: vi.fn((id: number) =>
+				of(new HttpResponse<Cliente>({ body: clientes.find((cliente) => cliente.id === id) ?? null })),
+			),
+		};
 
 		await TestBed.configureTestingModule({
 			imports: [ImpressaoLoteModalComponent],
@@ -60,7 +65,6 @@ describe('ImpressaoLoteModalComponent', () => {
 		vi.spyOn(document, 'createElement').mockReturnValue({ href: '', download: '', click: clickSpy } as unknown as HTMLAnchorElement);
 
 		fixture.componentRef.setInput('open', true);
-		fixture.componentRef.setInput('clientes', clientes);
 		fixture.detectChanges();
 	});
 

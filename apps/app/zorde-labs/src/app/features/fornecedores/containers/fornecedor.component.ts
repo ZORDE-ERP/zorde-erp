@@ -1,9 +1,13 @@
+import type { HttpResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form } from '@angular/forms/signals';
 import { LucidePlus } from '@lucide/angular';
 import { AppButtonDirective, AppCardImports, AppToastService } from '@repo/angular-ui';
-import type { DataTableActionEvent } from '../../../shared/components/data-table/data-table.model';
+import type {
+	DataTableActionEvent,
+	DataTablePaginationChange,
+} from '../../../shared/components/data-table/data-table.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EMPTY_PESSOA_FORM_VALUE, PessoaFormValue } from '../../../shared/components/pessoa-form/pessoa-form.model';
 import type { SummaryCardItem } from '../../../shared/components/summary-cards/summary-card-item.model';
@@ -13,7 +17,14 @@ import { FornecedorFormModalComponent } from '../components/fornecedor-form-moda
 import { FornecedoresTableComponent } from '../components/fornecedores-table/fornecedores-table.component';
 import { FornecedorFacade } from '../fornecedor.facade';
 import { FornecedorFiltroModel } from '../model/fornecedor-filtro';
-import type { CreateFornecedorPayload, Fornecedor } from '../models/fornecedor.model';
+import type {
+	CreateFornecedorPayload,
+	Fornecedor,
+	FornecedorListResponse,
+	FornecedorStatusCounts,
+} from '../models/fornecedor.model';
+
+const DEFAULT_PAGE_SIZE = 10;
 
 @Component({
 	selector: 'app-fornecedor',
@@ -35,46 +46,42 @@ export class FornecedorComponent {
 	private readonly toast = inject(AppToastService);
 
 	protected readonly fornecedores = signal<readonly Fornecedor[]>([]);
+	protected readonly total = signal(0);
+	protected readonly counts = signal<FornecedorStatusCounts>({ total: 0, ativos: 0, inativos: 0 });
 	protected readonly loading = signal(false);
 	protected readonly saving = signal(false);
+	protected readonly page = signal(1);
+	protected readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 
 	protected readonly modalOpen = signal(false);
 	protected readonly editingFornecedor = signal<Fornecedor | null>(null);
 	protected readonly formValue = signal<PessoaFormValue>(EMPTY_PESSOA_FORM_VALUE);
+	protected readonly pendingLogoFile = signal<File | null>(null);
 
-	private readonly filtroModel = signal<FornecedorFiltroModel>({ nome: '' });
+	private readonly filtroModel = signal<FornecedorFiltroModel>({ nome: '', status: '' });
 	protected filtroForm = form(this.filtroModel);
 
-	protected readonly filteredFornecedores = computed<readonly Fornecedor[]>(() => {
-		const nome = this.filtroModel().nome.trim().toLowerCase();
-		if (!nome) {
-			return this.fornecedores();
-		}
-		return this.fornecedores().filter((fornecedor) => fornecedor.nome.toLowerCase().includes(nome));
-	});
-
 	protected readonly summaryItems = computed<SummaryCardItem[]>(() => {
-		const fornecedores = this.fornecedores();
-		const ativos = fornecedores.filter((fornecedor) => fornecedor.status === 'ATIVO').length;
+		const counts = this.counts();
 		return [
 			{
 				id: 'total',
 				label: 'Total cadastrados',
-				value: fornecedores.length,
+				value: counts.total,
 				icon: 'users',
 				variant: 'default',
 			},
 			{
 				id: 'ativos',
 				label: 'Ativos',
-				value: ativos,
+				value: counts.ativos,
 				icon: 'circle-check',
 				variant: 'success',
 			},
 			{
 				id: 'inativos',
 				label: 'Inativos',
-				value: fornecedores.length - ativos,
+				value: counts.inativos,
 				icon: 'circle-x',
 				variant: 'error',
 			},
@@ -87,11 +94,21 @@ export class FornecedorComponent {
 		this.load();
 	}
 
-	protected onSummaryClick(_item: SummaryCardItem): void {}
+	protected onSummaryClick(item: SummaryCardItem): void {
+		if (item.id === 'ativos') {
+			this.filtroModel.update((current) => ({ ...current, status: 'ATIVO' }));
+		} else if (item.id === 'inativos') {
+			this.filtroModel.update((current) => ({ ...current, status: 'INATIVO' }));
+		} else if (item.id === 'total') {
+			this.filtroModel.update((current) => ({ ...current, status: '' }));
+		}
+		this.onSearch();
+	}
 
 	protected onCreate(): void {
 		this.editingFornecedor.set(null);
 		this.formValue.set({ ...EMPTY_PESSOA_FORM_VALUE });
+		this.pendingLogoFile.set(null);
 		this.modalOpen.set(true);
 	}
 
@@ -106,11 +123,30 @@ export class FornecedorComponent {
 	}
 
 	protected onClearFilter(): void {
-		this.filtroModel.set({ nome: '' });
+		this.filtroModel.set({ nome: '', status: '' });
+		this.page.set(1);
+		this.load();
+	}
+
+	protected onSearch(): void {
+		this.page.set(1);
+		this.load();
+	}
+
+	protected onPaginationChange(event: DataTablePaginationChange): void {
+		this.page.set(event.page);
+		this.pageSize.set(event.pageSize);
+		this.load();
 	}
 
 	protected onModalClosed(): void {
 		this.modalOpen.set(false);
+		this.pendingLogoFile.set(null);
+	}
+
+	protected onLogoChanged(fornecedor: Fornecedor): void {
+		this.editingFornecedor.set(fornecedor);
+		this.fornecedores.update((list) => list.map((item) => (item.id === fornecedor.id ? fornecedor : item)));
 	}
 
 	protected onModalSubmit(): void {
@@ -123,17 +159,54 @@ export class FornecedorComponent {
 		this.saving.set(true);
 		const editing = this.editingFornecedor();
 		const payload = this.toPayload(value);
+		const pendingLogo = this.pendingLogoFile();
 
-		const request = editing
-			? this.fornecedorFacade.update({ id: editing.id, ...payload })
-			: this.fornecedorFacade.create(payload);
+		if (editing) {
+			this.fornecedorFacade.update({ id: editing.id, ...payload }).subscribe({
+				next: () => {
+					this.saving.set(false);
+					this.modalOpen.set(false);
+					this.toast.show('Fornecedor atualizado com sucesso.', 'success');
+					this.load();
+				},
+				error: () => this.saving.set(false),
+			});
+			return;
+		}
 
-		request.subscribe({
-			next: () => {
-				this.saving.set(false);
-				this.modalOpen.set(false);
-				this.toast.show(editing ? 'Fornecedor atualizado com sucesso.' : 'Fornecedor criado com sucesso.', 'success');
-				this.load();
+		this.fornecedorFacade.create(payload).subscribe({
+			next: (response) => {
+				const created = response.body;
+				if (!created) {
+					this.saving.set(false);
+					this.toast.show('Fornecedor criado, mas resposta inválida.', 'warning');
+					this.load();
+					return;
+				}
+
+				if (!pendingLogo) {
+					this.saving.set(false);
+					this.modalOpen.set(false);
+					this.toast.show('Fornecedor criado com sucesso.', 'success');
+					this.load();
+					return;
+				}
+
+				this.fornecedorFacade.uploadLogo(created.id, pendingLogo).subscribe({
+					next: () => {
+						this.saving.set(false);
+						this.modalOpen.set(false);
+						this.pendingLogoFile.set(null);
+						this.toast.show('Fornecedor criado com sucesso.', 'success');
+						this.load();
+					},
+					error: () => {
+						this.saving.set(false);
+						this.modalOpen.set(false);
+						this.toast.show('Fornecedor criado, mas o upload do logo falhou.', 'warning');
+						this.load();
+					},
+				});
 			},
 			error: () => this.saving.set(false),
 		});
@@ -141,13 +214,23 @@ export class FornecedorComponent {
 
 	private load(): void {
 		this.loading.set(true);
-		this.fornecedorFacade.list().subscribe({
-			next: (response) => {
-				this.loading.set(false);
-				this.fornecedores.set(response.body ?? []);
-			},
-			error: () => this.loading.set(false),
-		});
+		const filtro = this.filtroForm().value();
+		this.fornecedorFacade
+			.list({
+				page: this.page(),
+				limit: this.pageSize(),
+				search: filtro.nome.trim() || undefined,
+				status: filtro.status || undefined,
+			})
+			.subscribe({
+				next: (response: HttpResponse<FornecedorListResponse>) => {
+					this.loading.set(false);
+					this.fornecedores.set(response.body?.items ?? []);
+					this.total.set(response.body?.total ?? 0);
+					this.counts.set(response.body?.counts ?? { total: 0, ativos: 0, inativos: 0 });
+				},
+				error: () => this.loading.set(false),
+			});
 	}
 
 	private openEdit(fornecedor: Fornecedor): void {

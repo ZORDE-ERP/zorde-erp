@@ -14,7 +14,7 @@ export class AppCheckboxDirective {
 
 	protected readonly hostClasses = computed((): string => {
 		return joinClasses(
-			'h-5 w-5 rounded border border-border-strong text-primary',
+			'h-5 w-5 rounded-sm border border-border-strong text-primary',
 			'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
 			'disabled:cursor-not-allowed disabled:opacity-50',
 			this.hasError() ? 'border-error' : null,

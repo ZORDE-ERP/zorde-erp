@@ -21,6 +21,7 @@ export interface Fornecedor {
 	observacao?: string | null;
 	numeroEndereco?: string | null;
 	usuarioId: number;
+	logoUrl?: string | null;
 	createdAt: string | Date | null;
 	updatedAt?: string | Date | null;
 }
@@ -66,4 +67,23 @@ export interface UpdateFornecedorPayload {
 	ibge?: string;
 	razaoSocial?: string;
 	nomeFantasia?: string;
+}
+
+export interface FornecedorStatusCounts {
+	total: number;
+	ativos: number;
+	inativos: number;
+}
+
+export interface FornecedorListResponse {
+	items: Fornecedor[];
+	total: number;
+	counts: FornecedorStatusCounts;
+}
+
+export interface ListFornecedoresQuery {
+	page?: number;
+	limit?: number;
+	search?: string;
+	status?: StatusPessoa;
 }

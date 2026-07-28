@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { StatusFolhaOs } from '../../../../shared/enums/folha-os.enum';
-import { OrigemValorItem, StatusOrdemServico } from '../../../../shared/enums/ordem-de-servico.enum';
+import { OrigemOrdemServico, OrigemValorItem, StatusOrdemServico } from '../../../../shared/enums/ordem-de-servico.enum';
 import { BusinessRuleException, ConflictException, EntityNotFoundException } from '../../../../shared/errors/app.exception';
+import { ReservarCodigosOsService } from '../../../../shared/infra/services/reservarCodigosOs.service';
 import type { IClienteRepository } from '../../../cliente/domain/repositories/cliente.repository';
 import { ICLIENTE_REPOSITORY } from '../../../cliente/domain/repositories/cliente.repository';
 import type { IFolhaOsRepository } from '../../../cliente/domain/repositories/folhaOs.repository';
@@ -26,6 +27,7 @@ export class CreateServiceOrderUseCase {
 		private readonly tabelaMontagemRepository: ITabelaMontagemRepository,
 		@Inject(IFOLHA_OS_REPOSITORY)
 		private readonly folhaOsRepository: IFolhaOsRepository,
+		private readonly reservarCodigosOsService: ReservarCodigosOsService,
 	) {}
 
 	public async execute(data: CreateOrderDto, usuarioId: number): Promise<ServiceOrderResponseDto> {
@@ -34,23 +36,27 @@ export class CreateServiceOrderUseCase {
 			throw new EntityNotFoundException('Cliente não encontrado');
 		}
 
+		if (data.origem === OrigemOrdemServico.QR_SCAN && !data.codigoFolha) {
+			throw new BusinessRuleException('codigoFolha é obrigatório para lançamento via QR');
+		}
+
 		let folhaId: number | null = null;
+		let codigoOsFromFolha: string | null = null;
+
 		if (data.folhaId != null || data.codigoFolha) {
 			const folha =
 				data.folhaId != null
 					? await this.folhaOsRepository.findById(data.folhaId, usuarioId)
 					: await this.folhaOsRepository.findByCodigoFolha(data.codigoFolha as string, usuarioId);
 
-			if (!folha) {
-				throw new EntityNotFoundException('Folha de OS não encontrada');
-			}
-			if (folha.getClienteId() !== data.clienteId) {
-				throw new BusinessRuleException('Folha não pertence ao cliente da OS');
+			if (!folha || folha.getClienteId() !== data.clienteId) {
+				throw new BusinessRuleException('Não existe este código impresso para este cliente');
 			}
 			if (folha.getStatus() !== StatusFolhaOs.IMPRESSA) {
-				throw new ConflictException('Folha já foi lançada ou cancelada');
+				throw new ConflictException('Esta OS impressa já foi lançada');
 			}
 			folhaId = folha.getId() as number;
+			codigoOsFromFolha = folha.getCodigoFolha();
 		}
 
 		const tabelaIds = [...new Set(data.itens.map((item) => item.tabelaMontagemId).filter((id): id is number => id != null))];
@@ -72,11 +78,6 @@ export class CreateServiceOrderUseCase {
 			let valorUnitario = Number(item.valorUnitario);
 			const descricaoManual = item.descricaoManual ?? null;
 
-			/**
-			 * Decisão: quando origemValor=TABELA, o backend sempre usa o valor vigente
-			 * do banco (ignora valorUnitario do payload) — mais resiliente a frontend desatualizado.
-			 * Quando origemValor=MANUAL, usa o valor enviado.
-			 */
 			if (item.origemValor === OrigemValorItem.TABELA) {
 				if (item.tabelaMontagemId == null) {
 					throw new BusinessRuleException('origemValor TABELA exige tabelaMontagemId');
@@ -103,10 +104,12 @@ export class CreateServiceOrderUseCase {
 
 		const valorTotalOs = Number(itensResolvidos.reduce((acc, item) => acc + item.valorTotal, 0).toFixed(2));
 
-		let codigoOs = data.codigoOS;
-		if (!codigoOs) {
-			const count = await this.serviceOrderRepository.countByCliente(data.clienteId, usuarioId);
-			codigoOs = `OS-${data.clienteId}-${String(count + 1).padStart(5, '0')}`;
+		let codigoOs: string;
+		if (codigoOsFromFolha) {
+			codigoOs = codigoOsFromFolha;
+		} else {
+			const reservados = await this.reservarCodigosOsService.reservar(data.clienteId, usuarioId, 1);
+			codigoOs = reservados[0];
 		}
 
 		try {
@@ -125,7 +128,7 @@ export class CreateServiceOrderUseCase {
 			return serviceOrderToResponse(created);
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-				throw new ConflictException('Já existe uma forma de vínculo/código duplicado para esta OS');
+				throw new ConflictException('Esta OS impressa já foi lançada');
 			}
 			throw error;
 		}

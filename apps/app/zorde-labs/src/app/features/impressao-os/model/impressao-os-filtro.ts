@@ -1,3 +1,3 @@
 export interface ImpressaoOsFiltroModel {
-	nome: string;
+	clienteId: number | null;
 }

@@ -1,4 +1,5 @@
-import { computed, Service, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { computed, inject, PLATFORM_ID, Service, signal } from '@angular/core';
 
 export type User = {
 	id: string;
@@ -7,11 +8,15 @@ export type User = {
 	role: string;
 };
 
+const USER_KEY = 'user';
+const ACCESS_TOKEN_KEY = 'accessToken';
+
 @Service()
 export class UserAuthService {
-	private _user = signal<User | null>(null);
+	private readonly platformId = inject(PLATFORM_ID);
+	private _user = signal<User | null>(this.restoreUser());
 	public readonly currentUser = this._user.asReadonly();
-	public isAuthenticated = computed(() => this._user()?.id !== null && !!this.getAcessToken());
+	public isAuthenticated = computed(() => !!this._user()?.id && !!this.getAcessToken());
 
 	public login(user: User, token: string): void {
 		this.setUser(user);
@@ -25,10 +30,16 @@ export class UserAuthService {
 
 	private setUser(user: User): void {
 		this._user.set(user);
+		if (this.isBrowser()) {
+			localStorage.setItem(USER_KEY, JSON.stringify(user));
+		}
 	}
 
 	public clearUser(): void {
 		this._user.set(null);
+		if (this.isBrowser()) {
+			localStorage.removeItem(USER_KEY);
+		}
 	}
 
 	public isAdmin(): boolean {
@@ -44,16 +55,36 @@ export class UserAuthService {
 	}
 
 	private setAcessToken(token: string): void {
-		if (!token) return;
-		localStorage.setItem('accessToken', token);
+		if (!token || !this.isBrowser()) return;
+		localStorage.setItem(ACCESS_TOKEN_KEY, token);
 	}
 
 	public getAcessToken(): string | null {
-		const accessToken = localStorage.getItem('accessToken');
+		if (!this.isBrowser()) return null;
+		const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 		return accessToken ? accessToken : null;
 	}
 
 	private removeAcessToken(): void {
-		localStorage.removeItem('accessToken');
+		if (!this.isBrowser()) return;
+		localStorage.removeItem(ACCESS_TOKEN_KEY);
+	}
+
+	private restoreUser(): User | null {
+		if (!this.isBrowser()) return null;
+
+		const storedUser = localStorage.getItem(USER_KEY);
+		if (!storedUser) return null;
+
+		try {
+			return JSON.parse(storedUser) as User;
+		} catch {
+			localStorage.removeItem(USER_KEY);
+			return null;
+		}
+	}
+
+	private isBrowser(): boolean {
+		return isPlatformBrowser(this.platformId);
 	}
 }

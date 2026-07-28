@@ -3,7 +3,7 @@
   [(expanded)]="filterExpanded"
   (cleared)="onClearFilters()"
 >
-  <form class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <form class="contents">
     <app-field label="Status" htmlFor="os-status">
       <select app-select id="os-status" [formField]="filtroForm().status">
         <option value="">Todos</option>
@@ -14,7 +14,11 @@
     </app-field>
 
     <app-field label="Cliente" htmlFor="os-cliente">
-      <app-cliente-select [(value)]="clienteId" placeholder="Todos os clientes" />
+      <app-cliente-select
+        [value]="filtroForm().clienteId().value()"
+        placeholder="Todos os clientes"
+        (valueChange)="onClienteIdChange($event)"
+      />
     </app-field>
 
     <app-field label="Data início" htmlFor="os-data-inicio">

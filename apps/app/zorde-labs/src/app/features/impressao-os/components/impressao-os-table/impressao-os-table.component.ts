@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
-import type { DataTableActionEvent } from '../../../../shared/components/data-table/data-table.model';
+import type {
+	DataTableActionEvent,
+	DataTablePaginationChange,
+} from '../../../../shared/components/data-table/data-table.model';
 import { ACTIONS, COLUMNS } from '../../model/impressao-os-table';
 import type { Cliente } from '../../../clientes/models/cliente.model';
 
@@ -12,9 +15,13 @@ import type { Cliente } from '../../../clientes/models/cliente.model';
 })
 export class ImpressaoOsTableComponent {
 	public readonly rows = input<readonly Cliente[]>([]);
+	public readonly totalItems = input<number | null>(null);
 	public readonly loading = input(false);
+	public readonly page = input(1);
+	public readonly pageSize = input(10);
 
 	public readonly actionTriggered = output<DataTableActionEvent<Cliente>>();
+	public readonly paginationChanged = output<DataTablePaginationChange>();
 
 	public readonly actions = ACTIONS;
 	public readonly columns = COLUMNS;
@@ -24,6 +31,10 @@ export class ImpressaoOsTableComponent {
 			return;
 		}
 		this.actionTriggered.emit({ ...event, row: event.row });
+	}
+
+	protected onPaginationChange(event: DataTablePaginationChange): void {
+		this.paginationChanged.emit(event);
 	}
 
 	private isCliente(value: unknown): value is Cliente {

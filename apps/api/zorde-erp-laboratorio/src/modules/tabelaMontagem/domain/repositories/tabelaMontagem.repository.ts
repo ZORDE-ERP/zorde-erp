@@ -11,8 +11,9 @@ export interface ITabelaMontagemRepository {
 		page: number;
 		limit: number;
 		search?: string;
+		clienteId?: number;
 		usuarioId: number;
 	}): Promise<{ items: TabelaMontagemEntity[]; total: number }>;
 	update(tabela: TabelaMontagemEntity): Promise<TabelaMontagemEntity>;
-	softDelete(id: number, usuarioId: number): Promise<void>;
+	deleteById(id: number, usuarioId: number): Promise<void>;
 }

@@ -3,7 +3,7 @@
   [(expanded)]="filterExpanded"
   (cleared)="onClearFilters()"
 >
-  <form>
+  <form class="contents">
     <app-field label="Serviço" htmlFor="servico-nome">
       <input
         app-input
@@ -12,15 +12,8 @@
         autocomplete="off"
         placeholder="Digite o nome do serviço"
         [formField]="filtroForm().nome"
-        (search)="onSearchInput()"
+        (input)="onSearchInput()"
       />
     </app-field>
-
-    <!-- <app-field label="Status" htmlFor="servico-status">
-      <app-dropdown-menu
-        id="servico-status"
-        [label]="statusLabel()"
-      />
-    </app-field> -->
   </form>
 </app-filter-card>

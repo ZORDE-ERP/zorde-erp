@@ -14,11 +14,7 @@ import {
 import { TabelaMontagemFiltroComponent } from '../components/tabela-montagem-filtro/tabela-montagem-filtro.component';
 import { TabelaMontagemTableComponent } from '../components/tabela-montagem-table/tabela-montagem-table.component';
 import { TabelaMontagemFiltroModel } from '../model/tabela-montagem-filtro';
-import {
-	aggregateTabelaMontagemPorCliente,
-	filterAggregatedByNomeCliente,
-	TabelaMontagemAggregatedRow,
-} from '../model/tabela-montagem-table';
+import { aggregateTabelaMontagemPorCliente, TabelaMontagemAggregatedRow } from '../model/tabela-montagem-table';
 import { TabelaMontagem, TabelaMontagemListResponse } from '../models/tabela-montagem.model';
 import { TabelaMontagemFacade } from '../tabela-montagem.facade';
 
@@ -45,14 +41,11 @@ export class TabelaMontagemComponent {
 	public readonly items = signal<readonly TabelaMontagem[]>([]);
 	public readonly loading = signal(false);
 
-	private readonly filtroModel = signal<TabelaMontagemFiltroModel>({ nome: '' });
+	private readonly filtroModel = signal<TabelaMontagemFiltroModel>({ clienteId: null });
 	public readonly filtroForm = form(this.filtroModel);
 
 	public readonly aggregatedRows = computed((): readonly TabelaMontagemAggregatedRow[] =>
 		aggregateTabelaMontagemPorCliente(this.items()),
-	);
-	public readonly filteredRows = computed((): readonly TabelaMontagemAggregatedRow[] =>
-		filterAggregatedByNomeCliente(this.aggregatedRows(), this.filtroForm().value().nome),
 	);
 
 	public readonly fichaOpen = signal(false);
@@ -67,13 +60,16 @@ export class TabelaMontagemComponent {
 
 	public loadList(): void {
 		this.loading.set(true);
-		this.tabelaMontagemFacade.list(1, LIST_PAGE_LIMIT).subscribe({
-			next: (response: HttpResponse<TabelaMontagemListResponse>) => {
-				this.items.set(response.body?.items ?? []);
-			},
-			error: () => this.loading.set(false),
-			complete: () => this.loading.set(false),
-		});
+		const clienteId = this.filtroForm().value().clienteId;
+		this.tabelaMontagemFacade
+			.list({ page: 1, limit: LIST_PAGE_LIMIT, clienteId: clienteId ?? undefined })
+			.subscribe({
+				next: (response: HttpResponse<TabelaMontagemListResponse>) => {
+					this.items.set(response.body?.items ?? []);
+				},
+				error: () => this.loading.set(false),
+				complete: () => this.loading.set(false),
+			});
 	}
 
 	public onRowAction(event: DataTableActionEvent<TabelaMontagemAggregatedRow>): void {
@@ -90,7 +86,12 @@ export class TabelaMontagemComponent {
 	}
 
 	public onClearFilter(): void {
-		this.filtroModel.set({ nome: '' });
+		this.filtroModel.set({ clienteId: null });
+		this.loadList();
+	}
+
+	public onSearch(): void {
+		this.loadList();
 	}
 
 	public onFichaClosed(): void {

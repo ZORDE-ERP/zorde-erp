@@ -1,8 +1,8 @@
-<section class="flex w-full max-w-lg flex-col gap-6 px-4 py-6 sm:py-8">
+<section class="flex w-full sm:max-w-lg flex-col gap-6 px-4 py-6 sm:py-8">
   <header class="space-y-1">
     <h1 class="font-heading text-2xl font-semibold text-text-primary">Lançamento de OS</h1>
     <p class="text-sm text-text-muted">
-      Selecione o cliente e o serviço para lançar a ordem de serviço.
+      Bipe o QR da folha impressa para lançar a ordem de serviço com o código da folha.
     </p>
   </header>
 
@@ -10,28 +10,89 @@
     <app-alert variant="error">{{ errorMessage() }}</app-alert>
   }
 
-  @if (hasSession()) {
-    <article app-card class="rounded-sm">
-      <div app-card-body class="space-y-4 grid grid-cols-1 gap-4">
-        <p class="text-md text-error font-semibold">
-          Não foi possível encontrar a sessão. Por favor, tente novamente.
-        </p>
-        <button app-button type="button" variant="primary" size="sm" (click)="onTrocarCliente()">
-          Voltar para câmera
+  @if (!hasSession()) {
+    <article app-card class="grid grid-cols-1 rounded-sm-sm">
+      <div app-card-body class="space-y-4 flex flex-col gap-2">
+        <app-field label="Código / URL do QR" htmlFor="os-scan-wedge">
+          <input
+            #scanInput
+            app-input
+            id="os-scan-wedge"
+            type="text"
+            autofocus
+            placeholder="Cole a URL ou bipe o QR da folha (c, t e f)"
+            [formField]="scanForm.wedgeInput"
+            (keydown.enter)="onWedgeSubmit(); $event.preventDefault()"
+          />
+        </app-field>
+        <button app-button type="button" variant="primary" size="sm" (click)="onWedgeSubmit()">
+          Validar folha
         </button>
       </div>
     </article>
-  } @else {
-    <div class="flex items-center justify-between gap-3 border">
-      <form class="w-full p-2 grid grid-cols-1 gap-4">
-        <app-field label="Cliente" htmlFor="cliente-select">
-          <app-cliente-select
-            class="w-full"
-            [(value)]="clienteId"
-            placeholder="Buscar cliente..."
-          />
-        </app-field>
-      </form>
+  } @else if (loading()) {
+    <div class="flex items-center gap-2 text-sm text-text-muted">
+      <app-spinner size="sm" />
+      Validando folha e carregando serviços...
     </div>
+  } @else if (!errorMessage()) {
+    <article app-card class="rounded-sm-sm">
+      <div app-card-body class="space-y-4">
+        <div class="space-y-1 text-sm">
+          <p>
+            <span class="text-text-muted">Cliente:</span> <strong>{{ clienteNome() }}</strong>
+          </p>
+          <p>
+            <span class="text-text-muted">Código da folha:</span>
+            <strong>{{ codigoFolha() }}</strong>
+          </p>
+        </div>
+
+        @if (itens().length === 0) {
+          <p class="text-sm text-text-muted">
+            Este cliente não possui serviços na tabela de montagem.
+          </p>
+        } @else {
+          <app-field label="Serviço" htmlFor="os-scan-servico">
+            <select app-select id="os-scan-servico" [formField]="scanForm.selectedItemId">
+              <option value="">Selecione o serviço</option>
+              @for (item of itens(); track item.id) {
+                <option [value]="item.id">
+                  {{ item.nomeServico || 'Serviço #' + item.servicoId }} —
+                  {{ item.valor | appBrlCurrency }}
+                </option>
+              }
+            </select>
+          </app-field>
+
+          <div class="flex flex-wrap gap-2">
+            <button
+              app-button
+              type="button"
+              variant="primary"
+              size="sm"
+              [isDisabled]="!canSave()"
+              [loading]="saving()"
+              (click)="onSave()"
+            >
+              Lançar OS
+            </button>
+            <button
+              app-button
+              type="button"
+              variant="secondary"
+              size="sm"
+              (click)="onTrocarCliente()"
+            >
+              Nova leitura
+            </button>
+          </div>
+        }
+      </div>
+    </article>
+  } @else {
+    <button app-button type="button" variant="secondary" size="sm" (click)="onTrocarCliente()">
+      Nova leitura
+    </button>
   }
 </section>
