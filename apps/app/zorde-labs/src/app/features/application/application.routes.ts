@@ -53,7 +53,7 @@ export const APPLICATION_ROUTES: Routes = [
 	},
 	{
 		path: 'faturamento',
-		loadComponent: () => import('../application/placeholder-page').then((module) => module.PlaceholderPage),
-		data: { title: 'Faturamento', subtitle: 'Gestão financeira' },
+		redirectTo: 'home',
+		pathMatch: 'full',
 	},
 ];

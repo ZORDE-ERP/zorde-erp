@@ -1,25 +1,26 @@
 <article
-	class="overflow-hidden rounded-lg border border-border bg-surface"
-	[class.shadow-md]="elevated()"
-	[class.shadow-sm]="!elevated()"
+  class="overflow-hidden rounded-sm-lg border border-border bg-surface"
+  [class.shadow-md]="elevated()"
+  [class.shadow-sm]="!elevated()"
 >
-	@if (title() || description()) {
-		<header class="border-b border-border px-5 py-4">
-			@if (title()) {
-				<h3 class="font-heading text-base font-semibold text-text-primary">{{ title() }}</h3>
-			}
-			@if (description()) {
-				<p class="mt-1 text-sm text-text-muted">{{ description() }}</p>
-			}
-		</header>
-	}
-	<div class="p-5 text-text-secondary">
-		<ng-content select="[card-body]" />
-		@if (!title()) {
-			<ng-content />
-		}
-	</div>
-	<div class="empty:hidden border-t border-border px-5 py-4">
-		<ng-content select="[card-footer]" />
-	</div>
+  @if (title() || description()) {
+  <header class="border-b border-border px-5 py-4">
+    @if (title()) {
+    <h3 class="font-heading text-base font-semibold text-text-primary">
+      {{ title() }}
+    </h3>
+    } @if (description()) {
+    <p class="mt-1 text-sm text-text-muted">{{ description() }}</p>
+    }
+  </header>
+  }
+  <div class="p-5 text-text-secondary">
+    <ng-content select="[card-body]" />
+    @if (!title()) {
+    <ng-content />
+    }
+  </div>
+  <div class="empty:hidden border-t border-border px-5 py-4">
+    <ng-content select="[card-footer]" />
+  </div>
 </article>

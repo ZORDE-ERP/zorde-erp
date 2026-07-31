@@ -16,7 +16,7 @@ export class AppIconButtonDirective {
 
 	protected readonly hostClasses = computed((): string => {
 		return joinClasses(
-			'inline-flex h-11 w-11 items-center justify-center rounded-sm text-text-primary',
+			'inline-flex h-11 w-11 items-center justify-center rounded-sm-sm text-text-primary',
 			'motion-safe:transition-colors hover:bg-surface-muted',
 			'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
 			'disabled:pointer-events-none disabled:opacity-50',

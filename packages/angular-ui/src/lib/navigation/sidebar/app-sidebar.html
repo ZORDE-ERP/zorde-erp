@@ -7,7 +7,7 @@
 >
   <div class="flex items-center gap-3 border-b border-white/10 px-4 py-4">
     <button
-      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm-lg hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
       type="button"
       [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
       (click)="toggleCollapse()"
@@ -37,14 +37,24 @@
     <ul class="space-y-1">
       @for (item of primaryItems(); track trackItem(item)) {
       <li>
-        <a [class]="itemClasses(item)" (click)="navigateTo(item.path)">
+        <a
+          [class]="itemClasses(item)"
+          [attr.aria-disabled]="item.disabled || null"
+          [attr.tabindex]="item.disabled ? -1 : null"
+          (click)="navigateTo(item)"
+        >
           <svg
             [lucideIcon]="iconName(item.icon)"
             class="h-5 w-5 shrink-0"
             aria-hidden="true"
           ></svg>
           @if (!collapsed()) {
-          <span class="truncate">{{ item.label }}</span>
+          <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+          @if (item.disabled) {
+          <span class="shrink-0 text-[10px] font-medium uppercase tracking-wide text-sidebar-text/50">
+            Em breve
+          </span>
+          }
           }
         </a>
       </li>
@@ -66,7 +76,12 @@
       <ul class="space-y-1">
         @for (item of group.items; track trackItem(item)) {
         <li>
-          <a [class]="itemClasses(item)" (click)="navigateTo(item.path)">
+          <a
+            [class]="itemClasses(item)"
+            [attr.aria-disabled]="item.disabled || null"
+            [attr.tabindex]="item.disabled ? -1 : null"
+            (click)="navigateTo(item)"
+          >
             <svg
               [lucideIcon]="iconName(item.icon)"
               class="h-5 w-5 shrink-0"
@@ -74,9 +89,13 @@
             ></svg>
             @if (!collapsed()) {
             <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
-            @if (item.count !== undefined) {
+            @if (item.disabled) {
+            <span class="shrink-0 text-[10px] font-medium uppercase tracking-wide text-sidebar-text/50">
+              Em breve
+            </span>
+            } @else if (item.count !== undefined) {
             <span
-              class="rounded-sm bg-white/10 px-1.5 py-0.5 text-xs text-sidebar-hover"
+              class="rounded-sm-sm bg-white/10 px-1.5 py-0.5 text-xs text-sidebar-hover"
             >
               {{ item.count }}
             </span>
@@ -91,14 +110,24 @@
     <ul class="mt-6 space-y-1">
       @for (item of secondaryItems(); track trackItem(item)) {
       <li>
-        <a [class]="itemClasses(item)" (click)="navigateTo(item.path)">
+        <a
+          [class]="itemClasses(item)"
+          [attr.aria-disabled]="item.disabled || null"
+          [attr.tabindex]="item.disabled ? -1 : null"
+          (click)="navigateTo(item)"
+        >
           <svg
             [lucideIcon]="iconName(item.icon)"
             class="h-5 w-5 shrink-0"
             aria-hidden="true"
           ></svg>
           @if (!collapsed()) {
-          <span class="truncate">{{ item.label }}</span>
+          <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+          @if (item.disabled) {
+          <span class="shrink-0 text-[10px] font-medium uppercase tracking-wide text-sidebar-text/50">
+            Em breve
+          </span>
+          }
           }
         </a>
       </li>
@@ -112,14 +141,24 @@
     <ul class="mb-3 space-y-1">
       @for (item of footerItems(); track trackItem(item)) {
       <li>
-        <a [class]="itemClasses(item)" (click)="navigateTo(item.path)">
+        <a
+          [class]="itemClasses(item)"
+          [attr.aria-disabled]="item.disabled || null"
+          [attr.tabindex]="item.disabled ? -1 : null"
+          (click)="navigateTo(item)"
+        >
           <svg
             [lucideIcon]="iconName(item.icon)"
             class="h-5 w-5 shrink-0"
             aria-hidden="true"
           ></svg>
           @if (!collapsed()) {
-          <span class="truncate">{{ item.label }}</span>
+          <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+          @if (item.disabled) {
+          <span class="shrink-0 text-[10px] font-medium uppercase tracking-wide text-sidebar-text/50">
+            Em breve
+          </span>
+          }
           }
         </a>
       </li>
@@ -128,7 +167,7 @@
     } @if (user(); as currentUser) {
     <div class="relative">
       <button
-        class="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
+        class="flex w-full items-center gap-3 rounded-sm-xl px-2 py-2 text-left hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
         type="button"
         [attr.aria-expanded]="userMenuOpen()"
         aria-haspopup="menu"
@@ -161,7 +200,7 @@
 
       @if (userMenuOpen()) {
       <ul
-        class="absolute bottom-full left-0 z-popover mb-2 w-full min-w-48 overflow-hidden rounded-lg border border-border bg-surface py-1 shadow-lg"
+        class="absolute bottom-full left-0 z-popover mb-2 w-full min-w-48 overflow-hidden rounded-sm-lg border border-border bg-surface py-1 shadow-lg"
         role="menu"
       >
         <li role="none">

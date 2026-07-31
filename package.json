@@ -1,9 +1,11 @@
 {
   "name": "zorde-repo",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:api": "turbo run dev --filter=zorde-erp",
     "dev:labs": "npm run dev --prefix apps/app/zorde-labs",
     "ng:labs": "npm run ng --prefix apps/app/zorde-labs --",
     "lint": "biome check . --write",
@@ -22,12 +24,11 @@
     "typescript": "5.9.2"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=24"
   },
   "packageManager": "npm@10.9.3",
-	"workspaces": [
-		"apps/api/*",
-		"apps/app/laboratorio",
-		"packages/**"
-	]
+  "workspaces": [
+    "apps/api/*",
+    "packages/**"
+  ]
 }

@@ -4,6 +4,7 @@ export interface AppNavItem {
 	readonly icon?: string;
 	readonly count?: number;
 	readonly active?: boolean;
+	readonly disabled?: boolean;
 }
 
 export interface AppNavGroup {

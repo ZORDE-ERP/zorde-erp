@@ -4,7 +4,7 @@
   <div class="flex items-center justify-between gap-4 px-4 py-3 lg:px-6">
     <div class="flex items-center gap-3">
       <button
-        class="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-white/15 text-sidebar-text hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover lg:hidden"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-sm-sm border border-white/15 text-sidebar-text hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover lg:hidden"
         type="button"
         aria-label="Abrir menu"
         (click)="toggleMenu()"
@@ -23,7 +23,7 @@
 
     <div class="flex items-center gap-2">
       <button
-        class="relative inline-flex h-11 w-11 items-center justify-center rounded-sm border border-white/15 text-sidebar-text hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
+        class="relative inline-flex h-11 w-11 items-center justify-center rounded-sm-sm border border-white/15 text-sidebar-text hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
         type="button"
         aria-label="Notificações"
         (click)="onNotifications()"
@@ -31,7 +31,7 @@
         <svg lucideBell class="h-5 w-5" aria-hidden="true"></svg>
         @if (notificationCount() > 0) {
         <span
-          class="absolute top-1.5 right-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-semibold text-white"
+          class="absolute top-1.5 right-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-sm-full bg-error px-1 text-[10px] font-semibold text-white"
         >
           {{ notificationCount() }}
         </span>
@@ -41,7 +41,7 @@
       @if (user(); as currentUser) {
       <div class="relative">
         <button
-          class="inline-flex items-center gap-2 rounded-full p-1 hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
+          class="inline-flex items-center gap-2 rounded-sm-full p-1 hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
           type="button"
           [attr.aria-expanded]="userMenuOpen()"
           aria-haspopup="menu"
@@ -58,7 +58,7 @@
 
         @if (userMenuOpen()) {
         <ul
-          class="absolute right-0 z-popover mt-2 min-w-44 overflow-hidden rounded-lg border border-border bg-surface py-1 shadow-lg"
+          class="absolute right-0 z-popover mt-2 min-w-44 overflow-hidden rounded-sm-lg border border-border bg-surface py-1 shadow-lg"
           role="menu"
         >
           <li role="none">

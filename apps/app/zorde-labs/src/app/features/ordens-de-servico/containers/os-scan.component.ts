@@ -90,7 +90,28 @@ export class OsScanComponent implements OnInit {
 
 		if (Number.isFinite(c) && c > 0 && t && codigoFolha) {
 			this.startSession(c, t, codigoFolha);
+			return;
 		}
+
+		// TODO: remover mock — preview da tela com dados após scan do QR
+		this.applyMockSession();
+	}
+
+	/** Preview local: estado pós-scan com cliente e serviços da tabela de montagem. */
+	private applyMockSession(): void {
+		this.clienteId.set(42);
+		this.token.set('mock-token-preview');
+		this.codigoFolha.set('OS-42-000137');
+		this.clienteNome.set('Ótica Visão Clara Ltda');
+		this.itens.set([
+			{ id: 101, servicoId: 1, nomeServico: 'Montagem lente monofocal', valor: 45 },
+			{ id: 102, servicoId: 2, nomeServico: 'Montagem lente multifocal', valor: 85 },
+			{ id: 103, servicoId: 3, nomeServico: 'Surfaçagem digital', valor: 120 },
+			{ id: 104, servicoId: 4, nomeServico: 'Tratamento antirreflexo', valor: 65.5 },
+			{ id: 105, servicoId: 5, nomeServico: 'Ajuste de armação', valor: 25 },
+		]);
+		this.loading.set(false);
+		this.errorMessage.set(null);
 	}
 
 	public onWedgeSubmit(): void {

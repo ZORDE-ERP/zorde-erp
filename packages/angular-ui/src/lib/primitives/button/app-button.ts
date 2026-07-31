@@ -32,9 +32,9 @@ export class AppButtonDirective {
 		};
 
 		const sizes: Record<AppButtonSize, string> = {
-			sm: 'h-9 rounded-sm px-3 text-sm',
-			md: 'h-11 rounded-sm px-4 text-sm',
-			lg: 'h-12 rounded-lg px-6 text-base',
+			sm: 'h-9 rounded-sm-sm px-3 text-sm',
+			md: 'h-11 rounded-sm-sm px-4 text-sm',
+			lg: 'h-12 rounded-sm-lg px-6 text-base',
 		};
 
 		return joinClasses(base, variants[this.variant()], sizes[this.size()]);

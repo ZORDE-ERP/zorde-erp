@@ -13,7 +13,7 @@ export class AppInputDirective {
 
 	protected readonly hostClasses = computed((): string => {
 		return joinClasses(
-			'flex h-11 w-full rounded-sm border bg-surface px-3 py-2 text-sm text-text-primary',
+			'flex h-11 w-full rounded-sm-sm border bg-surface px-3 py-2 text-sm text-text-primary',
 			'placeholder:text-text-muted',
 			'motion-safe:transition-colors',
 			'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',

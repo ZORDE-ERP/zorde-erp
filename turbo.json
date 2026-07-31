@@ -3,34 +3,75 @@
 	"ui": "tui",
 	"tasks": {
 		"build": {
-			"dependsOn": ["^build"],
-			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["dist/**"]
+			"dependsOn": [
+				"^build",
+				"build:styles"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				".env*"
+			],
+			"outputs": [
+				"dist/**"
+			]
 		},
 		"//#lint": {},
 		"//#lint:check": {
 			"cache": false
 		},
 		"lint": {
-			"dependsOn": ["^lint"]
+			"dependsOn": [
+				"^lint"
+			]
 		},
 		"lint:check": {
-			"dependsOn": ["^lint:check"]
+			"dependsOn": [
+				"^lint:check"
+			]
 		},
 		"check-types": {
-			"dependsOn": ["^check-types"],
-			"inputs": ["src/**", "tsconfig*.json"],
+			"dependsOn": [
+				"^check-types"
+			],
+			"inputs": [
+				"src/**",
+				"tsconfig*.json"
+			],
 			"outputs": []
 		},
 		"test": {
-			"inputs": ["src/**", "test/**", "tsconfig*.json", "prisma/**"],
+			"inputs": [
+				"src/**",
+				"test/**",
+				"tsconfig*.json",
+				"prisma/**"
+			],
 			"outputs": []
 		},
 		"test:cov": {
-			"inputs": ["src/**", "test/**", "tsconfig*.json", "prisma/**"],
-			"outputs": ["coverage/**"]
+			"inputs": [
+				"src/**",
+				"test/**",
+				"tsconfig*.json",
+				"prisma/**"
+			],
+			"outputs": [
+				"coverage/**"
+			]
 		},
 		"dev": {
+			"with": [
+				"dev:styles"
+			],
+			"cache": false,
+			"persistent": true
+		},
+		"build:styles": {
+			"outputs": [
+				"dist/**"
+			]
+		},
+		"dev:styles": {
 			"cache": false,
 			"persistent": true
 		}

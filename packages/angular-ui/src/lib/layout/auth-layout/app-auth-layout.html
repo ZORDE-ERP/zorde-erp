@@ -1,31 +1,41 @@
 <div class="min-h-screen md:grid md:grid-cols-2">
-	<aside class="hidden bg-primary p-6 text-primary-foreground md:flex md:flex-col md:justify-between">
-		<section class="rounded-xl bg-surface p-6 text-text-primary shadow-md">
-			<img
-				src="/logo-zorde-labs/zorde-logo-azul-labs.svg"
-				alt="Zorde Labs"
-				class="mb-6 h-10 w-auto"
-			/>
-			<h1 class="font-heading text-4xl font-bold text-accent">{{ brandTitle() }}</h1>
-			<p class="mt-3 max-w-leitura-estreita text-lg text-text-secondary">
-				{{ brandDescription() }}
-			</p>
-		</section>
-		<p class="text-sm text-primary-foreground/80">Acessível, responsivo e preparado para o laboratório.</p>
-	</aside>
+  <aside
+    class="hidden bg-primary p-6 text-primary-foreground md:flex md:flex-col md:justify-between"
+  >
+    <section class="rounded-sm-xl bg-surface p-6 text-text-primary shadow-md">
+      <img
+        src="/logo-zorde-labs/zorde-logo-azul-labs.svg"
+        alt="Zorde Labs"
+        class="mb-6 h-10 w-auto"
+      />
+      <h1 class="font-heading text-4xl font-bold text-accent">
+        {{ brandTitle() }}
+      </h1>
+      <p class="mt-3 max-w-leitura-estreita text-lg text-text-secondary">
+        {{ brandDescription() }}
+      </p>
+    </section>
+    <p class="text-sm text-primary-foreground/80">
+      Acessível, responsivo e preparado para o laboratório.
+    </p>
+  </aside>
 
-	<main class="flex min-h-screen items-center justify-center bg-surface-muted p-4 md:p-8">
-		<div class="w-full max-w-md">
-			<div class="mb-6 md:hidden">
-				<img
-					src="/logo-zorde-labs/zorde-logo-azul-labs.svg"
-					alt="Zorde Labs"
-					class="mb-4 h-8 w-auto"
-				/>
-				<h1 class="font-heading text-2xl font-bold text-text-primary">{{ brandTitle() }}</h1>
-				<p class="mt-1 text-sm text-text-secondary">{{ brandDescription() }}</p>
-			</div>
-			<ng-content />
-		</div>
-	</main>
+  <main
+    class="flex min-h-screen items-center justify-center bg-surface-muted p-4 md:p-8"
+  >
+    <div class="w-full max-w-md">
+      <div class="mb-6 md:hidden">
+        <img
+          src="/logo-zorde-labs/zorde-logo-azul-labs.svg"
+          alt="Zorde Labs"
+          class="mb-4 h-8 w-auto"
+        />
+        <h1 class="font-heading text-2xl font-bold text-text-primary">
+          {{ brandTitle() }}
+        </h1>
+        <p class="mt-1 text-sm text-text-secondary">{{ brandDescription() }}</p>
+      </div>
+      <ng-content />
+    </div>
+  </main>
 </div>

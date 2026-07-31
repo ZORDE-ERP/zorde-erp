@@ -58,7 +58,7 @@ export class MainShell {
 		},
 		{
 			title: 'Financeiro',
-			items: [{ label: 'Faturamento', path: '/faturamento', icon: 'folder' }],
+			items: [{ label: 'Faturamento', path: '/faturamento', icon: 'folder', disabled: true }],
 		},
 	];
 

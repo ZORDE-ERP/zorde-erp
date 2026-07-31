@@ -1,10 +1,21 @@
 # ZordeLabs
 
+Frontend oficial do monorepo (Angular 22). Requer **Node >= 24** (veja `.nvmrc` na raiz e neste app).
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.6.
 
 ## Development server
 
-To start a local development server, run:
+Na raiz do monorepo:
+
+```bash
+nvm use
+npm install
+npm run dev          # API + este app (Turbo)
+npm run dev:labs     # só o frontend
+```
+
+Ou neste diretório (com deps instaladas via workspace):
 
 ```bash
 ng serve

@@ -10,6 +10,7 @@ Estas diretrizes definem o comportamento do agente do Cursor para o desenvolvime
 ## 1. Estado e Reatividade (Signals First)
 - **Obrigatoriedade**: Utilize a abordagem **Signals first**. Todo estado reativo local, propriedades de componentes e fluxos de dados devem priorizar a API de Signals do Angular (`signal`, `computed`, `effect`, inputs baseados em signals).
 - **Formulários e Inputs**: **NUNCA** utilize `ngModel` (Template-driven forms). Para formulários, adote integrações reativas com Signals ou Reactive Forms, garantindo que o bind de dados e as atualizações de estado fluam de maneira previsível.
+- **OnPush Change Detection**: **NÃO**   Utilize o `ChangeDetectionStrategy.OnPush` para componentes que não dependem de inputs externos ou fluxos de dados reativos. O `ChangeDetectionStrategy.OnPush` é o padrão em Angular v22+
 
 
 ## 2. Tipagem e TypeScript Estrito

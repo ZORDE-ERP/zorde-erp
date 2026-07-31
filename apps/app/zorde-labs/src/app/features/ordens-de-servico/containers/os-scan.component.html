@@ -1,6 +1,11 @@
-<section class="flex w-full sm:max-w-lg flex-col gap-6 px-4 py-6 sm:py-8">
+<section
+  class="flex w-full sm:max-w-lg flex-col gap-6 px-4 py-6 sm:py-8"
+  aria-labelledby="os-scan-heading"
+>
   <header class="space-y-1">
-    <h1 class="font-heading text-2xl font-semibold text-text-primary">Lançamento de OS</h1>
+    <h1 id="os-scan-heading" class="font-heading text-2xl font-semibold text-text-primary">
+      Lançamento de OS
+    </h1>
     <p class="text-sm text-text-muted">
       Bipe o QR da folha impressa para lançar a ordem de serviço com o código da folha.
     </p>
@@ -12,7 +17,12 @@
 
   @if (!hasSession()) {
     <article app-card class="grid grid-cols-1 rounded-sm-sm">
-      <div app-card-body class="space-y-4 flex flex-col gap-2">
+      <form
+        app-card-body
+        class="space-y-4 flex flex-col gap-2"
+        aria-label="Leitura do QR da folha"
+        (submit)="onWedgeSubmit(); $event.preventDefault()"
+      >
         <app-field label="Código / URL do QR" htmlFor="os-scan-wedge">
           <input
             #scanInput
@@ -22,73 +32,83 @@
             autofocus
             placeholder="Cole a URL ou bipe o QR da folha (c, t e f)"
             [formField]="scanForm.wedgeInput"
-            (keydown.enter)="onWedgeSubmit(); $event.preventDefault()"
           />
         </app-field>
-        <button app-button type="button" variant="primary" size="sm" (click)="onWedgeSubmit()">
+        <button app-button type="submit" variant="primary" size="sm">
           Validar folha
         </button>
-      </div>
+      </form>
     </article>
   } @else if (loading()) {
-    <div class="flex items-center gap-2 text-sm text-text-muted">
-      <app-spinner size="sm" />
+    <p class="flex items-center gap-2 text-sm text-text-muted" aria-live="polite">
+      <app-spinner size="sm" label="Validando folha e carregando serviços" />
       Validando folha e carregando serviços...
-    </div>
+    </p>
   } @else if (!errorMessage()) {
     <article app-card class="rounded-sm-sm">
-      <div app-card-body class="space-y-4">
-        <div class="space-y-1 text-sm">
-          <p>
-            <span class="text-text-muted">Cliente:</span> <strong>{{ clienteNome() }}</strong>
-          </p>
-          <p>
-            <span class="text-text-muted">Código da folha:</span>
-            <strong>{{ codigoFolha() }}</strong>
-          </p>
-        </div>
+      <form
+        app-card-body
+        class="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-2"
+        aria-labelledby="os-scan-session-heading"
+        (submit)="onSave(); $event.preventDefault()"
+      >
+        <h2 id="os-scan-session-heading" class="sr-only">Dados da folha e serviço</h2>
+
+        <dl class="space-y-1 text-sm col-span-2 flex flex-col gap-2 p-2 m-0">
+          <div class="flex gap-2">
+            <dt class="text-text-muted">Cliente:</dt>
+            <dd class="m-0"><strong>{{ clienteNome() }}</strong></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="text-text-muted">Código da folha:</dt>
+            <dd class="m-0"><strong>{{ codigoFolha() }}</strong></dd>
+          </div>
+        </dl>
 
         @if (itens().length === 0) {
-          <p class="text-sm text-text-muted">
+          <p class="text-sm text-text-muted col-span-2">
             Este cliente não possui serviços na tabela de montagem.
           </p>
         } @else {
-          <app-field label="Serviço" htmlFor="os-scan-servico">
-            <select app-select id="os-scan-servico" [formField]="scanForm.selectedItemId">
-              <option value="">Selecione o serviço</option>
-              @for (item of itens(); track item.id) {
-                <option [value]="item.id">
-                  {{ item.nomeServico || 'Serviço #' + item.servicoId }} —
-                  {{ item.valor | appBrlCurrency }}
-                </option>
-              }
-            </select>
-          </app-field>
+          <div class="grid grid-cols-1 col-span-2 gap-4 p-2">
+            <app-field label="Serviço" htmlFor="os-scan-servico">
+              <select app-select id="os-scan-servico" [formField]="scanForm.selectedItemId">
+                <option value="">Selecione o serviço</option>
+                @for (item of itens(); track item.id) {
+                  <option [value]="item.id">
+                    {{ item.nomeServico || 'Serviço #' + item.servicoId }} —
+                    {{ item.valor | appBrlCurrency }}
+                  </option>
+                }
+              </select>
+            </app-field>
 
-          <div class="flex flex-wrap gap-2">
-            <button
-              app-button
-              type="button"
-              variant="primary"
-              size="sm"
-              [isDisabled]="!canSave()"
-              [loading]="saving()"
-              (click)="onSave()"
-            >
-              Lançar OS
-            </button>
-            <button
-              app-button
-              type="button"
-              variant="secondary"
-              size="sm"
-              (click)="onTrocarCliente()"
-            >
-              Nova leitura
-            </button>
+            <div class="flex flex-wrap gap-4 items-center justify-end">
+              <button
+                app-button
+                type="submit"
+                variant="primary"
+                size="sm"
+                class="py-4 px-6"
+                [isDisabled]="!canSave()"
+                [loading]="saving()"
+              >
+                SALVAR
+              </button>
+              <button
+                app-button
+                type="button"
+                variant="secondary"
+                size="sm"
+                class="py-4 px-6"
+                (click)="onTrocarCliente()"
+              >
+                NOVA LEITURA
+              </button>
+            </div>
           </div>
         }
-      </div>
+      </form>
     </article>
   } @else {
     <button app-button type="button" variant="secondary" size="sm" (click)="onTrocarCliente()">

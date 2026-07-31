@@ -20,7 +20,7 @@ async function bootstrap(): Promise<void> {
 		credentials: true,
 	});
 
-	const port = process.env.SERVER_PORT || 3000;
+	const port = process.env.API_PORT || 3000;
 	await app.listen(port, () => {
 		Logger.log(`Servidor iniciado com sucesso na porta ${port}`);
 	});

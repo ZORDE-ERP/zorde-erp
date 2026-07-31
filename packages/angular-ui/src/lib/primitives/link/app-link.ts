@@ -21,7 +21,7 @@ export class AppLinkDirective {
 
 		return joinClasses(
 			'inline-flex items-center gap-1 text-sm font-medium motion-safe:transition-colors',
-			'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 rounded-sm',
+			'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 rounded-sm-sm',
 			variants[this.variant()],
 		);
 	});
