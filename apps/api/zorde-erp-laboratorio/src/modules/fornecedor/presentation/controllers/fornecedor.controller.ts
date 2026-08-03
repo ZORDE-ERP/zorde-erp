@@ -64,10 +64,7 @@ export class FornecedorController {
 	}
 
 	@Delete(':id/logo')
-	public async removerLogo(
-		@Param('id', ParseIntPipe) id: number,
-		@User() user: UserInfo,
-	): Promise<FornecedorResponseDto> {
+	public async removerLogo(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<FornecedorResponseDto> {
 		return this.fornecedorService.removerLogo(id, user.userId);
 	}
 

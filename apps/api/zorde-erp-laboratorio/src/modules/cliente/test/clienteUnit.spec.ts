@@ -24,7 +24,9 @@ import type { QrCodeImageService } from '../infrastructure/services/qrCodeImage.
 describe('Cliente QR + Impressão Unit Tests', () => {
 	let clienteRepository: jest.Mocked<IClienteRepository>;
 	let folhaOsRepository: jest.Mocked<IFolhaOsRepository>;
-	let qrCodeImageService: jest.Mocked<Pick<QrCodeImageService, 'generateAndUpload' | 'destroy' | 'buildScanUrl' | 'generatePngDataUrl'>>;
+	let qrCodeImageService: jest.Mocked<
+		Pick<QrCodeImageService, 'generateAndUpload' | 'destroy' | 'buildScanUrl' | 'generatePngDataUrl'>
+	>;
 	let osFolhaPdfService: jest.Mocked<Pick<OsFolhaPdfService, 'generatePdf'>>;
 	let enderecoAdapterRepository: { create: jest.Mock };
 
@@ -55,8 +57,9 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 				publicId: 'zorde/qr-codes/cliente-1',
 			}),
 			destroy: jest.fn(),
-			buildScanUrl: jest.fn((clienteId, token, codigoFolha) =>
-				`https://app.test/os/scan?c=${clienteId}&t=${token}${codigoFolha ? `&f=${codigoFolha}` : ''}`,
+			buildScanUrl: jest.fn(
+				(clienteId, token, codigoFolha) =>
+					`https://app.test/os/scan?c=${clienteId}&t=${token}${codigoFolha ? `&f=${codigoFolha}` : ''}`,
 			),
 			generatePngDataUrl: jest.fn().mockResolvedValue('data:image/png;base64,abc'),
 		};

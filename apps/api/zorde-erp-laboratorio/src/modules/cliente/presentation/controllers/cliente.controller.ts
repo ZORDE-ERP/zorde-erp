@@ -83,10 +83,7 @@ export class ClienteController {
 	}
 
 	@Delete(':id/logo')
-	public async removerLogo(
-		@Param('id', ParseIntPipe) id: number,
-		@User() user: UserInfo,
-	): Promise<ClienteResponseDto> {
+	public async removerLogo(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<ClienteResponseDto> {
 		return this.clientService.removerLogo(id, user.userId);
 	}
 
