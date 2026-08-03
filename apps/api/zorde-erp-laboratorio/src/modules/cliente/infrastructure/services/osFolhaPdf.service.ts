@@ -120,7 +120,7 @@ export class OsFolhaPdfService implements OnModuleDestroy {
               ${clienteLogoHtml}
             </div>
             <div class="field-row">
-              <span class="field-label">CÓDIGO CLIENTE: <strong>${folha.clienteId ? '#' + folha.clienteId : '—'}</strong></span>
+              <span class="field-label">CÓDIGO CLIENTE: <strong>${folha.clienteId ? `#${folha.clienteId}` : '—'}</strong></span>
               <span class="field-label">CÓDIGO OS: <strong>${this.escapeHtml(codigo)}</strong></span>
               <span class="field-label">CÓDIGO (ÓTICA): <i class="fill-line sm"></i></span>
             </div>
@@ -212,7 +212,7 @@ export class OsFolhaPdfService implements OnModuleDestroy {
           <header class="canhoto-header">
             <div class="canhoto-brand">
               <span class="canhoto-title">CANHOTO DO CLIENTE — COMPROVANTE DE OS</span>
-              <span class="canhoto-cliente-name">CLIENTE: <strong>${this.escapeHtml(folha.nomeOtica)}</strong> ${folha.clienteId ? '(ID: #' + folha.clienteId + ')' : ''}</span>
+              <span class="canhoto-cliente-name">CLIENTE: <strong>${this.escapeHtml(folha.nomeOtica)}</strong> ${folha.clienteId ? `(ID: #${folha.clienteId})` : ''}</span>
             </div>
             <div class="canhoto-os-num">
               Nº ${this.escapeHtml(codigo)}
