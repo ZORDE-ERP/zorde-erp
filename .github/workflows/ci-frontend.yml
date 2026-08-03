@@ -1,0 +1,55 @@
+name: CI Zorde Labs Frontend
+
+# apps/app/zorde-labs NÃO faz parte dos workspaces do npm/Turborepo (usa
+# dependências @repo/* via "file:"), então este workflow instala e roda os
+# comandos diretamente dentro da pasta do app, sem passar pelo Turbo.
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - 'apps/app/zorde-labs/**'
+      - 'packages/angular-ui/**'
+      - 'packages/tailwind-config/**'
+      - '.github/workflows/ci-frontend.yml'
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - 'apps/app/zorde-labs/**'
+      - 'packages/angular-ui/**'
+      - 'packages/tailwind-config/**'
+      - '.github/workflows/ci-frontend.yml'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/app/zorde-labs
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: apps/app/zorde-labs/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (Biome)
+        run: npm run lint:check
+
+      - name: Unit tests (Vitest)
+        run: npm run test
+
+      - name: Build (production)
+        run: npm run build
