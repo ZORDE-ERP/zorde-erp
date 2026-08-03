@@ -23,6 +23,10 @@ export class UserAuthService {
 		this.setAcessToken(token);
 	}
 
+	public setAccessToken(token: string): void {
+		this.setAcessToken(token);
+	}
+
 	public logout(): void {
 		this.clearUser();
 		this.removeAcessToken();

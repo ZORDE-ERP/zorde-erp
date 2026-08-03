@@ -1,5 +1,6 @@
 export const environment = {
 	production: true,
 	useHydration: true,
-	baseUrl: 'http://localhost:3000/v1/api/',
+	baseUrl: 'https://YOUR_API_HOST/v1/api/',
+	/** URL pública da API em produção (ex.: https://api.seudominio.com/v1/api/) */
 };

@@ -11,4 +11,8 @@ export class LoginApi {
 	public login(data: LoginModel): Observable<HttpResponse<LoginResponse>> {
 		return this.httpService.post<LoginResponse>('auth/login', data);
 	}
+
+	public refresh(): Observable<HttpResponse<LoginResponse>> {
+		return this.httpService.post<LoginResponse>('auth/refresh', {});
+	}
 }

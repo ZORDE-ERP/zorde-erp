@@ -12,6 +12,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 
 interface ApiErrorResponse {
 	readonly message?: unknown;
+	readonly error?: unknown;
 }
 
 const genericBackendMessages = new Set([
@@ -52,7 +53,11 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
 
 	return next(request).pipe(
 		catchError((error: unknown) => {
-			if (error instanceof HttpErrorResponse && !request.context.get(SKIP_HTTP_ERROR_TOAST)) {
+			const skipToast =
+				request.context.get(SKIP_HTTP_ERROR_TOAST) ||
+				(error instanceof HttpErrorResponse && isRefreshHandledAuthError(error));
+
+			if (error instanceof HttpErrorResponse && !skipToast) {
 				toast.show(getHttpErrorMessage(error), 'error');
 			}
 
@@ -90,4 +95,13 @@ function getBackendMessage(body: unknown): string | null {
 
 function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
 	return typeof value === 'object' && value !== null && 'message' in value;
+}
+
+/** Erros que o refresh interceptor trata (evita toast duplicado). */
+function isRefreshHandledAuthError(error: HttpErrorResponse): boolean {
+	if (error.status !== 401 || !isApiErrorResponse(error.error)) {
+		return false;
+	}
+	const code = error.error.error;
+	return code === 'TOKEN_EXPIRED' || code === 'REFRESH_EXPIRED';
 }
