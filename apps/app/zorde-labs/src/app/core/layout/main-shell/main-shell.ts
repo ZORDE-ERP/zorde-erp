@@ -64,7 +64,6 @@ export class MainShell {
 
 	protected readonly user = computed<AppUserProfile>(() => {
 		const user = this.userAuthService.getUserInfo();
-		console.log(user, ' usuario');
 		return {
 			nome: user?.nome ?? 'Usuário',
 			email: user?.email ?? '',

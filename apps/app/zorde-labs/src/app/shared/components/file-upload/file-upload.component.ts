@@ -1,11 +1,5 @@
 import { Component, computed, ElementRef, input, output, signal, viewChild } from '@angular/core';
-import {
-	LucideDynamicIcon,
-	LucideImagePlus,
-	LucideTrash2,
-	LucideUpload,
-	provideLucideIcons,
-} from '@lucide/angular';
+import { LucideDynamicIcon, LucideImagePlus, LucideTrash2, LucideUpload, provideLucideIcons } from '@lucide/angular';
 import { AppButtonDirective, AppIconButtonDirective, AppSpinnerComponent } from '@repo/angular-ui';
 
 @Component({

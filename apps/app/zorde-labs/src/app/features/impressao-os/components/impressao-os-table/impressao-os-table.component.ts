@@ -4,8 +4,8 @@ import type {
 	DataTableActionEvent,
 	DataTablePaginationChange,
 } from '../../../../shared/components/data-table/data-table.model';
-import { ACTIONS, COLUMNS } from '../../model/impressao-os-table';
 import type { Cliente } from '../../../clientes/models/cliente.model';
+import { ACTIONS, COLUMNS } from '../../model/impressao-os-table';
 
 @Component({
 	selector: 'app-impressao-os-table',

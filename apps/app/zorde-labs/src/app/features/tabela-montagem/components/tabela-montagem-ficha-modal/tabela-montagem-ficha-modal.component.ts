@@ -1,6 +1,6 @@
-import { LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LucidePlus, LucideTrash2 } from '@lucide/angular';
 import {
 	AppBrlCurrencyMaskDirective,
 	AppBrlCurrencyPipe,
@@ -99,9 +99,7 @@ export class TabelaMontagemFichaModalComponent {
 	}
 
 	public updateValor(key: string, valor: number | null): void {
-		this.draftItens.update((itens) =>
-			itens.map((item) => (item.key === key ? { ...item, valor: valor ?? 0 } : item)),
-		);
+		this.draftItens.update((itens) => itens.map((item) => (item.key === key ? { ...item, valor: valor ?? 0 } : item)));
 	}
 
 	public addNovoVinculo(): void {

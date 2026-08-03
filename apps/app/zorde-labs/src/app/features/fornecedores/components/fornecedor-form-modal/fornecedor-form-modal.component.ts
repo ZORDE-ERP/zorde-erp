@@ -1,3 +1,4 @@
+import { HttpResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppModalComponent, AppTabItem, AppTabsComponent, AppToastService } from '@repo/angular-ui';
@@ -70,7 +71,7 @@ export class FornecedorFormModalComponent {
 
 		this.logoLoading.set(true);
 		this.fornecedorFacade.uploadLogo(fornecedorId, file).subscribe({
-			next: (response) => {
+			next: (response: HttpResponse<Fornecedor>) => {
 				this.logoLoading.set(false);
 				const updated = response.body;
 				if (updated) {
@@ -93,7 +94,7 @@ export class FornecedorFormModalComponent {
 
 		this.logoLoading.set(true);
 		this.fornecedorFacade.removerLogo(fornecedorId).subscribe({
-			next: (response) => {
+			next: (response: HttpResponse<Fornecedor>) => {
 				this.logoLoading.set(false);
 				this.currentLogoUrl.set(null);
 				if (response.body) {

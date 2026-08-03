@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
-import { type CanActivateFn, Router } from '@angular/router';
+import { type ActivatedRouteSnapshot, type CanActivateFn, Router, type RouterStateSnapshot } from '@angular/router';
 import { AppToastService } from '@repo/angular-ui';
 import { UserAuthService } from '../shared/providers/UserAuth.service';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
 	const userAuth = inject(UserAuthService);
 	const router = inject(Router);
 	const toastService = inject(AppToastService);

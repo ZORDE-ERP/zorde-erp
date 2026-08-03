@@ -1,25 +1,13 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FieldTree, FormField } from '@angular/forms/signals';
-import {
-	AppFieldComponent,
-	AppInputDirective,
-	AppModalComponent,
-	AppTextareaDirective,
-} from '@repo/angular-ui';
+import { AppFieldComponent, AppInputDirective, AppModalComponent, AppTextareaDirective } from '@repo/angular-ui';
 import { ServicoFormModel } from '../../model/servico';
 
 @Component({
 	selector: 'app-servico-form-modal',
 	templateUrl: './servico-form-modal.component.html',
-	imports: [
-		FormsModule,
-		FormField,
-		AppModalComponent,
-		AppFieldComponent,
-		AppInputDirective,
-		AppTextareaDirective,
-	],
+	imports: [FormsModule, FormField, AppModalComponent, AppFieldComponent, AppInputDirective, AppTextareaDirective],
 })
 export class ServicoFormModalComponent {
 	public readonly open = input(false);

@@ -61,15 +61,13 @@ export class TabelaMontagemComponent {
 	public loadList(): void {
 		this.loading.set(true);
 		const clienteId = this.filtroForm().value().clienteId;
-		this.tabelaMontagemFacade
-			.list({ page: 1, limit: LIST_PAGE_LIMIT, clienteId: clienteId ?? undefined })
-			.subscribe({
-				next: (response: HttpResponse<TabelaMontagemListResponse>) => {
-					this.items.set(response.body?.items ?? []);
-				},
-				error: () => this.loading.set(false),
-				complete: () => this.loading.set(false),
-			});
+		this.tabelaMontagemFacade.list({ page: 1, limit: LIST_PAGE_LIMIT, clienteId: clienteId ?? undefined }).subscribe({
+			next: (response: HttpResponse<TabelaMontagemListResponse>) => {
+				this.items.set(response.body?.items ?? []);
+			},
+			error: () => this.loading.set(false),
+			complete: () => this.loading.set(false),
+		});
 	}
 
 	public onRowAction(event: DataTableActionEvent<TabelaMontagemAggregatedRow>): void {

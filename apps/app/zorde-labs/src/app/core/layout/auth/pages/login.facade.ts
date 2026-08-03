@@ -33,10 +33,9 @@ export class LoginFacade {
 					this.userAuthService.login(usuario, accessToken);
 					this.toast.show('Login realizado com sucesso!', 'success');
 					const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-					void this.router.navigateByUrl(returnUrl && returnUrl.startsWith('/') ? returnUrl : '/home');
+					void this.router.navigateByUrl(returnUrl?.startsWith('/') ? returnUrl : '/home');
 				},
 				error: (error: HttpErrorResponse) => {
-					console.log('error', error);
 					this.authError.set(error.error.message);
 				},
 			});

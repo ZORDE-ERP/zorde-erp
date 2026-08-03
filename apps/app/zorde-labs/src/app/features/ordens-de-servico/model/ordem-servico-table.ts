@@ -23,14 +23,14 @@ export const COLUMNS: readonly DataTableColumn<OrdemServico>[] = [
 		header: 'Cliente',
 		sortable: true,
 		minWidth: '10rem',
-		value: (row) => row.cliente?.nome ?? `Cliente #${row.clienteId}`,
+		value: (row: OrdemServico) => row.cliente?.nome ?? `Cliente #${row.clienteId}`,
 	},
 	{
 		key: 'valorTotal',
 		header: 'Valor total',
 		align: 'right',
 		minWidth: '8rem',
-		value: (row) => formatBrlFromNumber(row.valorTotal),
+		value: (row: OrdemServico) => formatBrlFromNumber(row.valorTotal),
 	},
 	{
 		key: 'status',
@@ -38,7 +38,7 @@ export const COLUMNS: readonly DataTableColumn<OrdemServico>[] = [
 		type: 'badge',
 		align: 'center',
 		minWidth: '7rem',
-		badgeVariant: (row) => {
+		badgeVariant: (row: OrdemServico) => {
 			if (row.status === 'FATURADA') {
 				return 'success';
 			}
@@ -47,18 +47,18 @@ export const COLUMNS: readonly DataTableColumn<OrdemServico>[] = [
 			}
 			return 'info';
 		},
-		value: (row) => STATUS_LABEL[row.status],
+		value: (row: OrdemServico) => STATUS_LABEL[row.status],
 	},
 	{
 		key: 'origem',
 		header: 'Origem',
 		minWidth: '7rem',
-		value: (row) => (row.origem === 'QR_SCAN' ? 'QR Scan' : 'Manual'),
+		value: (row: OrdemServico) => (row.origem === 'QR_SCAN' ? 'QR Scan' : 'Manual'),
 	},
 	{
 		key: 'createdAt',
 		header: 'Data',
 		minWidth: '8rem',
-		value: (row) => formatDateBr(row.createdAt, true) || '—',
+		value: (row: OrdemServico) => formatDateBr(row.createdAt, true) || '—',
 	},
 ];

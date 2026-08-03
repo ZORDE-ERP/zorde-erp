@@ -14,14 +14,14 @@ export const COLUMNS: readonly DataTableColumn<Cliente>[] = [
 		type: 'badge',
 		align: 'center',
 		minWidth: '8rem',
-		badgeVariant: (row) => (row.qrCodeUrl ? 'success' : 'neutral'),
-		value: (row) => (row.qrCodeUrl ? 'QR ativo' : 'Sem QR'),
+		badgeVariant: (row: Cliente) => (row.qrCodeUrl ? 'success' : 'neutral'),
+		value: (row: Cliente) => (row.qrCodeUrl ? 'QR ativo' : 'Sem QR'),
 	},
 	{
 		key: 'qrGeradoEm',
 		header: 'QR gerado em',
 		sortable: true,
 		minWidth: '10rem',
-		value: (row) => (row.qrGeradoEm ? formatDateBr(row.qrGeradoEm, true) : '—'),
+		value: (row: Cliente) => (row.qrGeradoEm ? formatDateBr(row.qrGeradoEm, true) : '—'),
 	},
 ];

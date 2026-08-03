@@ -1,3 +1,4 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form } from '@angular/forms/signals';
@@ -15,7 +16,12 @@ import { OrdemServicoCreateModalComponent } from '../components/ordem-servico-cr
 import { OrdemServicoFiltroComponent } from '../components/ordem-servico-filtro/ordem-servico-filtro.component';
 import { OrdensServicoTableComponent } from '../components/ordens-servico-table/ordens-servico-table.component';
 import { OrdemServicoFiltroModel } from '../model/ordem-servico-filtro';
-import type { ListOrdensQuery, OrdemServico, StatusOrdemServico } from '../models/ordem-servico.model';
+import type {
+	ListOrdensQuery,
+	OrdemServico,
+	OrdemServicoListResponse,
+	StatusOrdemServico,
+} from '../models/ordem-servico.model';
 import { OrdemServicoFacade } from '../ordem-servico.facade';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -85,7 +91,7 @@ export class OrdemServicoComponent {
 			.list(query)
 			.pipe(finalize(() => this.loading.set(false)))
 			.subscribe({
-				next: (response) => {
+				next: (response: HttpResponse<OrdemServicoListResponse>) => {
 					this.rows.set(response.body?.items ?? []);
 					this.total.set(response.body?.total ?? 0);
 				},

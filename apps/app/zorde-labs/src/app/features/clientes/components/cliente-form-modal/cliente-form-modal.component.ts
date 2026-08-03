@@ -378,9 +378,7 @@ export class ClienteFormModalComponent {
 		}
 
 		if (this.isCreateMode()) {
-			this.pendingVinculos.update((list) =>
-				list.map((item) => (item.tempId === id ? { ...item, valor } : item)),
-			);
+			this.pendingVinculos.update((list) => list.map((item) => (item.tempId === id ? { ...item, valor } : item)));
 			this.cancelEdit();
 			return;
 		}

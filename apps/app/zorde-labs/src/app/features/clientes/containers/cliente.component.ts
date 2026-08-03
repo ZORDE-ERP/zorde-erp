@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { form } from '@angular/forms/signals';
 import { LucidePlus } from '@lucide/angular';
 import { AppButtonDirective, AppCardImports, AppToastService } from '@repo/angular-ui';
-import { catchError, forkJoin, map, of, switchMap, type Observable } from 'rxjs';
+import { catchError, forkJoin, map, type Observable, of, switchMap } from 'rxjs';
 import type {
 	DataTableActionEvent,
 	DataTablePaginationChange,
@@ -155,15 +155,11 @@ export class ClienteComponent {
 
 	protected onQrRevoked(cliente: Cliente): void {
 		const current = this.editingCliente();
-		const merged: Cliente = current
-			? { ...current, qrCodeUrl: cliente.qrCodeUrl, qrGeradoEm: cliente.qrGeradoEm }
-			: cliente;
+		const merged: Cliente = current ? { ...current, qrCodeUrl: cliente.qrCodeUrl, qrGeradoEm: cliente.qrGeradoEm } : cliente;
 		this.editingCliente.set(merged);
 		this.clientes.update((list) =>
 			list.map((item) =>
-				item.id === merged.id
-					? { ...item, qrCodeUrl: merged.qrCodeUrl, qrGeradoEm: merged.qrGeradoEm }
-					: item,
+				item.id === merged.id ? { ...item, qrCodeUrl: merged.qrCodeUrl, qrGeradoEm: merged.qrGeradoEm } : item,
 			),
 		);
 	}
@@ -197,10 +193,7 @@ export class ClienteComponent {
 						this.saving.set(false);
 						this.modalOpen.set(false);
 						if (revokeResult === 'failed') {
-							this.toast.show(
-								'Cliente atualizado, mas não foi possível revogar o QR Code automaticamente.',
-								'warning',
-							);
+							this.toast.show('Cliente atualizado, mas não foi possível revogar o QR Code automaticamente.', 'warning');
 						} else {
 							this.toast.show('Cliente atualizado com sucesso.', 'success');
 						}
@@ -248,9 +241,7 @@ export class ClienteComponent {
 					this.pendingLogoFile.set(null);
 					this.pendingVinculos.set([]);
 					this.toast.show(
-						result.logoOk
-							? 'Cliente criado com sucesso.'
-							: 'Cliente criado, mas o upload do logo falhou.',
+						result.logoOk ? 'Cliente criado com sucesso.' : 'Cliente criado, mas o upload do logo falhou.',
 						result.logoOk ? 'success' : 'warning',
 					);
 					this.loadList();
@@ -303,10 +294,7 @@ export class ClienteComponent {
 		});
 	}
 
-	private revokeQrAfterDataChange(
-		clienteId: number,
-		dataChanged: boolean,
-	): Observable<'skipped' | 'revoked' | 'failed'> {
+	private revokeQrAfterDataChange(clienteId: number, dataChanged: boolean): Observable<'skipped' | 'revoked' | 'failed'> {
 		if (!dataChanged) {
 			return of('skipped');
 		}

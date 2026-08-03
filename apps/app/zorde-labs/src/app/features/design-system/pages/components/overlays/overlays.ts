@@ -1,8 +1,8 @@
 import { Component, computed, signal } from '@angular/core';
 import {
 	AppButtonDirective,
-	type AppModalSize,
 	AppModalComponent,
+	type AppModalSize,
 	AppPageLayoutComponent,
 	AppPopoverComponent,
 	AppPreviewBlockComponent,

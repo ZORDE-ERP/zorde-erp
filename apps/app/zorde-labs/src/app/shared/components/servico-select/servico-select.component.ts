@@ -1,5 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { Component, effect, inject, input, model, OnInit, output, signal } from '@angular/core';
 import { AppSearchableSelectComponent, AppSearchableSelectOption } from '@repo/angular-ui';
+import type { ServicoListResponse } from '../../../features/servicos/models/service.model';
 import { ServicoFacade } from '../../../features/servicos/servico.facade';
 
 const SERVICO_SELECT_PAGE_LIMIT = 200;
@@ -36,7 +38,7 @@ export class ServicoSelectComponent implements OnInit {
 	private loadServicos(): void {
 		this.loading.set(true);
 		this.servicoFacade.list(1, SERVICO_SELECT_PAGE_LIMIT).subscribe({
-			next: (response) => {
+			next: (response: HttpResponse<ServicoListResponse>) => {
 				const servicos = response.body?.items ?? [];
 				this.options.set(servicos.map((servico) => ({ value: servico.id, label: servico.nome })));
 			},

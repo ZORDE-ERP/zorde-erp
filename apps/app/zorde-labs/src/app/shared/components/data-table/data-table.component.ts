@@ -353,7 +353,6 @@ export class DataTableComponent<T extends object = object> {
 	}
 
 	protected useActionMenu(row: T): boolean {
-		console.log(this.visibleActions(row).length);
 		return this.visibleActions(row).length >= 3;
 	}
 

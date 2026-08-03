@@ -175,7 +175,7 @@ export class FornecedorComponent {
 		}
 
 		this.fornecedorFacade.create(payload).subscribe({
-			next: (response) => {
+			next: (response: HttpResponse<Fornecedor>) => {
 				const created = response.body;
 				if (!created) {
 					this.saving.set(false);
