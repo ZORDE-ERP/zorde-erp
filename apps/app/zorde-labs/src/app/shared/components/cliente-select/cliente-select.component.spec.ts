@@ -37,7 +37,9 @@ describe('ClienteSelectComponent', () => {
 	});
 
 	afterEach(() => {
-		document.querySelectorAll('.cdk-overlay-container').forEach((node) => node.remove());
+		document.querySelectorAll('.cdk-overlay-container').forEach((node) => {
+			node.remove();
+		});
 		httpMock.verify();
 	});
 

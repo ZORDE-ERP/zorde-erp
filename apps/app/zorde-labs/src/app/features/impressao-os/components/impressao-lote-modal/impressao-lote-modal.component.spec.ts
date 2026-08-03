@@ -1,10 +1,22 @@
 import { HttpResponse } from '@angular/common/http';
+import { Component, input, output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppToastService } from '@repo/angular-ui';
 import { of, throwError } from 'rxjs';
-import type { Cliente } from '../../../clientes/models/cliente.model';
+import { ClienteSelectComponent } from '../../../../shared/components/cliente-select/cliente-select.component';
 import { ClienteFacade } from '../../../clientes/cliente.facade';
+import type { Cliente } from '../../../clientes/models/cliente.model';
 import { ImpressaoLoteModalComponent, ImpressaoLoteResultado } from './impressao-lote-modal.component';
+
+@Component({
+	selector: 'app-cliente-select',
+	template: '',
+})
+class ClienteSelectStubComponent {
+	public readonly value = input<number | null>(null);
+	public readonly disabled = input(false);
+	public readonly valueChange = output<number | null>();
+}
 
 describe('ImpressaoLoteModalComponent', () => {
 	let fixture: ComponentFixture<ImpressaoLoteModalComponent>;
@@ -14,6 +26,7 @@ describe('ImpressaoLoteModalComponent', () => {
 	let createObjectURLSpy: ReturnType<typeof vi.spyOn>;
 	let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>;
 	let clickSpy: ReturnType<typeof vi.fn>;
+	let createElementSpy: ReturnType<typeof vi.spyOn>;
 
 	const clientes: readonly Cliente[] = [
 		{
@@ -53,7 +66,12 @@ describe('ImpressaoLoteModalComponent', () => {
 		await TestBed.configureTestingModule({
 			imports: [ImpressaoLoteModalComponent],
 			providers: [{ provide: ClienteFacade, useValue: clienteFacade }],
-		}).compileComponents();
+		})
+			.overrideComponent(ImpressaoLoteModalComponent, {
+				remove: { imports: [ClienteSelectComponent] },
+				add: { imports: [ClienteSelectStubComponent] },
+			})
+			.compileComponents();
 
 		fixture = TestBed.createComponent(ImpressaoLoteModalComponent);
 		component = fixture.componentInstance;
@@ -62,7 +80,13 @@ describe('ImpressaoLoteModalComponent', () => {
 		createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
 		revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 		clickSpy = vi.fn();
-		vi.spyOn(document, 'createElement').mockReturnValue({ href: '', download: '', click: clickSpy } as unknown as HTMLAnchorElement);
+		const originalCreateElement = document.createElement.bind(document);
+		createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+			if (tagName === 'a') {
+				return { href: '', download: '', click: clickSpy } as unknown as HTMLAnchorElement;
+			}
+			return originalCreateElement(tagName);
+		});
 
 		fixture.componentRef.setInput('open', true);
 		fixture.detectChanges();
@@ -71,6 +95,7 @@ describe('ImpressaoLoteModalComponent', () => {
 	afterEach(() => {
 		createObjectURLSpy.mockRestore();
 		revokeObjectURLSpy.mockRestore();
+		createElementSpy.mockRestore();
 	});
 
 	it('should start with a single empty row', () => {
@@ -117,9 +142,7 @@ describe('ImpressaoLoteModalComponent', () => {
 		component.setClienteId(secondRow.id, 2);
 		component.setQuantidade(secondRow.id, 3);
 
-		clienteFacade.imprimirFolhasOs.mockImplementation(() =>
-			of(new HttpResponse<Blob>({ body: pdfBlob() })),
-		);
+		clienteFacade.imprimirFolhasOs.mockImplementation(() => of(new HttpResponse<Blob>({ body: pdfBlob() })));
 
 		const completedSpy = vi.fn();
 		component.completed.subscribe(completedSpy);

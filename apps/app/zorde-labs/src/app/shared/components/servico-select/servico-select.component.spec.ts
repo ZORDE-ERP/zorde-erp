@@ -29,6 +29,9 @@ describe('ServicoSelectComponent', () => {
 	});
 
 	afterEach(() => {
+		document.querySelectorAll('.cdk-overlay-container').forEach((node) => {
+			node.remove();
+		});
 		httpMock.verify();
 	});
 
@@ -47,13 +50,13 @@ describe('ServicoSelectComponent', () => {
 		fixture.detectChanges();
 
 		const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
-		input.dispatchEvent(new FocusEvent('focus'));
+		input.dispatchEvent(new MouseEvent('click'));
 		fixture.detectChanges();
 
-		const options = fixture.nativeElement.querySelectorAll('button[role="option"]');
+		const options = document.querySelectorAll('button[role="option"]');
 		expect(options.length).toBe(2);
-		expect(options[0].textContent.trim()).toBe('Montagem Simples');
-		expect(options[1].textContent.trim()).toBe('Montagem Parafuso');
+		expect(options[0].textContent?.trim()).toBe('Montagem Simples');
+		expect(options[1].textContent?.trim()).toBe('Montagem Parafuso');
 	});
 
 	it('should select a servico and update the value model', () => {
@@ -64,10 +67,10 @@ describe('ServicoSelectComponent', () => {
 		fixture.detectChanges();
 
 		const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
-		input.dispatchEvent(new FocusEvent('focus'));
+		input.dispatchEvent(new MouseEvent('click'));
 		fixture.detectChanges();
 
-		const option: HTMLButtonElement = fixture.nativeElement.querySelector('button[role="option"]');
+		const option = document.querySelector('button[role="option"]') as HTMLButtonElement;
 		option.click();
 		fixture.detectChanges();
 

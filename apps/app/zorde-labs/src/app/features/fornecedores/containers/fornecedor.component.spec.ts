@@ -3,8 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppToastService } from '@repo/angular-ui';
 import { of } from 'rxjs';
-import type { Fornecedor } from '../models/fornecedor.model';
 import { FornecedorFacade } from '../fornecedor.facade';
+import type { Fornecedor } from '../models/fornecedor.model';
 import { FornecedorComponent } from './fornecedor.component';
 
 describe('FornecedorComponent', () => {
@@ -104,14 +104,12 @@ describe('FornecedorComponent', () => {
 		const toastSpy = vi.spyOn(toastService, 'show');
 
 		(component as unknown as { onCreate: () => void }).onCreate();
-		(component as unknown as { formValue: { update: (fn: (v: unknown) => unknown) => void } }).formValue.update(
-			(value) => ({
-				...(value as object),
-				nome: 'Novo Fornecedor',
-				email: 'novo@fornecedor.com',
-				documento: '98765432100',
-			}),
-		);
+		(component as unknown as { formValue: { update: (fn: (v: unknown) => unknown) => void } }).formValue.update((value) => ({
+			...(value as object),
+			nome: 'Novo Fornecedor',
+			email: 'novo@fornecedor.com',
+			documento: '98765432100',
+		}));
 
 		(component as unknown as { onModalSubmit: () => void }).onModalSubmit();
 
@@ -147,9 +145,10 @@ describe('FornecedorComponent', () => {
 			rowIndex: 0,
 		});
 
-		(component as unknown as { formValue: { update: (fn: (v: unknown) => unknown) => void } }).formValue.update(
-			(value) => ({ ...(value as object), nome: 'Fornecedor A Atualizado' }),
-		);
+		(component as unknown as { formValue: { update: (fn: (v: unknown) => unknown) => void } }).formValue.update((value) => ({
+			...(value as object),
+			nome: 'Fornecedor A Atualizado',
+		}));
 
 		(component as unknown as { onModalSubmit: () => void }).onModalSubmit();
 

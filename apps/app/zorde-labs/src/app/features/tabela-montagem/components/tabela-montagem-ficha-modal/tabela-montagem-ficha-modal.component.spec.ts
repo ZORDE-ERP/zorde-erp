@@ -45,8 +45,11 @@ describe('TabelaMontagemFichaModalComponent', () => {
 		fixture.componentRef.setInput('mode', mode);
 		fixture.componentRef.setInput('open', true);
 		fixture.detectChanges();
-		httpMock.expectOne(`${environment.baseUrl}servico?page=1&limit=200`).flush({ items: [], total: 0 });
-		fixture.detectChanges();
+
+		if (mode === 'editar') {
+			httpMock.expectOne(`${environment.baseUrl}servico?page=1&limit=200`).flush({ items: [], total: 0 });
+			fixture.detectChanges();
+		}
 	}
 
 	it('should populate the draft list with the row itens when opened', () => {

@@ -31,7 +31,9 @@ describe('AppSearchableSelectComponent', () => {
 	});
 
 	afterEach(() => {
-		document.querySelectorAll('.cdk-overlay-container').forEach((node) => node.remove());
+		document.querySelectorAll('.cdk-overlay-container').forEach((node) => {
+			node.remove();
+		});
 	});
 
 	it('should create', () => {
@@ -61,7 +63,7 @@ describe('AppSearchableSelectComponent', () => {
 
 		const listbox = queryListbox();
 		expect(listbox).not.toBeNull();
-		expect(listbox!.querySelectorAll('button[role="option"]').length).toBe(3);
+		expect(listbox?.querySelectorAll('button[role="option"]').length).toBe(3);
 	});
 
 	it('should filter options as the user types', () => {
@@ -74,9 +76,9 @@ describe('AppSearchableSelectComponent', () => {
 		input.dispatchEvent(new Event('input'));
 		fixture.detectChanges();
 
-		const options = queryListbox()!.querySelectorAll('button[role="option"]');
-		expect(options.length).toBe(1);
-		expect(options[0].textContent!.trim()).toBe('Rio de Janeiro');
+		const options = queryListbox()?.querySelectorAll('button[role="option"]');
+		expect(options?.length).toBe(1);
+		expect(options?.[0].textContent?.trim()).toBe('Rio de Janeiro');
 	});
 
 	it('should select an option, update the value model and close the list', () => {
@@ -87,8 +89,8 @@ describe('AppSearchableSelectComponent', () => {
 		input.dispatchEvent(new MouseEvent('click'));
 		fixture.detectChanges();
 
-		const options = queryListbox()!.querySelectorAll('button[role="option"]');
-		(options[1] as HTMLButtonElement).click();
+		const options = queryListbox()?.querySelectorAll('button[role="option"]');
+		(options?.[1] as HTMLButtonElement).click();
 		fixture.detectChanges();
 
 		expect(fixture.componentInstance.value).toBe('rj');
@@ -106,8 +108,8 @@ describe('AppSearchableSelectComponent', () => {
 		input.dispatchEvent(new Event('input'));
 		fixture.detectChanges();
 
-		const emptyOption = queryListbox()!.querySelector('[role="option"][aria-disabled="true"]');
-		expect(emptyOption!.textContent!.trim()).toBe('Nenhum resultado');
+		const emptyOption = queryListbox()?.querySelector('[role="option"][aria-disabled="true"]');
+		expect(emptyOption?.textContent?.trim()).toBe('Nenhum resultado');
 	});
 
 	it('should close the list when clicking outside', () => {

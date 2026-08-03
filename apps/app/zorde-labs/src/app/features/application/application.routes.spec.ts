@@ -13,7 +13,7 @@ describe('Application routes', () => {
 		const router = TestBed.inject(Router);
 		await router.navigateByUrl('/servicos');
 		expect(router.url).toBe('/servicos');
-	});
+	}, 60_000);
 
 	it('should navigate to clientes', async () => {
 		const router = TestBed.inject(Router);

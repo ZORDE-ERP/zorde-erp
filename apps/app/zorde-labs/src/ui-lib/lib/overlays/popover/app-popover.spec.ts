@@ -22,7 +22,9 @@ describe('AppPopoverComponent', () => {
 	});
 
 	afterEach(() => {
-		document.querySelectorAll('.cdk-overlay-container').forEach((node) => node.remove());
+		document.querySelectorAll('.cdk-overlay-container').forEach((node) => {
+			node.remove();
+		});
 	});
 
 	it('should project content into the CDK overlay and close on outside click', () => {
@@ -35,7 +37,7 @@ describe('AppPopoverComponent', () => {
 
 		const body = document.querySelector('#popover-body');
 		expect(body).not.toBeNull();
-		expect(body!.textContent!.trim()).toBe('Conteúdo projetado');
+		expect(body?.textContent?.trim()).toBe('Conteúdo projetado');
 
 		const outside: HTMLButtonElement = fixture.nativeElement.querySelector('#outside');
 		outside.dispatchEvent(new MouseEvent('click', { bubbles: true }));

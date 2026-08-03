@@ -2,8 +2,8 @@ import { HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppToastService } from '@repo/angular-ui';
 import { of } from 'rxjs';
-import type { Cliente } from '../../clientes/models/cliente.model';
 import { ClienteFacade } from '../../clientes/cliente.facade';
+import type { Cliente } from '../../clientes/models/cliente.model';
 import { ImpressaoOsComponent } from './impressao-os.component';
 
 describe('ImpressaoOsComponent', () => {
@@ -45,11 +45,17 @@ describe('ImpressaoOsComponent', () => {
 	beforeEach(async () => {
 		clienteFacade = {
 			list: vi.fn(() =>
-				of(new HttpResponse({ body: { items: [...clientes], total: clientes.length, counts: { total: clientes.length, ativos: clientes.length, inativos: 0 } } })),
+				of(
+					new HttpResponse({
+						body: {
+							items: [...clientes],
+							total: clientes.length,
+							counts: { total: clientes.length, ativos: clientes.length, inativos: 0 },
+						},
+					}),
+				),
 			),
-			imprimirFolhasOs: vi.fn(() =>
-				of(new HttpResponse<Blob>({ body: new Blob(['pdf'], { type: 'application/pdf' }) })),
-			),
+			imprimirFolhasOs: vi.fn(() => of(new HttpResponse<Blob>({ body: new Blob(['pdf'], { type: 'application/pdf' }) }))),
 		};
 
 		await TestBed.configureTestingModule({
@@ -75,9 +81,7 @@ describe('ImpressaoOsComponent', () => {
 
 		component.onSearch();
 
-		expect(clienteFacade.list).toHaveBeenCalledWith(
-			expect.objectContaining({ page: 1, id: 2 }),
-		);
+		expect(clienteFacade.list).toHaveBeenCalledWith(expect.objectContaining({ page: 1, id: 2 }));
 	});
 
 	it('should open the batch print modal', () => {

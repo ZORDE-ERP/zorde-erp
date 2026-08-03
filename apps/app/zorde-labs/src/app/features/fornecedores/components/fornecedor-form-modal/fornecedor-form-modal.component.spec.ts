@@ -25,11 +25,12 @@ describe('FornecedorFormModalComponent', () => {
 		httpMock.verify();
 	});
 
-	it('should only show the "dados" and "endereco" tabs', () => {
+	it('should show the "dados", "endereco" and "imagem" tabs', () => {
 		fixture.detectChanges();
 		expect((component as unknown as { tabs: () => readonly { id: string }[] }).tabs().map((tab) => tab.id)).toEqual([
 			'dados',
 			'endereco',
+			'imagem',
 		]);
 	});
 
@@ -73,7 +74,8 @@ describe('FornecedorFormModalComponent', () => {
 		fixture.detectChanges();
 
 		const cepDigits = '01001000';
-		const pessoaForm = fixture.debugElement.query(By.directive(PessoaFormComponent)).componentInstance as PessoaFormComponent;
+		const pessoaForm = fixture.debugElement.query(By.directive(PessoaFormComponent))
+			.componentInstance as PessoaFormComponent;
 		(pessoaForm as unknown as { onCepChange: (value: string) => void }).onCepChange(cepDigits);
 
 		const req = httpMock.expectOne(`https://brasilapi.com.br/api/cep/v2/${cepDigits}`);
