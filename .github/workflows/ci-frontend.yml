@@ -45,6 +45,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # file: links apontam para packages/*, e o bundler resolve 'tailwindcss'
+      # a partir de packages/tailwind-config — sem node_modules lá (nem na raiz),
+      # o build/test falha. Instala as deps desse pacote no próprio diretório.
+      - name: Install @repo/tailwind-config dependencies
+        working-directory: packages/tailwind-config
+        run: npm install --no-package-lock
+
       - name: Lint (Biome)
         run: npm run lint:check
 

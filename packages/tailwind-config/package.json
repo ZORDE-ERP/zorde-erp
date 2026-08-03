@@ -8,7 +8,7 @@
         "./postcss": "./postcss.config.js",
         "./typography": "./src/typography.css"
     },
-    "devDependencies": {
+    "dependencies": {
         "postcss": "^8.5.3",
         "tailwindcss": "^4.1.5"
     }
