@@ -136,7 +136,7 @@ describe('TabelaMontagem Unit Tests', () => {
 				update: jest.fn(),
 				findById: jest.fn(),
 				findAllPaginated: jest.fn(),
-				softDelete: jest.fn(),
+				deleteById: jest.fn(),
 			} as unknown as jest.Mocked<ITabelaMontagemRepository>;
 
 			mockClienteRepository = {
@@ -246,12 +246,12 @@ describe('TabelaMontagem Unit Tests', () => {
 				const entity = new TabelaMontagemEntity(mockTabelaMontagemProps);
 
 				mockRepository.findById.mockResolvedValue(entity);
-				mockRepository.softDelete.mockResolvedValue(undefined);
+				mockRepository.deleteById.mockResolvedValue(undefined);
 
 				await useCase.execute(1, 5);
 
 				expect(mockRepository.findById).toHaveBeenCalledWith(1, 5);
-				expect(mockRepository.softDelete).toHaveBeenCalledWith(1, 5);
+				expect(mockRepository.deleteById).toHaveBeenCalledWith(1, 5);
 			});
 
 			it('should throw EntityNotFoundException if assembly table to delete is not found', async () => {
