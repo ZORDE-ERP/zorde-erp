@@ -1,0 +1,144 @@
+<app-page-layout
+	title="Formulários"
+	description="Campos com label, hint, erro e estados de validação para compor fluxos reais."
+>
+	<app-preview-block title="Formulário de exemplo">
+		<form class="grid max-w-xl gap-5" (ngSubmit)="onSubmit()">
+			<app-field label="Nome completo" htmlFor="name" hint="Como aparece no laudo." [error]="nameError">
+				<input
+					app-input
+					id="name"
+					name="name"
+					type="text"
+					placeholder="Digite o nome"
+					[hasError]="!!nameError"
+					[ngModel]="name()"
+					(ngModelChange)="name.set($event)"
+				/>
+			</app-field>
+
+			<app-field label="E-mail" htmlFor="email" [error]="emailError">
+				<input
+					app-input
+					id="email"
+					name="email"
+					type="email"
+					placeholder="nome@laboratorio.com"
+					[hasError]="!!emailError"
+					[ngModel]="email()"
+					(ngModelChange)="email.set($event)"
+				/>
+			</app-field>
+
+			<app-field label="Prioridade" htmlFor="priority">
+				<select
+					app-select
+					id="priority"
+					name="priority"
+					[ngModel]="priority()"
+					(ngModelChange)="priority.set($event)"
+				>
+					<option value="low">Baixa</option>
+					<option value="normal">Normal</option>
+					<option value="high">Alta</option>
+				</select>
+			</app-field>
+
+			<app-field label="Observações" htmlFor="notes" hint="Informações adicionais para a equipe.">
+				<textarea
+					app-textarea
+					id="notes"
+					name="notes"
+					placeholder="Descreva o contexto da solicitação"
+					[ngModel]="notes()"
+					(ngModelChange)="notes.set($event)"
+				></textarea>
+			</app-field>
+
+			<label class="flex items-center gap-2 text-sm text-text-secondary">
+				<input
+					app-checkbox
+					name="acceptTerms"
+					[ngModel]="acceptTerms()"
+					(ngModelChange)="acceptTerms.set($event)"
+				/>
+				Concordo com o processamento dos dados
+			</label>
+
+			<div class="flex gap-3">
+				<button app-button type="submit">Salvar</button>
+				<button app-button variant="outline" type="button">Cancelar</button>
+			</div>
+		</form>
+	</app-preview-block>
+
+	<app-preview-block
+		title="Máscaras brasileiras"
+		description="CPF, CNPJ e moeda BRL com máscara de entrada e pipes de formatação."
+	>
+		<div class="grid max-w-xl gap-5">
+			<app-field label="CPF" htmlFor="cpf" hint="Apenas dígitos no modelo; máscara na digitação.">
+				<input
+					app-input
+					appCpfMask
+					id="cpf"
+					name="cpf"
+					type="text"
+					inputmode="numeric"
+					autocomplete="off"
+					placeholder="000.000.000-00"
+					[ngModel]="cpf()"
+					(ngModelChange)="cpf.set($event)"
+				/>
+			</app-field>
+			@if (cpf()) {
+				<p class="text-sm text-text-secondary">
+					Formatado:
+					<span class="font-mono text-text-primary">{{ cpf() | appCpf }}</span>
+				</p>
+			}
+
+			<app-field label="CNPJ" htmlFor="cnpj" hint="Máscara progressiva até 14 dígitos.">
+				<input
+					app-input
+					appCnpjMask
+					id="cnpj"
+					name="cnpj"
+					type="text"
+					inputmode="numeric"
+					autocomplete="off"
+					placeholder="00.000.000/0000-00"
+					[ngModel]="cnpj()"
+					(ngModelChange)="cnpj.set($event)"
+				/>
+			</app-field>
+			@if (cnpj()) {
+				<p class="text-sm text-text-secondary">
+					Formatado:
+					<span class="font-mono text-text-primary">{{ cnpj() | appCnpj }}</span>
+				</p>
+			}
+
+			<app-field label="Valor (BRL)" htmlFor="amount" hint="Valor numérico no modelo; exibição em reais.">
+				<input
+					app-input
+					appBrlCurrencyMask
+					id="amount"
+					name="amount"
+					type="text"
+					inputmode="numeric"
+					autocomplete="off"
+					placeholder="R$ 0,00"
+					[ngModel]="amount()"
+					(ngModelChange)="amount.set($event)"
+				/>
+			</app-field>
+			@if (amount() !== null) {
+				<p class="text-sm text-text-secondary">
+					Formatado:
+					<span class="font-mono text-text-primary">{{ amount() | appBrlCurrency }}</span>
+				</p>
+			}
+		</div>
+	</app-preview-block>
+</app-page-layout>

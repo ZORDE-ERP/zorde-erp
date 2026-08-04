@@ -1,0 +1,8 @@
+<div [class]="hostClasses()" role="status">
+	@if (title()) {
+		<p class="font-medium">{{ title() }}</p>
+	}
+	<div [class]="title() ? 'mt-1' : ''">
+		<ng-content />
+	</div>
+</div>

@@ -17,6 +17,6 @@ export class DeleteTabelaMontagemUseCase {
 			throw new EntityNotFoundException('Tabela de montagem não encontrada');
 		}
 
-		await this.tabelaMontagemRepository.softDelete(id, usuarioId);
+		await this.tabelaMontagemRepository.deleteById(id, usuarioId);
 	}
 }

@@ -8,8 +8,9 @@ jest.mock('puppeteer', () => ({
 import { StatusFolhaOs } from '../../../shared/enums/folha-os.enum';
 import { StatusPessoa } from '../../../shared/enums/status-pessoa.enum';
 import { TipoPessoa } from '../../../shared/enums/tipo-pessoa.enum';
-import { BusinessRuleException, EntityNotFoundException } from '../../../shared/errors/app.exception';
+import { BusinessRuleException, ConflictException, EntityNotFoundException } from '../../../shared/errors/app.exception';
 import { impressaoOsSchema } from '../application/dtos/impressaoOs.dto';
+import { BuscarStatusFolhaOsUseCase } from '../application/use-cases/buscarStatusFolhaOs.useCase';
 import { CriarClienteUseCase } from '../application/use-cases/criarCliente.useCase';
 import { GerarQrCodeClienteUseCase } from '../application/use-cases/gerarQrCodeCliente.useCase';
 import { ImprimirFolhasOsUseCase } from '../application/use-cases/imprimirFolhasOs.useCase';
@@ -23,7 +24,9 @@ import type { QrCodeImageService } from '../infrastructure/services/qrCodeImage.
 describe('Cliente QR + Impressão Unit Tests', () => {
 	let clienteRepository: jest.Mocked<IClienteRepository>;
 	let folhaOsRepository: jest.Mocked<IFolhaOsRepository>;
-	let qrCodeImageService: jest.Mocked<Pick<QrCodeImageService, 'generateAndUpload' | 'destroy'>>;
+	let qrCodeImageService: jest.Mocked<
+		Pick<QrCodeImageService, 'generateAndUpload' | 'destroy' | 'buildScanUrl' | 'generatePngDataUrl'>
+	>;
 	let osFolhaPdfService: jest.Mocked<Pick<OsFolhaPdfService, 'generatePdf'>>;
 	let enderecoAdapterRepository: { create: jest.Mock };
 
@@ -32,9 +35,12 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 			create: jest.fn(),
 			findById: jest.fn(),
 			findByUsuarioId: jest.fn(),
+			findAllPaginated: jest.fn(),
+			countByStatus: jest.fn(),
 			update: jest.fn(),
 			updateQrToken: jest.fn(),
 			updateQrCode: jest.fn(),
+			updateLogo: jest.fn(),
 			softDelete: jest.fn(),
 		};
 
@@ -51,6 +57,11 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 				publicId: 'zorde/qr-codes/cliente-1',
 			}),
 			destroy: jest.fn(),
+			buildScanUrl: jest.fn(
+				(clienteId, token, codigoFolha) =>
+					`https://app.test/os/scan?c=${clienteId}&t=${token}${codigoFolha ? `&f=${codigoFolha}` : ''}`,
+			),
+			generatePngDataUrl: jest.fn().mockResolvedValue('data:image/png;base64,abc'),
 		};
 
 		osFolhaPdfService = {
@@ -234,6 +245,7 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 				clienteRepository,
 				folhaOsRepository,
 				osFolhaPdfService as unknown as OsFolhaPdfService,
+				qrCodeImageService as unknown as QrCodeImageService,
 			);
 
 			const result = await useCase.execute(10, 5, { quantidade: 3 });
@@ -251,9 +263,11 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 					expect.objectContaining({
 						nomeOtica: 'Mercadão',
 						codigoFolha: 'OS-10-000001',
+						qrCodeDataUrl: 'data:image/png;base64,abc',
 					}),
 				]),
 			);
+			expect(qrCodeImageService.buildScanUrl).toHaveBeenCalledWith(10, 't'.repeat(64), 'OS-10-000001');
 		});
 
 		it('rejects print when cliente has no QR image', async () => {
@@ -273,9 +287,69 @@ describe('Cliente QR + Impressão Unit Tests', () => {
 				clienteRepository,
 				folhaOsRepository,
 				osFolhaPdfService as unknown as OsFolhaPdfService,
+				qrCodeImageService as unknown as QrCodeImageService,
 			);
 
 			await expect(useCase.execute(10, 5, { quantidade: 1 })).rejects.toBeInstanceOf(BusinessRuleException);
+		});
+	});
+
+	describe('BuscarStatusFolhaOsUseCase', () => {
+		it('returns IMPRESSA status for valid folha', async () => {
+			folhaOsRepository.findByCodigoFolha.mockResolvedValue(
+				new FolhaOsImpressaEntity({
+					id: 1,
+					loteId: 1,
+					clienteId: 10,
+					usuarioId: 5,
+					codigoFolha: 'OS-10-000001',
+					status: StatusFolhaOs.IMPRESSA,
+				}),
+			);
+
+			const result = await new BuscarStatusFolhaOsUseCase(folhaOsRepository).execute('OS-10-000001', 10, 5);
+
+			expect(result).toEqual({
+				codigoFolha: 'OS-10-000001',
+				clienteId: 10,
+				status: StatusFolhaOs.IMPRESSA,
+				ordemDeServicoId: null,
+			});
+		});
+
+		it('returns 409 when folha already launched', async () => {
+			folhaOsRepository.findByCodigoFolha.mockResolvedValue(
+				new FolhaOsImpressaEntity({
+					id: 1,
+					loteId: 1,
+					clienteId: 10,
+					usuarioId: 5,
+					codigoFolha: 'OS-10-000001',
+					status: StatusFolhaOs.LANCADA,
+					ordemDeServicoId: 99,
+				}),
+			);
+
+			await expect(new BuscarStatusFolhaOsUseCase(folhaOsRepository).execute('OS-10-000001', 10, 5)).rejects.toBeInstanceOf(
+				ConflictException,
+			);
+		});
+
+		it('returns 404 when folha does not belong to cliente', async () => {
+			folhaOsRepository.findByCodigoFolha.mockResolvedValue(
+				new FolhaOsImpressaEntity({
+					id: 1,
+					loteId: 1,
+					clienteId: 99,
+					usuarioId: 5,
+					codigoFolha: 'OS-99-000001',
+					status: StatusFolhaOs.IMPRESSA,
+				}),
+			);
+
+			await expect(new BuscarStatusFolhaOsUseCase(folhaOsRepository).execute('OS-99-000001', 10, 5)).rejects.toBeInstanceOf(
+				EntityNotFoundException,
+			);
 		});
 	});
 });

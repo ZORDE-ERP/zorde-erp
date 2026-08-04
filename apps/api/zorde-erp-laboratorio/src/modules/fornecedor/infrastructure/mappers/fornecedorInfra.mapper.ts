@@ -28,6 +28,8 @@ export class FornecedorInfraMapper {
 			logradouro: raw.Endereco?.logradouro || null,
 			complemento: raw.Endereco?.complemento || null,
 			numeroEndereco: raw.numeroEndereco || null,
+			logoUrl: raw.logoUrl || null,
+			logoPublicId: raw.logoPublicId || null,
 		});
 	}
 

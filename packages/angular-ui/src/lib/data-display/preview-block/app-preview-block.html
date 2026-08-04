@@ -1,0 +1,13 @@
+<section class="rounded-sm-xl border border-border bg-surface shadow-sm">
+  <header class="border-b border-border px-5 py-4">
+    <h2 class="font-heading text-base font-semibold text-text-primary">
+      {{ title() }}
+    </h2>
+    @if (description()) {
+    <p class="mt-1 text-sm text-text-muted">{{ description() }}</p>
+    }
+  </header>
+  <div class="p-5">
+    <ng-content />
+  </div>
+</section>

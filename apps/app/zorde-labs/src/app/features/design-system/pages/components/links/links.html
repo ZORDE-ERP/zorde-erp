@@ -1,0 +1,24 @@
+<app-page-layout title="Links" description="Links inline e de navegação com variantes semânticas.">
+  <app-preview-block title="Variantes">
+    <div class="flex flex-wrap gap-6">
+      <a app-link href="#">Link padrão</a>
+      <a app-link variant="muted" href="#">Link muted</a>
+      <a app-link [routerLink]="['/playground']">Link de rota</a>
+    </div>
+  </app-preview-block>
+
+  <app-preview-block title="Em contexto">
+    <p class="max-w-leitura text-text-secondary">
+      Leia a documentação completa em
+      <a app-link href="#">nosso guia de componentes</a>
+      ou volte para a
+      <a app-link variant="muted" [routerLink]="['/playground']">visão geral</a>.
+    </p>
+  </app-preview-block>
+
+  <app-preview-block title="Sobre fundo escuro">
+    <div class="rounded-sm-lg bg-surface-inverse p-6">
+      <a app-link variant="inverse" href="#">Link inverse</a>
+    </div>
+  </app-preview-block>
+</app-page-layout>

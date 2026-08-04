@@ -1,15 +1,33 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseIntPipe,
+	Post,
+	Put,
+	Query,
+	UploadedFile,
+	UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { UserInfo } from 'src/shared/interfaces/user.interface';
 import { User } from '../../../../shared/decorators/user.decorator';
 import { ZodValidationPipe } from '../../../../shared/pipes/zod-validation.pipe';
 import {
 	type CreateFornecedorDto,
 	createFornecedorSchema,
+	type ListFornecedorQueryDto,
+	listFornecedorQuerySchema,
 	type UpdateFornecedorDto,
 	updateFornecedorSchema,
 } from '../../application/dtos/fornecedor.dto';
 import type { FornecedorResponseDto } from '../../application/dtos/fornecedorResponse.dto';
 import { FornecedorService } from '../../application/services/fornecedor.service';
+import type { ListFornecedoresResult } from '../../application/use-cases/listarFornecedores.useCase';
 
 @Controller('api/fornecedores')
 export class FornecedorController {
@@ -24,8 +42,30 @@ export class FornecedorController {
 	}
 
 	@Get()
-	public async listar(@User() user: UserInfo): Promise<FornecedorResponseDto[]> {
-		return this.fornecedorService.findByUsuarioId(user.userId);
+	public async listar(
+		@Query(new ZodValidationPipe(listFornecedorQuerySchema)) query: ListFornecedorQueryDto,
+		@User() user: UserInfo,
+	): Promise<ListFornecedoresResult> {
+		return this.fornecedorService.listar(query, user.userId);
+	}
+
+	@Post(':id/logo')
+	@UseInterceptors(FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }))
+	public async uploadLogo(
+		@Param('id', ParseIntPipe) id: number,
+		@UploadedFile() file: { buffer: Buffer; mimetype: string; size: number } | undefined,
+		@User() user: UserInfo,
+	): Promise<FornecedorResponseDto> {
+		return this.fornecedorService.uploadLogo(id, user.userId, {
+			buffer: file?.buffer ?? Buffer.alloc(0),
+			mimetype: file?.mimetype ?? '',
+			size: file?.size ?? 0,
+		});
+	}
+
+	@Delete(':id/logo')
+	public async removerLogo(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<FornecedorResponseDto> {
+		return this.fornecedorService.removerLogo(id, user.userId);
 	}
 
 	@Get(':id')

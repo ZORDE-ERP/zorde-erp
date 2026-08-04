@@ -14,7 +14,7 @@ export class BuscarUsuarioPorEmailUseCase {
 
 	public async execute(email: string): Promise<UsuarioResponseDto | null> {
 		const user = await this.usuarioRepository.buscarPorEmail(email);
-		if (!user) throw new EntityNotFoundException('Usuário não encontrado');
+		if (!user) throw new EntityNotFoundException('Credenciais inválidas');
 		return usuarioToResponse(user);
 	}
 }

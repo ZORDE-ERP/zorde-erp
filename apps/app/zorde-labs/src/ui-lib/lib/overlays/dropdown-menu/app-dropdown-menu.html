@@ -1,0 +1,44 @@
+<button
+  app-button
+  type="button"
+  variant="outline"
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  [attr.aria-expanded]="open()"
+  aria-haspopup="menu"
+  (click)="toggle()"
+>
+  {{ label() }}
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayViewportMargin]="8"
+  cdkConnectedOverlayPanelClass="app-dropdown-overlay"
+  (overlayOutsideClick)="onOutsideClick($event)"
+  (detach)="close()"
+>
+  <ul
+    class="z-popover min-w-48 overflow-hidden rounded-sm-lg border border-border bg-surface-elevated py-1 shadow-lg"
+    role="menu"
+  >
+    @for (item of items(); track item.value; let i = $index) {
+      <li role="none">
+        <button
+          class="flex w-full px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+          [class.bg-surface-muted]="activeIndex() === i"
+          type="button"
+          role="menuitem"
+          [disabled]="item.disabled"
+          (click)="selectItem(item)"
+        >
+          {{ item.label }}
+        </button>
+      </li>
+    }
+  </ul>
+</ng-template>

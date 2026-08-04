@@ -12,7 +12,7 @@ export class FindAllTabelaMontagemUseCase {
 	) {}
 
 	public async execute(
-		params: { page: number; limit: number; search?: string },
+		params: { page: number; limit: number; search?: string; clienteId?: number },
 		usuarioId: number,
 	): Promise<{ items: TabelaMontagemResponseDto[]; total: number }> {
 		const page = params.page > 0 ? params.page : 1;
@@ -23,6 +23,7 @@ export class FindAllTabelaMontagemUseCase {
 			page,
 			limit,
 			search,
+			clienteId: params.clienteId,
 			usuarioId,
 		});
 

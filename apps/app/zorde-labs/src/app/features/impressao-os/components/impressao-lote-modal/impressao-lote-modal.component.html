@@ -1,0 +1,87 @@
+<app-modal
+  [open]="open()"
+  title="Imprimir em lote"
+  description="Selecione os clientes e a quantidade de folhas de OS para cada um."
+  size="md"
+  [cancelLabel]="resultados() ? 'Fechar' : 'Cancelar'"
+  [confirmLabel]="resultados() ? null : 'Imprimir'"
+  [confirmLoading]="printing()"
+  [cancelDisabled]="printing()"
+  (closed)="onClose()"
+  (confirmed)="onConfirm()"
+>
+  <div class="flex flex-col gap-stack-lg">
+    @if (resultados(); as items) {
+      <ul class="flex flex-col gap-2">
+        @for (item of items; track item.clienteId) {
+          <li
+            class="flex items-center justify-between gap-3 rounded-sm-sm border border-border bg-surface-elevated px-3 py-2"
+          >
+            <span class="min-w-0 flex-1 truncate text-sm text-text-primary">{{ item.nome }}</span>
+            <app-badge [variant]="item.sucesso ? 'success' : 'error'">
+              {{ item.sucesso ? 'Sucesso' : 'Falha' }}
+            </app-badge>
+          </li>
+        }
+      </ul>
+
+      <button app-button type="button" variant="outline" (click)="onNovaImpressao()">
+        Nova impressão em lote
+      </button>
+    } @else {
+      <div class="flex flex-col gap-stack-md">
+        @for (row of rows(); track row.id) {
+          <div class="grid gap-3 sm:grid-cols-[1fr_7rem_auto] sm:items-end">
+            <app-field label="Cliente" [htmlFor]="'lote-cliente-' + row.id">
+              <app-cliente-select
+                [value]="row.clienteId"
+                (valueChange)="setClienteId(row.id, $event)"
+                [disabled]="printing()"
+              />
+            </app-field>
+
+            <app-field label="Quantidade" [htmlFor]="'lote-quantidade-' + row.id">
+              <input
+                app-input
+                type="number"
+                min="1"
+                [id]="'lote-quantidade-' + row.id"
+                [ngModel]="row.quantidade"
+                (ngModelChange)="setQuantidade(row.id, $event)"
+                [disabled]="printing()"
+              />
+            </app-field>
+
+            <button
+              app-icon-button
+              type="button"
+              label="Remover cliente"
+              [isDisabled]="printing() || rows().length === 1"
+              (click)="removeRow(row.id)"
+            >
+              <svg lucideTrash2 class="h-4 w-4" aria-hidden="true"></svg>
+            </button>
+          </div>
+        }
+      </div>
+
+      <button
+        app-button
+        type="button"
+        variant="outline"
+        [isDisabled]="printing()"
+        (click)="addRow()"
+      >
+        <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
+        Adicionar cliente
+      </button>
+
+      @if (printing()) {
+        <div class="flex items-center gap-2 text-sm text-text-muted">
+          <app-spinner size="sm" label="Imprimindo folhas de OS" />
+          Imprimindo {{ progress().current }} de {{ progress().total }}…
+        </div>
+      }
+    }
+  </div>
+</app-modal>

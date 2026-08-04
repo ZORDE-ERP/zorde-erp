@@ -1,0 +1,39 @@
+<app-page-layout title="Cards" description="Containers de conteúdo com header, corpo e footer opcionais.">
+	<div class="grid gap-6 lg:grid-cols-2">
+		<app-preview-block title="Card básico">
+			<article app-card>
+				<header app-card-header>
+					<h3 app-card-title>Análises pendentes</h3>
+					<p app-card-description>Resumo operacional do laboratório.</p>
+				</header>
+				<p app-card-body>12 amostras aguardando processamento na fila principal.</p>
+			</article>
+		</app-preview-block>
+
+		<app-preview-block title="Card elevado com ações">
+			<article app-card elevated>
+				<header app-card-header>
+					<h3 app-card-title>Resultado liberado</h3>
+					<p app-card-description>Paciente: Maria Silva</p>
+				</header>
+				<p app-card-body>O exame de hemograma foi validado e está pronto para entrega.</p>
+				<div app-card-footer class="flex justify-end gap-2">
+					<button app-button variant="outline" type="button">Detalhes</button>
+					<button app-button type="button">Imprimir</button>
+				</div>
+			</article>
+		</app-preview-block>
+
+		<app-preview-block title="Card com override de estilo">
+			<article app-card class="bg-surface-muted">
+				<header app-card-header class="text-center border-b-0">
+					<h3 app-card-title>Login centralizado</h3>
+					<p app-card-description>Header e tipografia sobrescritos via class.</p>
+				</header>
+				<div app-card-body class="grid gap-3">
+					<p>Body com grid em vez do fluxo padrão.</p>
+				</div>
+			</article>
+		</app-preview-block>
+	</div>
+</app-page-layout>

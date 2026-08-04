@@ -21,6 +21,7 @@ export interface FornecedorResponseDto {
 	observacao?: string | null;
 	numeroEndereco?: string | null;
 	usuarioId: number;
+	logoUrl?: string | null;
 	createdAt: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;

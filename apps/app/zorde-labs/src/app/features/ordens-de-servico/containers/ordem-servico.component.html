@@ -1,0 +1,42 @@
+<section class="flex w-full flex-col gap-stack-xl">
+  <app-page-header
+    title="Ordens de Serviço"
+    description="Lance e acompanhe as ordens de serviço do laboratório."
+  >
+    <button app-button type="button" class="w-full sm:w-auto" (click)="onCreate()">
+      <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
+      Nova Ordem de Serviço
+    </button>
+  </app-page-header>
+
+  <app-summary-cards [items]="summaryItems()" (cardClick)="onSummaryClick($event)" />
+
+  <app-ordem-servico-filtro
+    [filtroForm]="filtroForm"
+    (onClearFilter)="onClearFilter()"
+    (onSearch)="onSearch()"
+  />
+
+  <section aria-labelledby="os-lista-heading" class="min-w-0">
+    <h2 id="os-lista-heading" class="sr-only">Ordens de serviço</h2>
+    <article app-card class="min-h-80">
+      <div app-card-body class="min-w-0">
+        <app-ordens-servico-table
+          [rows]="rows()"
+          [totalItems]="total()"
+          [loading]="loading()"
+          [page]="page()"
+          [pageSize]="pageSize()"
+          (actionTriggered)="onRowAction($event)"
+          (paginationChanged)="onPaginationChange($event)"
+        />
+      </div>
+    </article>
+  </section>
+</section>
+
+<app-ordem-servico-create-modal
+  [open]="createOpen()"
+  (closed)="onCreateClosed()"
+  (created)="onCreated()"
+/>

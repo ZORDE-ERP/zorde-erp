@@ -1,0 +1,27 @@
+<app-filter-card
+  description="Busque e refine a listagem de clientes."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form class="contents">
+    <app-field label="Nome" htmlFor="cliente-nome">
+      <input
+        app-input
+        id="cliente-nome"
+        type="search"
+        autocomplete="off"
+        placeholder="Digite o nome do cliente"
+        [formField]="filtroForm().nome"
+        (input)="onNomeInput()"
+      />
+    </app-field>
+
+    <app-field label="Status" htmlFor="cliente-status">
+      <select app-select id="cliente-status" [formField]="filtroForm().status" (change)="onStatusChange()">
+        <option value="">Todos</option>
+        <option value="ATIVO">Ativo</option>
+        <option value="INATIVO">Inativo</option>
+      </select>
+    </app-field>
+  </form>
+</app-filter-card>

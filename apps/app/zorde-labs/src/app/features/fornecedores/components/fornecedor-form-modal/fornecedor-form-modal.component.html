@@ -1,0 +1,30 @@
+<app-modal
+  [open]="open()"
+  [title]="title()"
+  size="lg"
+  confirmLabel="Salvar"
+  [confirmLoading]="saving()"
+  (closed)="onClose()"
+  (confirmed)="onSubmit()"
+>
+  <div class="flex flex-col gap-stack-lg">
+    <app-tabs [tabs]="tabs()" [(activeTab)]="activeTab" />
+
+    @if (activeTab() === 'dados' || activeTab() === 'endereco') {
+      <app-pessoa-form
+        [(value)]="value"
+        [section]="activeTab() === 'endereco' ? 'endereco' : 'dados'"
+      />
+    }
+
+    @if (activeTab() === 'imagem') {
+      <app-file-upload
+        label="Logo do fornecedor"
+        [previewUrl]="previewLogoUrl()"
+        [loading]="logoLoading()"
+        (fileSelected)="onLogoSelected($event)"
+        (cleared)="onLogoCleared()"
+      />
+    }
+  </div>
+</app-modal>

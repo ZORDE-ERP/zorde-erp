@@ -1,0 +1,36 @@
+<app-filter-card
+  description="Filtre por status, cliente e período."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form class="contents">
+    <app-field label="Status" htmlFor="os-status">
+      <select app-select id="os-status" [formField]="filtroForm().status">
+        <option value="">Todos</option>
+        <option value="LANCADA">Lançada</option>
+        <option value="FATURADA">Faturada</option>
+        <option value="CANCELADA">Cancelada</option>
+      </select>
+    </app-field>
+
+    <app-field label="Cliente" htmlFor="os-cliente">
+      <app-cliente-select
+        [value]="filtroForm().clienteId().value()"
+        placeholder="Todos os clientes"
+        (valueChange)="onClienteIdChange($event)"
+      />
+    </app-field>
+
+    <app-field label="Data início" htmlFor="os-data-inicio">
+      <input app-input id="os-data-inicio" type="date" [formField]="filtroForm().dataInicio" />
+    </app-field>
+
+    <app-field label="Data fim" htmlFor="os-data-fim">
+      <input app-input id="os-data-fim" type="date" [formField]="filtroForm().dataFim" />
+    </app-field>
+
+    <div class="flex justify-end sm:col-span-2 lg:col-span-4">
+      <button app-button type="button" variant="secondary" (click)="onApply()">Aplicar filtros</button>
+    </div>
+  </form>
+</app-filter-card>

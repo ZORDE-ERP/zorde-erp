@@ -76,9 +76,10 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		page: number;
 		limit: number;
 		search?: string;
+		clienteId?: number;
 		usuarioId: number;
 	}): Promise<{ items: TabelaMontagemEntity[]; total: number }> {
-		const { page, limit, search, usuarioId } = params;
+		const { page, limit, search, clienteId, usuarioId } = params;
 		const skip = (page - 1) * limit;
 		const take = limit;
 
@@ -89,6 +90,10 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 				deletedAt: null,
 			},
 		};
+
+		if (clienteId != null) {
+			where.clienteId = clienteId;
+		}
 
 		if (search) {
 			where.OR = [
@@ -143,10 +148,9 @@ export class PrismaTabelaMontagemRepository implements ITabelaMontagemRepository
 		return TabelaMontagemInfraMapper.toDomain(updated);
 	}
 
-	public async softDelete(id: number, _usuarioId: number): Promise<void> {
-		await this.prisma.tabelaMontagem.update({
-			where: { id },
-			data: { deletedAt: new Date() },
+	public async deleteById(id: number, usuarioId: number): Promise<void> {
+		await this.prisma.tabelaMontagem.delete({
+			where: { id, AND: { Cliente: { usuarioId } } },
 		});
 	}
 }

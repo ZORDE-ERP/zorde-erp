@@ -1,0 +1,15 @@
+<app-filter-card
+  description="Busque e refine a listagem agrupada por cliente."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form class="contents">
+    <app-field label="Cliente" htmlFor="tabela-montagem-cliente">
+      <app-cliente-select
+        [value]="filtroForm().clienteId().value()"
+        placeholder="Todos os clientes"
+        (valueChange)="onClienteIdChange($event)"
+      />
+    </app-field>
+  </form>
+</app-filter-card>

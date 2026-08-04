@@ -1,0 +1,45 @@
+<section class="flex w-full flex-col gap-stack-xl">
+  <app-page-header
+    title="Tabela de Montagem"
+    description="Gerencie os serviços e valores vinculados a cada cliente."
+  >
+    <button app-button type="button" class="w-full sm:w-auto" (click)="onCreate()">
+      <svg lucidePlus class="h-4 w-4" aria-hidden="true"></svg>
+      Novo Vínculo
+    </button>
+  </app-page-header>
+
+  <app-tabela-montagem-filtro
+    (onClearFilter)="onClearFilter()"
+    (onSearch)="onSearch()"
+    [filtroForm]="filtroForm"
+  />
+
+  <section aria-labelledby="tabela-montagem-lista-heading" class="min-w-0">
+    <h2 id="tabela-montagem-lista-heading" class="sr-only">Clientes com serviços vinculados</h2>
+    <article app-card class="min-h-80">
+      <div app-card-body class="min-w-0">
+        <app-tabela-montagem-table
+          [rows]="aggregatedRows()"
+          [loading]="loading()"
+          (actionTriggered)="onRowAction($event)"
+        />
+      </div>
+    </article>
+  </section>
+
+  <app-tabela-montagem-ficha-modal
+    [open]="fichaOpen()"
+    [row]="fichaRow()"
+    [mode]="fichaMode()"
+    (closed)="onFichaClosed()"
+    (saved)="onFichaSaved()"
+  />
+
+  <app-tabela-montagem-create-modal
+    [open]="createOpen()"
+    [existingItens]="items()"
+    (closed)="onCreateClosed()"
+    (created)="onCreateCreated()"
+  />
+</section>

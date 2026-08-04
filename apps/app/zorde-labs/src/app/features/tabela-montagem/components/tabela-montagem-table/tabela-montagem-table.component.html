@@ -1,0 +1,12 @@
+<app-data-table
+  [rows]="rows()"
+  [columns]="columns"
+  [actions]="actions"
+  [rowId]="'clienteId'"
+  [totalItems]="rows().length"
+  [loading]="loading()"
+  [maxHeight]="'32rem'"
+  emptyTitle="Nenhum cliente com serviços vinculados"
+  emptyDescription="Cadastre um vínculo para vincular serviços a um cliente."
+  (actionTriggered)="onAction($event)"
+/>

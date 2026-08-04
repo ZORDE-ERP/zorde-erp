@@ -1,0 +1,20 @@
+<span class="relative inline-flex shrink-0" [attr.aria-label]="name()">
+  @if (src()) {
+  <img
+    class="rounded-full object-cover"
+    [class]="sizeClasses()"
+    [src]="src()"
+    [alt]="name()"
+  />
+  } @else {
+  <span
+    class="inline-flex items-center justify-center rounded-full bg-primary/10 font-semibold text-primary"
+    [class]="sizeClasses()"
+    aria-hidden="true"
+  >
+    {{ initials() }}
+  </span>
+  } @if (status()) {
+  <span [class]="statusClasses()" aria-hidden="true"></span>
+  }
+</span>

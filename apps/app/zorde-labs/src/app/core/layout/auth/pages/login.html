@@ -1,0 +1,107 @@
+<app-auth-layout>
+  <article app-card elevated>
+    <header app-card-header class="flex flex-col items-center gap-1 py-6">
+      <div
+        class="flex items-center font-heading text-3xl font-bold leading-none tracking-tight text-primary"
+        aria-hidden="true"
+      >
+        <span>Z</span>
+        <img
+          src="/logo-zorde-labs/zorde-icon-azul.svg"
+          alt=""
+          class="mx-0.5 h-[0.9em] w-[0.9em] shrink-0"
+        />
+        <span>RDE</span>
+      </div>
+      <div
+        class="font-heading text-3xl font-bold leading-none tracking-tight text-primary"
+        aria-hidden="true"
+      >
+        LABS
+      </div>
+      <span class="sr-only">Zorde Labs</span>
+    </header>
+
+    <form app-card-body class="flex flex-col gap-stack-lg" (submit)="salvar()">
+      <app-field
+        label="E-mail"
+        htmlFor="login-email"
+        [error]="
+          loginForm.email().touched() && loginForm.email().invalid()
+            ? (loginForm.email().errors()[0]?.message ?? null)
+            : null
+        "
+      >
+        <input
+          app-input
+          id="login-email"
+          type="email"
+          autocomplete="username"
+          placeholder="Digite seu e-mail"
+          [formField]="loginForm.email"
+          [hasError]="
+            (loginForm.email().touched() && loginForm.email().invalid()) ||
+            loginFacade.authError() !== null
+          "
+        />
+      </app-field>
+
+      <app-field
+        label="Senha"
+        htmlFor="login-senha"
+        [error]="
+          loginForm.senha().touched() && loginForm.senha().invalid()
+            ? (loginForm.senha().errors()[0]?.message ?? null)
+            : null
+        "
+      >
+        <input
+          app-input
+          id="login-senha"
+          type="password"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          [formField]="loginForm.senha"
+          [hasError]="
+            (loginForm.senha().touched() && loginForm.senha().invalid()) ||
+            loginFacade.authError() !== null
+          "
+        />
+      </app-field>
+
+      <div class="flex justify-between">
+        <label class="flex items-center gap-2 text-sm text-text-secondary">
+          <input type="checkbox" app-checkbox [formField]="loginForm.remember" />
+          Manter conectado
+        </label>
+
+        <a app-link [routerLink]="['/playground']">Esqueceu sua senha?</a>
+      </div>
+
+      <button
+        app-button
+        type="submit"
+        [isDisabled]="loginForm().invalid() || loginFacade.loading()"
+        [loading]="loginFacade.loading()"
+        class="w-full"
+      >
+        @if (loginFacade.loading()) {
+          <app-spinner size="sm" label="Autenticando" />
+        } @else {
+          Entrar
+        }
+      </button>
+
+      @if (loginFacade.authError() !== null) {
+        <p class="text-error font-bold text-center text-sm text-shadow-2xs">
+          {{ loginFacade.authError() }}
+        </p>
+      }
+
+      <p class="text-center text-sm text-text-muted">
+        <!-- <a app-link routerLink="/playground" href="/playground">Voltar ao playground</a> -->
+        <a app-link href="#">Solicitar acesso</a>
+      </p>
+    </form>
+  </article>
+</app-auth-layout>

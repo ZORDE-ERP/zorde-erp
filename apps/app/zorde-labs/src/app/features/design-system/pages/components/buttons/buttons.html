@@ -1,0 +1,30 @@
+<app-page-layout
+  title="Botões"
+  description="Variantes, tamanhos e estados prontos para receber o estilo do seu system design."
+>
+  <app-preview-block title="Variantes">
+    <div class="flex flex-wrap gap-3">
+      <button app-button type="button">Primary</button>
+      <button app-button variant="secondary" type="button">Secondary</button>
+      <button app-button variant="outline" type="button">Outline</button>
+      <button app-button variant="ghost" type="button">Ghost</button>
+      <button app-button variant="danger" type="button">Danger</button>
+      <button app-button variant="success" type="button">Success</button>
+    </div>
+  </app-preview-block>
+
+  <app-preview-block title="Tamanhos">
+    <div class="flex flex-wrap items-center gap-3">
+      <button app-button size="sm" type="button">Small</button>
+      <button app-button size="md" type="button">Medium</button>
+      <button app-button size="lg" type="button">Large</button>
+    </div>
+  </app-preview-block>
+
+  <app-preview-block title="Estados">
+    <div class="flex flex-wrap gap-3">
+      <button app-button type="button" [isDisabled]="true">Disabled</button>
+      <button app-button variant="outline" type="button">Focus me</button>
+    </div>
+  </app-preview-block>
+</app-page-layout>

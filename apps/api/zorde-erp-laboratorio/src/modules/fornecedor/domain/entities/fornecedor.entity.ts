@@ -21,6 +21,8 @@ interface FornecedorProps {
 	uf?: string | null;
 	ibge?: string | null;
 	numeroEndereco?: string | null;
+	logoUrl?: string | null;
+	logoPublicId?: string | null;
 	createdAt?: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;
@@ -46,6 +48,8 @@ export class FornecedorEntity {
 	private uf?: string | null;
 	private ibge?: string | null;
 	private numeroEndereco?: string | null;
+	private logoUrl?: string | null;
+	private logoPublicId?: string | null;
 	private createdAt?: Date | null;
 	private updatedAt?: Date | null;
 	private deletedAt?: Date | null;
@@ -70,6 +74,8 @@ export class FornecedorEntity {
 		this.uf = props.uf ?? null;
 		this.ibge = props.ibge ?? null;
 		this.numeroEndereco = props.numeroEndereco ?? null;
+		this.logoUrl = props.logoUrl ?? null;
+		this.logoPublicId = props.logoPublicId ?? null;
 		this.createdAt = props.createdAt ?? null;
 		this.updatedAt = props.updatedAt ?? null;
 		this.deletedAt = props.deletedAt ?? null;
@@ -161,5 +167,13 @@ export class FornecedorEntity {
 
 	public getIbge(): string | null {
 		return this.ibge ?? null;
+	}
+
+	public getLogoUrl(): string | null {
+		return this.logoUrl ?? null;
+	}
+
+	public getLogoPublicId(): string | null {
+		return this.logoPublicId ?? null;
 	}
 }

@@ -1,0 +1,16 @@
+<app-data-table
+  [rows]="rows()"
+  [columns]="columns"
+  [actions]="actions"
+  [serverPagination]="true"
+  [totalItems]="totalItems()"
+  [loading]="loading()"
+  [page]="page()"
+  [pageSize]="pageSize()"
+  [maxHeight]="'32rem'"
+  [selectable]="true"
+  emptyTitle="Nenhum serviço encontrado"
+  emptyDescription="Ajuste os filtros ou limpe-os para visualizar os dados."
+  (actionTriggered)="onAction($event)"
+  (paginationChanged)="onPaginationChange($event)"
+/>

@@ -1,0 +1,41 @@
+<app-modal
+  [open]="open()"
+  [title]="editing() ? 'Editar Serviço' : 'Novo Serviço'"
+  size="sm"
+  [confirmLabel]="editing() ? 'Editar' : 'Salvar'"
+  [confirmLoading]="saving()"
+  (closed)="onClose()"
+  (confirmed)="onSubmit()"
+>
+  <form class="flex flex-col gap-stack-lg" (ngSubmit)="onSubmit()">
+    <app-field
+      label="Nome"
+      htmlFor="servico-form-nome"
+      [required]="true"
+      [error]="
+        servicoForm().nome().touched() && servicoForm().nome().invalid()
+          ? (servicoForm().nome().errors()[0]?.message ?? null)
+          : null
+      "
+    >
+      <input
+        app-input
+        id="servico-form-nome"
+        type="text"
+        autocomplete="off"
+        placeholder="Digite o nome do serviço"
+        [formField]="servicoForm().nome"
+        [hasError]="servicoForm().nome().touched() && servicoForm().nome().invalid()"
+      />
+    </app-field>
+
+    <app-field label="Descrição" htmlFor="servico-form-descricao">
+      <textarea
+        app-textarea
+        id="servico-form-descricao"
+        placeholder="Descrição opcional do serviço"
+        [formField]="servicoForm().descricao"
+      ></textarea>
+    </app-field>
+  </form>
+</app-modal>

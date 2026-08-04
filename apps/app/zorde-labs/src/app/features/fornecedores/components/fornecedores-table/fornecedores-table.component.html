@@ -1,0 +1,15 @@
+<app-data-table
+  [rows]="rows()"
+  [columns]="columns"
+  [actions]="actions"
+  [serverPagination]="true"
+  [totalItems]="totalItems()"
+  [loading]="loading()"
+  [page]="page()"
+  [pageSize]="pageSize()"
+  [maxHeight]="'32rem'"
+  emptyTitle="Nenhum fornecedor encontrado"
+  emptyDescription="Ajuste os filtros ou cadastre um novo fornecedor."
+  (actionTriggered)="onAction($event)"
+  (paginationChanged)="onPaginationChange($event)"
+/>

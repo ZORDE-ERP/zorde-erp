@@ -14,8 +14,9 @@ export const updateTabelaMontagemSchema = z.object({
 
 export const listTabelaMontagemQuerySchema = z.object({
 	page: z.coerce.number().int().min(1).default(1),
-	limit: z.coerce.number().int().min(1).default(10),
+	limit: z.coerce.number().int().min(1).max(500).default(10),
 	search: z.string().optional().default(''),
+	clienteId: z.coerce.number().int().positive().optional(),
 });
 
 export type CreateTabelaMontagemDto = z.infer<typeof createTabelaMontagemSchema>;

@@ -1,0 +1,19 @@
+<app-layout
+	brand="Zorde Labs"
+	navbarTitle="Playground"
+	navbarSubtitle="Catálogo de componentes"
+	[notificationCount]="3"
+	[primaryItems]="primaryItems"
+	[groups]="groups"
+	[footerItems]="footerItems"
+	[user]="user"
+	[sidebarOpen]="sidebarOpen()"
+	[sidebarCollapsed]="sidebarCollapsed()"
+	(sidebarOpenChange)="onSidebarOpenChange($event)"
+	(sidebarCollapsedChange)="onSidebarCollapsedChange($event)"
+	(profileRequested)="onProfile()"
+	(logoutRequested)="onLogout()"
+	(notificationsClicked)="onNotifications()"
+>
+	<router-outlet />
+</app-layout>

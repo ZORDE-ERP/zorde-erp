@@ -1,0 +1,15 @@
+<app-data-table
+  [rows]="rows()"
+  [columns]="columns"
+  [actions]="actions"
+  [serverPagination]="true"
+  [totalItems]="totalItems()"
+  [loading]="loading()"
+  [page]="page()"
+  [pageSize]="pageSize()"
+  [maxHeight]="'32rem'"
+  emptyTitle="Nenhuma ordem de serviço encontrada"
+  emptyDescription="Ajuste os filtros ou lance uma nova OS."
+  (actionTriggered)="onAction($event)"
+  (paginationChanged)="onPaginationChange($event)"
+/>

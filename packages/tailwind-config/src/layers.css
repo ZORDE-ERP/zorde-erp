@@ -1,0 +1,17 @@
+@theme {
+	/* ── Camadas (z-index) ───────────────────────────────────────────── */
+	--z-index-content: 0;
+	--z-index-sticky: 20;
+	--z-index-sidebar: 30;
+	--z-index-backdrop: 40;
+	--z-index-drawer: 50;
+	--z-index-popover: 60;
+	--z-index-modal-backdrop: 70;
+	--z-index-modal: 80;
+	--z-index-toast: 90;
+
+	/* ── Motion ──────────────────────────────────────────────────────── */
+	--duration-fast: 150ms;
+	--duration-normal: 200ms;
+	--ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}

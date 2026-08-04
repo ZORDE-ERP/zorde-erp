@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { Endereco, Fornecedor } from '@prisma/client';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import { FornecedorEntity } from '../../domain/entities/fornecedor.entity';
-import { IFornecedorRepository } from '../../domain/repositories/fornecedor.repository';
+import type { IFornecedorRepository, UpdateFornecedorLogoData } from '../../domain/repositories/fornecedor.repository';
 import { FornecedorInfraMapper } from '../mappers/fornecedorInfra.mapper';
 
 @Injectable()
@@ -61,6 +61,63 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
 		return suppliers.map(FornecedorInfraMapper.toDomain);
 	}
 
+	public async findAllPaginated(params: {
+		page: number;
+		limit: number;
+		search?: string;
+		status?: string;
+		usuarioId: number;
+	}): Promise<{ items: FornecedorEntity[]; total: number }> {
+		const { page, limit, search, status, usuarioId } = params;
+		const skip = (page - 1) * limit;
+
+		const where: Record<string, unknown> = {
+			usuarioId,
+			deletedAt: null,
+		};
+
+		if (status) {
+			where.status = status;
+		}
+
+		const term = search?.trim();
+		if (term) {
+			where.OR = [
+				{ nome: { contains: term, mode: 'insensitive' } },
+				{ documento: { contains: term, mode: 'insensitive' } },
+				{ email: { contains: term, mode: 'insensitive' } },
+				{ nomeFantasia: { contains: term, mode: 'insensitive' } },
+				{ razaoSocial: { contains: term, mode: 'insensitive' } },
+			];
+		}
+
+		const [items, total] = await Promise.all([
+			this.prisma.fornecedor.findMany({
+				where,
+				skip,
+				take: limit,
+				include: { Endereco: true },
+				orderBy: { id: 'desc' },
+			}),
+			this.prisma.fornecedor.count({ where }),
+		]);
+
+		return {
+			items: items.map((item) => FornecedorInfraMapper.toDomain(item as Fornecedor & { Endereco: Endereco })),
+			total,
+		};
+	}
+
+	public async countByStatus(usuarioId: number): Promise<{ total: number; ativos: number; inativos: number }> {
+		const where = { usuarioId, deletedAt: null };
+		const [total, ativos, inativos] = await Promise.all([
+			this.prisma.fornecedor.count({ where }),
+			this.prisma.fornecedor.count({ where: { ...where, status: 'ATIVO' } }),
+			this.prisma.fornecedor.count({ where: { ...where, status: 'INATIVO' } }),
+		]);
+		return { total, ativos, inativos };
+	}
+
 	public async update(fornecedor: FornecedorEntity): Promise<FornecedorEntity> {
 		const updated = await this.prisma.fornecedor.update({
 			where: {
@@ -79,6 +136,26 @@ export class PrismaFornecedorRepository implements IFornecedorRepository {
 				razaoSocial: fornecedor.getRazaoSocial(),
 				nomeFantasia: fornecedor.getNomeFantasia(),
 				numeroEndereco: fornecedor.getNumeroEndereco(),
+				updatedAt: new Date(),
+			},
+			include: {
+				Endereco: true,
+			},
+		});
+		return FornecedorInfraMapper.toDomain(updated as Fornecedor & { Endereco: Endereco });
+	}
+
+	public async updateLogo(id: number, usuarioId: number, data: UpdateFornecedorLogoData): Promise<FornecedorEntity> {
+		const existing = await this.findById(id, usuarioId);
+		if (!existing) {
+			throw new Error('Fornecedor não encontrado');
+		}
+
+		const updated = await this.prisma.fornecedor.update({
+			where: { id },
+			data: {
+				logoUrl: data.logoUrl,
+				logoPublicId: data.logoPublicId,
 				updatedAt: new Date(),
 			},
 			include: {

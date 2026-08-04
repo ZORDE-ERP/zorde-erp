@@ -58,8 +58,9 @@ model Usuario {
   Fornecedores    Fornecedor[]
   Ordens          OrdemDeServico[]
   Servicos        Servico[]
-  LotesImpressao  LoteImpressaoOs[]
-  FolhasImpressas FolhaOsImpressa[]
+  LotesImpressao     LoteImpressaoOs[]
+  FolhasImpressas    FolhaOsImpressa[]
+  SequenciasCodigoOs SequenciaCodigoOs[]
   @@unique([email, documento, ativo], name: "uni_usuario_email_documento_ativo")
   @@schema("entidades")
 }
@@ -104,13 +105,16 @@ model Cliente {
   qrGeradoEm      DateTime?
   qrCodeUrl       String?
   qrCodePublicId  String?
+  logoUrl         String?
+  logoPublicId    String?
 
   Usuario         Usuario           @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   TabelasMontagem TabelaMontagem[]
   Ordens          OrdemDeServico[]
-  LotesImpressao  LoteImpressaoOs[]
-  FolhasImpressas FolhaOsImpressa[]
-  Endereco        Endereco?         @relation(fields: [cep], references: [cep], onDelete: Restrict, onUpdate: Cascade)
+  LotesImpressao     LoteImpressaoOs[]
+  FolhasImpressas    FolhaOsImpressa[]
+  SequenciasCodigoOs SequenciaCodigoOs[]
+  Endereco           Endereco?         @relation(fields: [cep], references: [cep], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([usuarioId])
   @@index([documento])
@@ -136,6 +140,8 @@ model Fornecedor {
   razaoSocial    String?
   nomeFantasia   String?
   numeroEndereco String?
+  logoUrl        String?
+  logoPublicId   String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime? @updatedAt
   deletedAt      DateTime?
@@ -214,6 +220,21 @@ model LoteImpressaoOs {
   @@index([clienteId])
   @@index([usuarioId])
   @@index([usuarioId, clienteId])
+  @@schema("entidades")
+}
+
+model SequenciaCodigoOs {
+  id            Int      @id @default(autoincrement())
+  usuarioId     Int
+  clienteId     Int
+  proximoNumero Int      @default(1)
+  updatedAt     DateTime @updatedAt
+
+  Usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([usuarioId, clienteId], name: "uni_sequencia_codigo_os_usuario_cliente")
+  @@index([clienteId])
   @@schema("entidades")
 }
 

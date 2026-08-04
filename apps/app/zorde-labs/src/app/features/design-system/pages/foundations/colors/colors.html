@@ -1,0 +1,21 @@
+<app-page-layout
+  title="Cores"
+  description="Tokens semânticos neutros. Altere os valores em packages/tailwind-config/src/colors.css para testar suas paletas."
+>
+  @for (group of groups; track group.title) {
+    <app-preview-block [title]="group.title">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        @for (token of group.tokens; track token.variable) {
+          <div class="overflow-hidden rounded-sm-lg border border-border">
+            <div class="h-20" [class]="token.className"></div>
+            <div class="space-y-1 p-3">
+              <p class="text-sm font-medium text-text-primary">{{ token.name }}</p>
+              <p class="font-mono text-xs text-text-muted">{{ token.variable }}</p>
+              <p class="font-mono text-xs text-text-muted">{{ token.className }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </app-preview-block>
+  }
+</app-page-layout>

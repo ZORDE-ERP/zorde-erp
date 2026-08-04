@@ -25,6 +25,8 @@ interface ClienteProps {
 	qrGeradoEm?: Date | null;
 	qrCodeUrl?: string | null;
 	qrCodePublicId?: string | null;
+	logoUrl?: string | null;
+	logoPublicId?: string | null;
 	createdAt?: Date | null;
 	updatedAt?: Date | null;
 	deletedAt?: Date | null;
@@ -53,6 +55,8 @@ export class ClienteEntity {
 	private qrGeradoEm?: Date | null;
 	private qrCodeUrl?: string | null;
 	private qrCodePublicId?: string | null;
+	private logoUrl?: string | null;
+	private logoPublicId?: string | null;
 	private createdAt?: Date | null;
 	private updatedAt?: Date | null;
 	private deletedAt?: Date | null;
@@ -81,6 +85,8 @@ export class ClienteEntity {
 		this.qrGeradoEm = props.qrGeradoEm ?? null;
 		this.qrCodeUrl = props.qrCodeUrl ?? null;
 		this.qrCodePublicId = props.qrCodePublicId ?? null;
+		this.logoUrl = props.logoUrl ?? null;
+		this.logoPublicId = props.logoPublicId ?? null;
 		this.createdAt = props.createdAt ?? null;
 		this.updatedAt = props.updatedAt ?? null;
 		this.deletedAt = props.deletedAt ?? null;
@@ -188,5 +194,13 @@ export class ClienteEntity {
 
 	public getQrCodePublicId(): string | null {
 		return this.qrCodePublicId ?? null;
+	}
+
+	public getLogoUrl(): string | null {
+		return this.logoUrl ?? null;
+	}
+
+	public getLogoPublicId(): string | null {
+		return this.logoPublicId ?? null;
 	}
 }

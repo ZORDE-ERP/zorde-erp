@@ -62,5 +62,18 @@ export const createFornecedorSchema = z
 		},
 	);
 
+export const listFornecedorQuerySchema = z.object({
+	page: z.coerce.number().int().min(1).default(1),
+	limit: z.coerce.number().int().min(1).max(100).default(10),
+	search: z.string().optional().default(''),
+	status: z
+		.string()
+		.optional()
+		.transform((value): StatusPessoa | undefined =>
+			value === StatusPessoa.ATIVO || value === StatusPessoa.INATIVO ? value : undefined,
+		),
+});
+
 export type CreateFornecedorDto = z.infer<typeof createFornecedorSchema>;
 export type UpdateFornecedorDto = z.infer<typeof updateFornecedorSchema>;
+export type ListFornecedorQueryDto = z.infer<typeof listFornecedorQuerySchema>;

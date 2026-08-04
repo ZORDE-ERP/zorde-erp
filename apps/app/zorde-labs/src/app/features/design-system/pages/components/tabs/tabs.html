@@ -1,0 +1,19 @@
+<app-page-layout title="Tabs" description="Navegação entre seções relacionadas dentro de uma mesma tela.">
+	<app-preview-block title="Detalhes da ordem de serviço">
+		<app-tabs [tabs]="orderTabs" [(activeTab)]="activeOrderTab" />
+
+		<div class="pt-4">
+			@switch (activeOrderTab()) {
+				@case ('geral') {
+					<p class="text-sm text-text-secondary">Dados gerais da ordem de serviço, cliente e status.</p>
+				}
+				@case ('itens') {
+					<p class="text-sm text-text-secondary">Lista de itens e serviços vinculados a esta ordem.</p>
+				}
+				@case ('historico') {
+					<p class="text-sm text-text-secondary">Linha do tempo de eventos e alterações da ordem.</p>
+				}
+			}
+		</div>
+	</app-preview-block>
+</app-page-layout>

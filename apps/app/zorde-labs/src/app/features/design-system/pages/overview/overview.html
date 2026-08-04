@@ -1,0 +1,23 @@
+<app-page-layout
+	title="Visão geral"
+	description="Use este playground para validar tokens e componentes antes de aplicar o system design na aplicação."
+>
+	@for (group of navigation; track group.title) {
+		<section class="space-y-4">
+			<h2 class="font-heading text-xl font-semibold text-text-primary">{{ group.title }}</h2>
+			<div class="grid gap-4 md:grid-cols-2">
+				@for (item of group.items; track item.path) {
+					<article app-card>
+						<header app-card-header>
+							<h3 app-card-title>{{ item.label }}</h3>
+							<p app-card-description>{{ item.description }}</p>
+						</header>
+						<p app-card-body>
+							<a app-link [routerLink]="item.path">Abrir seção</a>
+						</p>
+					</article>
+				}
+			</div>
+		</section>
+	}
+</app-page-layout>

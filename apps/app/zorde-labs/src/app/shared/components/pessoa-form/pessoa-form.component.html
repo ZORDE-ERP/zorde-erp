@@ -1,0 +1,294 @@
+<div class="flex flex-col gap-stack-xl">
+  @if (showDados()) {
+    <section aria-labelledby="pessoa-form-dados-heading" class="flex flex-col gap-stack-md">
+      <h3
+        id="pessoa-form-dados-heading"
+        class="font-heading text-base font-semibold text-text-primary"
+        [class.sr-only]="!showSectionHeading()"
+      >
+        Dados Pessoais
+      </h3>
+
+      <div class="grid grid-cols-12 gap-4">
+        <app-field label="Nome completo" htmlFor="pessoa-nome" [required]="true" class="col-span-12">
+          <input
+            app-input
+            id="pessoa-nome"
+            name="pessoa-nome"
+            type="text"
+            autocomplete="off"
+            placeholder="Digite o nome completo"
+            [ngModel]="value().nome"
+            (ngModelChange)="setField('nome', $event)"
+          />
+        </app-field>
+
+        <app-field label="Tipo de Pessoa" htmlFor="pessoa-tipo" class="col-span-12 sm:col-span-4">
+          <select
+            app-select
+            id="pessoa-tipo"
+            name="pessoa-tipo"
+            [ngModel]="value().tipoPessoa"
+            (ngModelChange)="onTipoPessoaChange($event)"
+          >
+            <option value="FISICA">Física</option>
+            <option value="JURIDICA">Jurídica</option>
+          </select>
+        </app-field>
+
+        <app-field label="Status" htmlFor="pessoa-status" class="col-span-12 sm:col-span-4">
+          <select
+            app-select
+            id="pessoa-status"
+            name="pessoa-status"
+            [ngModel]="value().status"
+            (ngModelChange)="setField('status', $event)"
+          >
+            <option value="ATIVO">Ativo</option>
+            <option value="INATIVO">Inativo</option>
+          </select>
+        </app-field>
+
+        @if (!isJuridica()) {
+          <app-field
+            label="CPF"
+            htmlFor="pessoa-documento"
+            hint="Somente números; a máscara é aplicada automaticamente."
+            class="col-span-12 sm:col-span-4"
+          >
+            <input
+              app-input
+              appCpfMask
+              id="pessoa-documento"
+              name="pessoa-documento"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="000.000.000-00"
+              [ngModel]="value().documento"
+              (ngModelChange)="onDocumentoChange($event)"
+            />
+          </app-field>
+        } @else {
+          <app-field
+            label="CNPJ"
+            htmlFor="pessoa-documento"
+            hint="Ao completar o CNPJ, buscamos os dados automaticamente."
+            class="col-span-12 sm:col-span-4"
+          >
+            <div class="flex items-center gap-2">
+              <input
+                app-input
+                appCnpjMask
+                id="pessoa-documento"
+                name="pessoa-documento"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="00.000.000/0000-00"
+                class="flex-1"
+                [ngModel]="value().documento"
+                (ngModelChange)="onDocumentoChange($event)"
+              />
+              @if (cnpjLoading()) {
+                <app-spinner size="sm" label="Buscando dados do CNPJ" />
+              }
+            </div>
+            @if (cnpjWarning()) {
+              <p class="text-xs text-text-muted">Busca automática indisponível, preencha manualmente.</p>
+            }
+          </app-field>
+        }
+
+        <app-field label="E-mail" htmlFor="pessoa-email" [required]="true" class="col-span-12 sm:col-span-6">
+          <input
+            app-input
+            id="pessoa-email"
+            name="pessoa-email"
+            type="email"
+            autocomplete="off"
+            placeholder="nome@email.com"
+            [ngModel]="value().email"
+            (ngModelChange)="setField('email', $event)"
+          />
+        </app-field>
+
+        <app-field label="Contato" htmlFor="pessoa-contato" class="col-span-12 sm:col-span-6">
+          <input
+            app-input
+            appTelefoneMask
+            id="pessoa-contato"
+            name="pessoa-contato"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="(00) 00000-0000"
+            [ngModel]="value().contato"
+            (ngModelChange)="setField('contato', $event)"
+          />
+        </app-field>
+
+        @if (isJuridica()) {
+          <app-field label="Razão Social" htmlFor="pessoa-razao-social" class="col-span-12 sm:col-span-6">
+            <input
+              app-input
+              id="pessoa-razao-social"
+              name="pessoa-razao-social"
+              type="text"
+              autocomplete="off"
+              placeholder="Razão social"
+              [ngModel]="value().razaoSocial"
+              (ngModelChange)="setField('razaoSocial', $event)"
+            />
+          </app-field>
+
+          <app-field label="Nome Fantasia" htmlFor="pessoa-nome-fantasia" class="col-span-12 sm:col-span-6">
+            <input
+              app-input
+              id="pessoa-nome-fantasia"
+              name="pessoa-nome-fantasia"
+              type="text"
+              autocomplete="off"
+              placeholder="Nome fantasia"
+              [ngModel]="value().nomeFantasia"
+              (ngModelChange)="setField('nomeFantasia', $event)"
+            />
+          </app-field>
+        }
+
+        <app-field label="Observações" htmlFor="pessoa-observacao" class="col-span-12">
+          <textarea
+            app-textarea
+            id="pessoa-observacao"
+            name="pessoa-observacao"
+            placeholder="Observações adicionais"
+            [ngModel]="value().observacao"
+            (ngModelChange)="setField('observacao', $event)"
+          ></textarea>
+        </app-field>
+      </div>
+    </section>
+  }
+
+  @if (showEndereco()) {
+    <section aria-labelledby="pessoa-form-endereco-heading" class="flex flex-col gap-stack-md">
+      <h3
+        id="pessoa-form-endereco-heading"
+        class="font-heading text-base font-semibold text-text-primary"
+        [class.sr-only]="!showSectionHeading()"
+      >
+        Endereço
+      </h3>
+
+      <div class="grid grid-cols-12 gap-4">
+        <app-field
+          label="CEP"
+          htmlFor="pessoa-cep"
+          hint="Ao completar o CEP, buscamos o endereço automaticamente."
+          class="col-span-12 sm:col-span-3"
+        >
+          <div class="flex items-center gap-2">
+            <input
+              app-input
+              appCepMask
+              id="pessoa-cep"
+              name="pessoa-cep"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="00000-000"
+              class="flex-1"
+              [ngModel]="value().cep"
+              (ngModelChange)="onCepChange($event)"
+            />
+            @if (cepLoading()) {
+              <app-spinner size="sm" label="Buscando endereço do CEP" />
+            }
+          </div>
+          @if (cepWarning()) {
+            <p class="text-xs text-text-muted">Busca automática indisponível, preencha manualmente.</p>
+          }
+        </app-field>
+
+        <app-field label="UF" htmlFor="pessoa-uf" class="col-span-12 sm:col-span-2">
+          <input
+            app-input
+            id="pessoa-uf"
+            name="pessoa-uf"
+            type="text"
+            maxlength="2"
+            autocomplete="off"
+            placeholder="UF"
+            [ngModel]="value().uf"
+            (ngModelChange)="setField('uf', $event)"
+          />
+        </app-field>
+
+        <app-field label="Cidade" htmlFor="pessoa-cidade" class="col-span-12 sm:col-span-4">
+          <input
+            app-input
+            id="pessoa-cidade"
+            name="pessoa-cidade"
+            type="text"
+            autocomplete="off"
+            placeholder="Cidade"
+            [ngModel]="value().cidade"
+            (ngModelChange)="setField('cidade', $event)"
+          />
+        </app-field>
+
+        <app-field label="Bairro" htmlFor="pessoa-bairro" class="col-span-12 sm:col-span-3">
+          <input
+            app-input
+            id="pessoa-bairro"
+            name="pessoa-bairro"
+            type="text"
+            autocomplete="off"
+            placeholder="Bairro"
+            [ngModel]="value().bairro"
+            (ngModelChange)="setField('bairro', $event)"
+          />
+        </app-field>
+
+        <app-field label="Logradouro" htmlFor="pessoa-logradouro" class="col-span-12 sm:col-span-8">
+          <input
+            app-input
+            id="pessoa-logradouro"
+            name="pessoa-logradouro"
+            type="text"
+            autocomplete="off"
+            placeholder="Rua, avenida, etc."
+            [ngModel]="value().logradouro"
+            (ngModelChange)="setField('logradouro', $event)"
+          />
+        </app-field>
+
+        <app-field label="Número" htmlFor="pessoa-numero" class="col-span-12 sm:col-span-2">
+          <input
+            app-input
+            id="pessoa-numero"
+            name="pessoa-numero"
+            type="text"
+            autocomplete="off"
+            placeholder="Número"
+            [ngModel]="value().numeroEndereco"
+            (ngModelChange)="onNumeroChange($event)"
+          />
+        </app-field>
+
+        <app-field label="Complemento" htmlFor="pessoa-complemento" class="col-span-12 sm:col-span-2">
+          <input
+            app-input
+            id="pessoa-complemento"
+            name="pessoa-complemento"
+            type="text"
+            autocomplete="off"
+            placeholder="Apto, bloco, sala..."
+            [ngModel]="value().complemento"
+            (ngModelChange)="setField('complemento', $event)"
+          />
+        </app-field>
+      </div>
+    </section>
+  }
+</div>

@@ -1,0 +1,89 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"cli": {
+		"packageManager": "npm"
+	},
+	"newProjectRoot": "projects",
+	"projects": {
+		"zorde-labs": {
+			"projectType": "application",
+			"schematics": {},
+			"root": "",
+			"sourceRoot": "src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular/build:application",
+					"options": {
+						"browser": "src/main.ts",
+						"tsConfig": "tsconfig.app.json",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "public"
+							}
+						],
+						"styles": ["src/styles.css"]
+					},
+					"configurations": {
+						"production": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "500kB",
+									"maximumError": "1MB"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "4kB",
+									"maximumError": "8kB"
+								}
+							],
+							"outputHashing": "all",
+							"server": "src/main.server.ts",
+							"outputMode": "static"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.development.ts"
+								}
+							]
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "@angular/build:dev-server",
+					"configurations": {
+						"production": {
+							"buildTarget": "zorde-labs:build:production"
+						},
+						"development": {
+							"buildTarget": "zorde-labs:build:development"
+						}
+					},
+					"defaultConfiguration": "development",
+					"options": {
+						"allowedHosts": [
+							".ngrok-free.app",
+							".ngrok-free.dev",
+							"bartender-shopper-overtake.ngrok-free.dev",
+							"7ea9-2804-1254-800f-9500-e0d4-62b5-3230-2.ngrok-free.app",
+							"73ba-2804-128-9532-6700-9d6b-617f-94d3-d5b.ngrok-free.app",
+							"ca90-189-113-18-248.ngrok-free.app"
+						]
+					}
+				},
+				"test": {
+					"builder": "@angular/build:unit-test"
+				}
+			}
+		}
+	}
+}

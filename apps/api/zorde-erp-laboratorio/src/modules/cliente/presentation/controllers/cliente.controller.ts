@@ -13,7 +13,10 @@ import {
 	Query,
 	Res,
 	StreamableFile,
+	UploadedFile,
+	UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import type { UserInfo } from 'src/shared/interfaces/user.interface';
 import { User } from '../../../../shared/decorators/user.decorator';
@@ -23,6 +26,8 @@ import {
 	atualizarClienteSchema,
 	type CriarClienteDto,
 	criarClienteSchema,
+	type ListClienteQueryDto,
+	listClienteQuerySchema,
 } from '../../application/dtos/cliente.dto';
 import type { ClienteQrCodeResponseDto } from '../../application/dtos/clienteQrCodeResponse.dto';
 import type { ClienteResponseDto } from '../../application/dtos/clienteResponse.dto';
@@ -32,6 +37,7 @@ import {
 	tabelaMontagemPorQrQuerySchema,
 } from '../../application/dtos/tabelaMontagemPorQr.dto';
 import { ClienteService } from '../../application/services/cliente.service';
+import type { ListClientesResult } from '../../application/use-cases/listarClientes.useCase';
 import type { TabelaMontagemPorQrItemDto } from '../../application/use-cases/listarTabelaMontagemPorQr.useCase';
 
 @Controller('api/clientes')
@@ -47,8 +53,11 @@ export class ClienteController {
 	}
 
 	@Get()
-	public async listar(@User() user: UserInfo): Promise<ClienteResponseDto[]> {
-		return this.clientService.findByUsuarioId(user.userId);
+	public async listar(
+		@Query(new ZodValidationPipe(listClienteQuerySchema)) query: ListClienteQueryDto,
+		@User() user: UserInfo,
+	): Promise<ListClientesResult> {
+		return this.clientService.listar(query, user.userId);
 	}
 
 	@Post(':id/qrcode')
@@ -57,6 +66,25 @@ export class ClienteController {
 		@User() user: UserInfo,
 	): Promise<ClienteQrCodeResponseDto> {
 		return this.clientService.gerarQrCode(id, user.userId);
+	}
+
+	@Post(':id/logo')
+	@UseInterceptors(FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }))
+	public async uploadLogo(
+		@Param('id', ParseIntPipe) id: number,
+		@UploadedFile() file: { buffer: Buffer; mimetype: string; size: number } | undefined,
+		@User() user: UserInfo,
+	): Promise<ClienteResponseDto> {
+		return this.clientService.uploadLogo(id, user.userId, {
+			buffer: file?.buffer ?? Buffer.alloc(0),
+			mimetype: file?.mimetype ?? '',
+			size: file?.size ?? 0,
+		});
+	}
+
+	@Delete(':id/logo')
+	public async removerLogo(@Param('id', ParseIntPipe) id: number, @User() user: UserInfo): Promise<ClienteResponseDto> {
+		return this.clientService.removerLogo(id, user.userId);
 	}
 
 	@Post(':id/impressao-os')

@@ -8,6 +8,7 @@ import {
 	EntityNotFoundException,
 	ForbiddenException,
 } from '../../../shared/errors/app.exception';
+import type { ReservarCodigosOsService } from '../../../shared/infra/services/reservarCodigosOs.service';
 import { GerarQrCodeClienteUseCase } from '../../cliente/application/use-cases/gerarQrCodeCliente.useCase';
 import { ListarTabelaMontagemPorQrUseCase } from '../../cliente/application/use-cases/listarTabelaMontagemPorQr.useCase';
 import { ClienteEntity } from '../../cliente/domain/entities/cliente.entity';
@@ -77,6 +78,7 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 	let tabelaRepository: jest.Mocked<ITabelaMontagemRepository>;
 	let orderRepository: jest.Mocked<IServiceOrderRepository>;
 	let folhaOsRepository: jest.Mocked<IFolhaOsRepository>;
+	let reservarCodigosOsService: jest.Mocked<Pick<ReservarCodigosOsService, 'reservar'>>;
 	let qrCodeImageService: jest.Mocked<Pick<QrCodeImageService, 'generateAndUpload' | 'destroy'>>;
 
 	beforeEach(() => {
@@ -119,6 +121,10 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 			vincularOrdem: jest.fn(),
 		};
 
+		reservarCodigosOsService = {
+			reservar: jest.fn().mockResolvedValue(['OS-10-000001']),
+		};
+
 		qrCodeImageService = {
 			generateAndUpload: jest.fn().mockResolvedValue({
 				secureUrl: 'https://res.cloudinary.com/demo/image/upload/qr-novo.svg',
@@ -129,7 +135,13 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 	});
 
 	const createUseCase = (): CreateServiceOrderUseCase =>
-		new CreateServiceOrderUseCase(orderRepository, clienteRepository, tabelaRepository, folhaOsRepository);
+		new CreateServiceOrderUseCase(
+			orderRepository,
+			clienteRepository,
+			tabelaRepository,
+			folhaOsRepository,
+			reservarCodigosOsService as unknown as ReservarCodigosOsService,
+		);
 
 	describe('createOrderSchema', () => {
 		it('rejects item without tabelaMontagemId and without descricaoManual', () => {
@@ -137,6 +149,22 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 				clienteId: 10,
 				origem: 'MANUAL',
 				itens: [{ quantidade: 1, valorUnitario: 10, origemValor: 'MANUAL' }],
+			});
+			expect(result.success).toBe(false);
+		});
+
+		it('rejects QR_SCAN without codigoFolha', () => {
+			const result = createOrderSchema.safeParse({
+				clienteId: 10,
+				origem: 'QR_SCAN',
+				itens: [
+					{
+						descricaoManual: 'X',
+						quantidade: 1,
+						valorUnitario: 10,
+						origemValor: 'MANUAL',
+					},
+				],
 			});
 			expect(result.success).toBe(false);
 		});
@@ -160,10 +188,10 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 	});
 
 	describe('CreateServiceOrderUseCase', () => {
-		it('creates OS via QR_SCAN with multiple table items', async () => {
+		it('creates OS via QR_SCAN with folha and multiple table items', async () => {
 			clienteRepository.findById.mockResolvedValue(mockCliente);
 			tabelaRepository.findByIds.mockResolvedValue([tabela25, tabela40]);
-			orderRepository.countByCliente.mockResolvedValue(0);
+			folhaOsRepository.findByCodigoFolha.mockResolvedValue(folhaImpressa);
 			orderRepository.createWithItems.mockImplementation(async (data) => {
 				return new ServiceOrderEntity({
 					id: 1,
@@ -195,6 +223,7 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 				{
 					clienteId: 10,
 					origem: OrigemOrdemServico.QR_SCAN,
+					codigoFolha: 'OS-10-000077',
 					itens: [
 						{
 							tabelaMontagemId: 7,
@@ -214,15 +243,16 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 			);
 
 			expect(result.origem).toBe(OrigemOrdemServico.QR_SCAN);
+			expect(result.codigoOs).toBe('OS-10-000077');
 			expect(result.itens).toHaveLength(2);
 			expect(result.valorTotal).toBe(105);
 			expect(orderRepository.createWithItems).toHaveBeenCalled();
 		});
 
-		it('creates manual OS with standalone item', async () => {
+		it('creates manual OS with standalone item using shared sequence', async () => {
 			clienteRepository.findById.mockResolvedValue(mockCliente);
 			tabelaRepository.findByIds.mockResolvedValue([]);
-			orderRepository.countByCliente.mockResolvedValue(2);
+			reservarCodigosOsService.reservar.mockResolvedValue(['OS-10-000003']);
 			orderRepository.createWithItems.mockImplementation(async (data) => {
 				return new ServiceOrderEntity({
 					id: 2,
@@ -262,16 +292,17 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 
 			expect(result.itens[0].descricaoManual).toBe('Reparo de armação');
 			expect(result.valorTotal).toBe(30);
-			expect(result.codigoOs).toBe('OS-10-00003');
+			expect(result.codigoOs).toBe('OS-10-000003');
+			expect(reservarCodigosOsService.reservar).toHaveBeenCalledWith(10, 5, 1);
 		});
 
 		it('links printed sheet by codigoFolha', async () => {
 			clienteRepository.findById.mockResolvedValue(mockCliente);
 			tabelaRepository.findByIds.mockResolvedValue([]);
 			folhaOsRepository.findByCodigoFolha.mockResolvedValue(folhaImpressa);
-			orderRepository.countByCliente.mockResolvedValue(0);
 			orderRepository.createWithItems.mockImplementation(async (data) => {
 				expect(data.folhaId).toBe(77);
+				expect(data.codigoOs).toBe('OS-10-000077');
 				return new ServiceOrderEntity({
 					id: 8,
 					codigoOs: data.codigoOs,
@@ -345,6 +376,30 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 			).rejects.toBeInstanceOf(ConflictException);
 		});
 
+		it('rejects unknown printed code for cliente', async () => {
+			clienteRepository.findById.mockResolvedValue(mockCliente);
+			folhaOsRepository.findByCodigoFolha.mockResolvedValue(null);
+
+			await expect(
+				createUseCase().execute(
+					{
+						clienteId: 10,
+						origem: OrigemOrdemServico.MANUAL,
+						codigoFolha: 'OS-10-999999',
+						itens: [
+							{
+								descricaoManual: 'X',
+								quantidade: 1,
+								valorUnitario: 10,
+								origemValor: OrigemValorItem.MANUAL,
+							},
+						],
+					},
+					5,
+				),
+			).rejects.toThrow('Não existe este código impresso para este cliente');
+		});
+
 		it('rejects folha from another cliente', async () => {
 			clienteRepository.findById.mockResolvedValue(mockCliente);
 			folhaOsRepository.findById.mockResolvedValue(
@@ -364,6 +419,28 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 						clienteId: 10,
 						origem: OrigemOrdemServico.QR_SCAN,
 						folhaId: 88,
+						itens: [
+							{
+								descricaoManual: 'X',
+								quantidade: 1,
+								valorUnitario: 10,
+								origemValor: OrigemValorItem.MANUAL,
+							},
+						],
+					},
+					5,
+				),
+			).rejects.toBeInstanceOf(BusinessRuleException);
+		});
+
+		it('rejects QR_SCAN without codigoFolha at use case level', async () => {
+			clienteRepository.findById.mockResolvedValue(mockCliente);
+
+			await expect(
+				createUseCase().execute(
+					{
+						clienteId: 10,
+						origem: OrigemOrdemServico.QR_SCAN,
 						itens: [
 							{
 								descricaoManual: 'X',
@@ -404,7 +481,7 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 		it('uses vigente table price when origemValor=TABELA even if payload is outdated', async () => {
 			clienteRepository.findById.mockResolvedValue(mockCliente);
 			tabelaRepository.findByIds.mockResolvedValue([tabela25]);
-			orderRepository.countByCliente.mockResolvedValue(0);
+			folhaOsRepository.findByCodigoFolha.mockResolvedValue(folhaImpressa);
 			orderRepository.createWithItems.mockImplementation(async (data) => {
 				return new ServiceOrderEntity({
 					id: 3,
@@ -429,6 +506,7 @@ describe('OrdemDeServico + QR Unit Tests', () => {
 				{
 					clienteId: 10,
 					origem: OrigemOrdemServico.QR_SCAN,
+					codigoFolha: 'OS-10-000077',
 					itens: [
 						{
 							tabelaMontagemId: 7,

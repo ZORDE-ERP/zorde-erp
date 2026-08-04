@@ -1,0 +1,57 @@
+<app-page-layout
+	title="Feedback"
+	description="Alertas, badges, spinners, skeletons e toasts para comunicação contextual com o usuário."
+>
+	<app-preview-block title="Alertas">
+		<div class="grid max-w-2xl gap-3">
+			<app-alert variant="info" title="Informação">
+				Nova atualização disponível para o módulo de laudos.
+			</app-alert>
+			<app-alert variant="success" title="Sucesso">
+				Resultado liberado e enviado ao paciente.
+			</app-alert>
+			<app-alert variant="warning" title="Atenção">
+				Revise os dados antes de confirmar a liberação.
+			</app-alert>
+			<app-alert variant="error" title="Erro">
+				Não foi possível sincronizar com o laboratório externo.
+			</app-alert>
+		</div>
+	</app-preview-block>
+
+	<app-preview-block title="Badges">
+		<div class="flex flex-wrap gap-3">
+			<app-badge>Neutro</app-badge>
+			<app-badge variant="primary">Primário</app-badge>
+			<app-badge variant="success">Concluído</app-badge>
+			<app-badge variant="warning">Pendente</app-badge>
+			<app-badge variant="error">Recusado</app-badge>
+			<app-badge variant="info">Em análise</app-badge>
+		</div>
+	</app-preview-block>
+
+	<app-preview-block title="Spinner">
+		<div class="flex flex-wrap items-center gap-6">
+			<app-spinner size="sm" label="Carregando pequeno" />
+			<app-spinner size="md" label="Carregando" />
+			<app-spinner size="lg" label="Carregando grande" />
+		</div>
+	</app-preview-block>
+
+	<app-preview-block title="Skeleton">
+		<div class="max-w-md space-y-3">
+			<app-skeleton size="sm" />
+			<app-skeleton size="md" />
+			<app-skeleton size="lg" />
+		</div>
+	</app-preview-block>
+
+	<app-preview-block title="Toast">
+		<div class="flex flex-wrap gap-3">
+			<button app-button type="button" (click)="showToast('success')">Success</button>
+			<button app-button variant="secondary" type="button" (click)="showToast('info')">Info</button>
+			<button app-button variant="outline" type="button" (click)="showToast('warning')">Warning</button>
+			<button app-button variant="danger" type="button" (click)="showToast('error')">Error</button>
+		</div>
+	</app-preview-block>
+</app-page-layout>

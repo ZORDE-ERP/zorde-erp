@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../infra/database/prisma/prisma.service';
 import { StatusFolhaOs } from '../../../../shared/enums/folha-os.enum';
+import { ReservarCodigosOsService } from '../../../../shared/infra/services/reservarCodigosOs.service';
 import { FolhaOsImpressaEntity } from '../../domain/entities/folhaOsImpressa.entity';
 import type { CreateLoteComFolhasResult, IFolhaOsRepository } from '../../domain/repositories/folhaOs.repository';
 
 @Injectable()
 export class PrismaFolhaOsRepository implements IFolhaOsRepository {
-	public constructor(private readonly prisma: PrismaService) {}
+	public constructor(
+		private readonly prisma: PrismaService,
+		private readonly reservarCodigosOsService: ReservarCodigosOsService,
+	) {}
 
 	public async createLoteComFolhas(params: {
 		clienteId: number;
@@ -16,6 +20,8 @@ export class PrismaFolhaOsRepository implements IFolhaOsRepository {
 		const { clienteId, usuarioId, quantidade } = params;
 
 		return this.prisma.$transaction(async (tx) => {
+			const codigos = await this.reservarCodigosOsService.reservarInTransaction(tx, clienteId, usuarioId, quantidade);
+
 			const lote = await tx.loteImpressaoOs.create({
 				data: {
 					clienteId,
@@ -26,25 +32,18 @@ export class PrismaFolhaOsRepository implements IFolhaOsRepository {
 
 			const folhas: FolhaOsImpressaEntity[] = [];
 
-			for (let i = 0; i < quantidade; i++) {
-				const tempCodigo = `TEMP-${lote.id}-${i}-${Date.now()}`;
+			for (const codigoFolha of codigos) {
 				const created = await tx.folhaOsImpressa.create({
 					data: {
 						loteId: lote.id,
 						clienteId,
 						usuarioId,
-						codigoFolha: tempCodigo,
+						codigoFolha,
 						status: 'IMPRESSA',
 					},
 				});
 
-				const codigoFolha = `OS-${clienteId}-${String(created.id).padStart(6, '0')}`;
-				const updated = await tx.folhaOsImpressa.update({
-					where: { id: created.id },
-					data: { codigoFolha },
-				});
-
-				folhas.push(this.toDomain(updated));
+				folhas.push(this.toDomain(created));
 			}
 
 			return {

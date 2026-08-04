@@ -1,0 +1,86 @@
+<header
+  class="sticky top-0 z-sticky border-b border-sidebar-active-border/30 bg-sidebar-bg text-sidebar-text"
+>
+  <div class="flex items-center justify-between gap-4 px-4 py-3 lg:px-6">
+    <div class="flex items-center gap-3">
+      <button
+        class="inline-flex h-11 w-11 items-center justify-center rounded-sm-sm border border-white/15 text-sidebar-text hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover lg:hidden"
+        type="button"
+        aria-label="Abrir menu"
+        (click)="toggleMenu()"
+      >
+        <svg lucideMenu class="h-5 w-5" aria-hidden="true"></svg>
+      </button>
+      <div>
+        <p class="text-caps text-xs font-semibold text-sidebar-text/70">{{ title() }}</p>
+        <p class="text-sm font-medium text-sidebar-text-active">{{ subtitle() }}</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        class="relative inline-flex h-11 w-11 items-center justify-center rounded-sm-sm border border-white/15 text-sidebar-text hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
+        type="button"
+        aria-label="Notificações"
+        (click)="onNotifications()"
+      >
+        <svg lucideBell class="h-5 w-5" aria-hidden="true"></svg>
+        @if (notificationCount() > 0) {
+          <span
+            class="absolute top-1.5 right-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-sm-full bg-error px-1 text-[10px] font-semibold text-white"
+          >
+            {{ notificationCount() }}
+          </span>
+        }
+      </button>
+
+      @if (user(); as currentUser) {
+        <div class="relative">
+          <button
+            class="inline-flex items-center gap-2 rounded-sm-full p-1 hover:bg-sidebar-hover/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-hover"
+            type="button"
+            [attr.aria-expanded]="userMenuOpen()"
+            aria-haspopup="menu"
+            aria-label="Menu do usuário"
+            (click)="toggleUserMenu()"
+          >
+            <app-avatar
+              [name]="currentUser.nome"
+              [src]="currentUser.avatarSrc"
+              [status]="currentUser.status ?? null"
+              size="sm"
+            />
+          </button>
+
+          @if (userMenuOpen()) {
+            <ul
+              class="absolute right-0 z-popover mt-2 min-w-44 overflow-hidden rounded-sm-lg border border-border bg-surface py-1 shadow-lg"
+              role="menu"
+            >
+              <li role="none">
+                <button
+                  class="flex w-full px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-muted"
+                  type="button"
+                  role="menuitem"
+                  (click)="onProfile()"
+                >
+                  Perfil
+                </button>
+              </li>
+              <li role="none">
+                <button
+                  class="flex w-full px-3 py-2 text-left text-sm text-error hover:bg-error-muted"
+                  type="button"
+                  role="menuitem"
+                  (click)="onLogout()"
+                >
+                  Sair
+                </button>
+              </li>
+            </ul>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</header>

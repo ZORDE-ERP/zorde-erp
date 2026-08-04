@@ -1,0 +1,15 @@
+<app-filter-card
+  description="Busque e refine a listagem de clientes para impressão de OS."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form class="contents">
+    <app-field label="Cliente" htmlFor="impressao-os-cliente">
+      <app-cliente-select
+        [value]="filtroForm().clienteId().value()"
+        placeholder="Todos os clientes"
+        (valueChange)="onClienteIdChange($event)"
+      />
+    </app-field>
+  </form>
+</app-filter-card>

@@ -1,0 +1,27 @@
+<app-filter-card
+  description="Busque e refine a listagem de fornecedores."
+  [(expanded)]="filterExpanded"
+  (cleared)="onClearFilters()"
+>
+  <form class="contents">
+    <app-field label="Nome" htmlFor="fornecedor-nome">
+      <input
+        app-input
+        id="fornecedor-nome"
+        type="search"
+        autocomplete="off"
+        placeholder="Digite o nome do fornecedor"
+        [formField]="filtroForm().nome"
+        (input)="onNomeInput()"
+      />
+    </app-field>
+
+    <app-field label="Status" htmlFor="fornecedor-status">
+      <select app-select id="fornecedor-status" [formField]="filtroForm().status" (change)="onStatusChange()">
+        <option value="">Todos</option>
+        <option value="ATIVO">Ativo</option>
+        <option value="INATIVO">Inativo</option>
+      </select>
+    </app-field>
+  </form>
+</app-filter-card>

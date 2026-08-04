@@ -1,0 +1,42 @@
+<app-modal
+  [open]="open()"
+  title="Novo vínculo"
+  description="Selecione um cliente e um serviço para cadastrar o valor de montagem."
+  size="md"
+  confirmLabel="Salvar"
+  [confirmLoading]="saving()"
+  [confirmDisabled]="!canSubmit() || isDuplicate()"
+  [cancelDisabled]="saving()"
+  (closed)="onClose()"
+  (confirmed)="onSubmit()"
+>
+  <div class="grid grid-cols-12 gap-4">
+    <app-field label="Cliente" htmlFor="criar-vinculo-cliente" class="col-span-12">
+      <app-cliente-select [(value)]="clienteId" placeholder="Buscar cliente..." />
+    </app-field>
+
+    <app-field label="Serviço" htmlFor="criar-vinculo-servico" class="col-span-12 sm:col-span-8">
+      <app-servico-select [(value)]="servicoId" placeholder="Buscar serviço..." />
+    </app-field>
+
+    <app-field
+      label="Valor"
+      htmlFor="criar-vinculo-valor"
+      class="col-span-12 sm:col-span-4"
+      [error]="isDuplicate() ? 'Este cliente já possui esse serviço vinculado.' : null"
+    >
+      <input
+        app-input
+        appBrlCurrencyMask
+        id="criar-vinculo-valor"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="R$ 0,00"
+        [hasError]="isDuplicate()"
+        [ngModel]="valor()"
+        (ngModelChange)="valor.set($event)"
+      />
+    </app-field>
+  </div>
+</app-modal>

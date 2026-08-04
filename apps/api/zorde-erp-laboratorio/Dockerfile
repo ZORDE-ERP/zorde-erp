@@ -15,8 +15,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json tsconfig.json tsconfig.build.json nest-cli.json webpack.config.js ./
 COPY prisma ./prisma
 COPY src ./src
-# Generate Prisma Client and build
-RUN npx prisma generate
+# Generate Prisma Client and build (schema path passado explicitamente pois
+# prisma.config.ts não é copiado para a imagem e depende de dotenv/.env locais)
+RUN npx prisma generate --schema=prisma/zordeLabs.prisma
 RUN npm run build
 
 # Stage 3: runner
@@ -37,9 +38,8 @@ RUN chown -R nestjs:nestjs /app
 
 USER nestjs
 
-EXPOSE 3000
+EXPOSE 8080
 
-ENV PORT=3000
 ENV NODE_ENV=production
 
 CMD ["node", "dist/main.js"]
